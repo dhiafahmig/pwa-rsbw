@@ -21,28 +21,31 @@ type PasienRawatInap struct {
 
 // Response structure
 type PasienListResponse struct {
-	Status  string            `json:"status"`
-	Message string            `json:"message"`
-	Total   int               `json:"total"`
-	Data    []PasienRawatInap `json:"data"`
-	Filter  FilterInfo        `json:"filter"`
+	Status     string            `json:"status"`
+	Message    string            `json:"message"`
+	Total      int               `json:"total"`
+	Data       []PasienRawatInap `json:"data"`
+	DokterInfo DokterInfo        `json:"dokter_info"` // ✅ Ganti filter jadi dokter_info
 }
 
-type FilterInfo struct {
-	DPJP        string `json:"dpjp"`
-	NamaDokter  string `json:"nama_dokter"`
+// ✅ Info dokter yang login
+type DokterInfo struct {
+	KodeDokter  string `json:"kd_dokter"`
+	NamaDokter  string `json:"nm_dokter"`
+	NoTelp      string `json:"no_telp"`
 	TanggalList string `json:"tanggal_list"`
 }
 
-// Dokter DPJP list
-type DokterDPJP struct {
-	KodeDokter string `json:"kd_dokter" gorm:"column:kd_dokter"`
-	NamaDokter string `json:"nm_dokter" gorm:"column:nm_dokter"`
-	NoTelp     string `json:"no_telp" gorm:"column:no_telp"`
+// Dokter profile
+type DokterProfile struct {
+	KodeDokter   string `json:"kd_dokter" gorm:"column:kd_dokter"`
+	NamaDokter   string `json:"nm_dokter" gorm:"column:nm_dokter"`
+	NoTelp       string `json:"no_telp" gorm:"column:no_telp"`
+	Spesialisasi string `json:"spesialisasi" gorm:"column:spesialisasi"`
 }
 
-type DokterListResponse struct {
-	Status  string       `json:"status"`
-	Message string       `json:"message"`
-	Data    []DokterDPJP `json:"data"`
+type DokterProfileResponse struct {
+	Status  string        `json:"status"`
+	Message string        `json:"message"`
+	Data    DokterProfile `json:"data"`
 }

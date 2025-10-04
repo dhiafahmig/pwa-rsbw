@@ -6,9 +6,9 @@ import (
 )
 
 type PasienService interface {
-	GetDokterDPJP() (*DokterListResponse, error)
-	GetPasienAktif(kdDokter string) (*PasienListResponse, error)
-	GetDetailPasien(noRawat string) (*PasienRawatInap, error)
+	GetPasienAktifByDokter(kdDokter string) (*PasienListResponse, error)
+	GetDetailPasien(noRawat string, kdDokter string) (*PasienRawatInap, error)
+	GetDokterProfile(kdDokter string) (*DokterProfileResponse, error)
 }
 
 type pasienService struct {
@@ -21,68 +21,70 @@ func NewPasienService(pasienRepo PasienRepository) PasienService {
 	}
 }
 
-func (s *pasienService) GetDokterDPJP() (*DokterListResponse, error) {
-	fmt.Println("🔍 Getting DPJP list...")
+// ✅ Auto filter by dokter yang login
+func (s *pasienService) GetPasienAktifByDokter(kdDokter string) (*PasienListResponse, error) {
+	fmt.Printf("🔍 Getting active patients for doctor: %s\n", kdDokter)
 
-	dokterList, err := s.pasienRepo.GetDokterDPJPWithActivePatients()
-	if err != nil {
-		fmt.Printf("❌ Error getting DPJP: %v\n", err)
-		return nil, err
+	if kdDokter == "" {
+		return nil, fmt.Errorf("kode dokter not found")
 	}
 
-	fmt.Printf("✅ Found %d DPJP with active patients\n", len(dokterList))
-
-	return &DokterListResponse{
-		Status:  "success",
-		Message: "DPJP list retrieved successfully",
-		Data:    dokterList,
-	}, nil
-}
-
-func (s *pasienService) GetPasienAktif(kdDokter string) (*PasienListResponse, error) {
-	fmt.Printf("🔍 Getting active patients for DPJP: %s\n", kdDokter)
-
-	pasienList, err := s.pasienRepo.GetPasienRawatInapAktif(kdDokter)
+	pasienList, err := s.pasienRepo.GetPasienRawatInapByDokter(kdDokter)
 	if err != nil {
 		fmt.Printf("❌ Error getting patients: %v\n", err)
 		return nil, err
 	}
 
-	filterInfo := FilterInfo{
-		DPJP:        kdDokter,
+	// ✅ Build dokter info from first patient (jika ada)
+	dokterInfo := DokterInfo{
+		KodeDokter:  kdDokter,
 		TanggalList: time.Now().Format("02-01-2006 15:04:05") + " WIB",
 	}
 
-	// Set nama dokter jika ada data
 	if len(pasienList) > 0 {
-		filterInfo.NamaDokter = pasienList[0].NamaDokter
+		dokterInfo.NamaDokter = pasienList[0].NamaDokter
+		dokterInfo.NoTelp = pasienList[0].NoTelp
 	}
 
-	message := fmt.Sprintf("Found %d active patients", len(pasienList))
-	if kdDokter != "" {
-		message += " for selected DPJP"
-	}
-
+	message := fmt.Sprintf("Found %d active patients for your DPJP", len(pasienList))
 	fmt.Printf("✅ %s\n", message)
 
 	return &PasienListResponse{
-		Status:  "success",
-		Message: message,
-		Total:   len(pasienList),
-		Data:    pasienList,
-		Filter:  filterInfo,
+		Status:     "success",
+		Message:    message,
+		Total:      len(pasienList),
+		Data:       pasienList,
+		DokterInfo: dokterInfo,
 	}, nil
 }
 
-func (s *pasienService) GetDetailPasien(noRawat string) (*PasienRawatInap, error) {
-	fmt.Printf("🔍 Getting patient detail for: %s\n", noRawat)
+func (s *pasienService) GetDetailPasien(noRawat string, kdDokter string) (*PasienRawatInap, error) {
+	fmt.Printf("🔍 Getting patient detail for: %s by doctor: %s\n", noRawat, kdDokter)
 
-	pasien, err := s.pasienRepo.GetPasienDetail(noRawat)
+	pasien, err := s.pasienRepo.GetPasienDetail(noRawat, kdDokter)
 	if err != nil {
-		fmt.Printf("❌ Patient not found: %v\n", err)
+		fmt.Printf("❌ Patient not found or not your DPJP: %v\n", err)
 		return nil, err
 	}
 
 	fmt.Printf("✅ Patient detail found: %s\n", pasien.NamaPasien)
 	return pasien, nil
+}
+
+func (s *pasienService) GetDokterProfile(kdDokter string) (*DokterProfileResponse, error) {
+	fmt.Printf("🔍 Getting doctor profile: %s\n", kdDokter)
+
+	dokter, err := s.pasienRepo.GetDokterProfile(kdDokter)
+	if err != nil {
+		fmt.Printf("❌ Doctor not found: %v\n", err)
+		return nil, err
+	}
+
+	fmt.Printf("✅ Doctor profile found: %s\n", dokter.NamaDokter)
+
+	return &DokterProfileResponse{
+		Status:  "success",
+		Message: "Doctor profile retrieved successfully",
+		Data:    *dokter,
+	}, nil
 }

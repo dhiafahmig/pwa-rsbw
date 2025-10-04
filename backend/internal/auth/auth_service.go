@@ -28,19 +28,20 @@ func NewAuthService(authRepo AuthRepository, jwtSecret string) AuthService {
 func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	fmt.Printf("🔍 Login attempt - ID: %s\n", idUser)
 
-	// Get user using AES decrypt query (sama seperti PHP)
-	_, err := s.authRepo.GetUserByCredentials(idUser, password)
+	// ✅ Get user dengan kode dokter
+	user, err := s.authRepo.GetUserByCredentials(idUser, password)
 	if err != nil {
 		fmt.Printf("❌ Login failed: %v\n", err)
 		return nil, errors.New("invalid credentials")
 	}
 
-	fmt.Printf("✅ Login successful for user: %s\n", idUser)
+	fmt.Printf("✅ Login successful for user: %s, Dokter: %s\n", idUser, user.KodeDokter)
 
-	// Generate JWT token
-	expirationTime := time.Now().Add(30 * time.Minute) // 30 minutes
+	// ✅ Generate JWT dengan kode dokter
+	expirationTime := time.Now().Add(30 * time.Minute)
 	claims := &JWTClaims{
-		IDUser: idUser, // Use plain text id_user untuk JWT
+		IDUser:     idUser,
+		KodeDokter: user.KodeDokter, // ✅ Include kode dokter di JWT
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -57,9 +58,10 @@ func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	fmt.Printf("✅ JWT token generated successfully\n")
 
 	return &LoginResponse{
-		Token:     tokenString,
-		IDUser:    idUser,
-		ExpiresAt: expirationTime.Unix(),
+		Token:      tokenString,
+		IDUser:     idUser,
+		KodeDokter: user.KodeDokter, // ✅ Include di response
+		ExpiresAt:  expirationTime.Unix(),
 	}, nil
 }
 

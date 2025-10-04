@@ -21,12 +21,16 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 func (r *authRepository) GetUserByCredentials(idUser, password string) (*User, error) {
 	var user User
 
-	// Raw query sama persis seperti PHP
+	// ✅ Query dengan JOIN ke tabel dokter untuk get kode dokter
 	err := r.db.Raw(`
-        SELECT id_user, password 
-        FROM user 
-        WHERE AES_DECRYPT(id_user, 'nur') = ? 
-        AND AES_DECRYPT(password, 'windi') = ?
+        SELECT 
+            u.id_user, 
+            u.password, 
+            COALESCE(d.kd_dokter, '') as kd_dokter
+        FROM user u
+        LEFT JOIN dokter d ON AES_DECRYPT(u.id_user, 'nur') = d.kd_dokter
+        WHERE AES_DECRYPT(u.id_user, 'nur') = ? 
+        AND AES_DECRYPT(u.password, 'windi') = ?
     `, idUser, password).Scan(&user).Error
 
 	if err != nil {

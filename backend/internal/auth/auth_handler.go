@@ -45,7 +45,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// Middleware untuk validate JWT token
+// ✅ Middleware untuk validate JWT token dengan kode dokter
 func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -80,8 +80,9 @@ func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set user info in context
+		// ✅ Set user info dan kode dokter di context
 		c.Set("id_user", claims.IDUser)
+		c.Set("kd_dokter", claims.KodeDokter) // ✅ Tambah kode dokter
 		c.Next()
 	}
 }

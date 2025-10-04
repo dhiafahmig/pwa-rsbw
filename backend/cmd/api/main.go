@@ -5,7 +5,7 @@ import (
 	"pwa-rsbw/internal/auth"
 	"pwa-rsbw/internal/config"
 	"pwa-rsbw/internal/database"
-	listranap "pwa-rsbw/internal/listranap" // ✅ Tambahkan import ini
+	"pwa-rsbw/internal/listranap"
 
 	"github.com/gin-gonic/gin"
 )
@@ -35,7 +35,7 @@ func main() {
 	// Setup router
 	r := gin.Default()
 
-	// CORS middleware (opsional untuk PWA)
+	// CORS middleware
 	r.Use(func(c *gin.Context) {
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -68,32 +68,35 @@ func main() {
 	protectedRoutes := r.Group("/api/v1")
 	protectedRoutes.Use(authHandler.JWTMiddleware())
 	{
+		// ✅ Profile dengan info dokter
 		protectedRoutes.GET("/profile", func(c *gin.Context) {
 			idUser := c.GetString("id_user")
+			kdDokter := c.GetString("kd_dokter")
 			c.JSON(200, gin.H{
 				"status": "success",
 				"data": gin.H{
-					"id_user": idUser,
-					"message": "This is protected route",
+					"id_user":   idUser,
+					"kd_dokter": kdDokter,
+					"message":   "This is protected route",
 				},
 			})
 		})
 	}
 
-	// ✅ List-ranap routes (protected)
+	// ✅ List-ranap routes (auto-filter by logged doctor)
 	ranapRoutes := protectedRoutes.Group("/ranap")
 	{
-		ranapRoutes.GET("/dpjp", listRanapHandler.GetDokterDPJP)
-		ranapRoutes.GET("/pasien", listRanapHandler.GetPasienRawatInapAktif)
-		ranapRoutes.GET("/pasien/:no_rawat", listRanapHandler.GetPasienDetail)
+		ranapRoutes.GET("/profile", listRanapHandler.GetDokterProfile)         // Profile dokter
+		ranapRoutes.GET("/pasien", listRanapHandler.GetPasienRawatInapAktif)   // My patients only
+		ranapRoutes.GET("/pasien/:no_rawat", listRanapHandler.GetPasienDetail) // Patient detail if my DPJP
 	}
 
 	log.Printf("🚀 Server starting on port %s", cfg.ServerPort)
 	log.Printf("🌍 Environment: %s", cfg.Environment)
 	log.Printf("🔗 Health check: http://localhost:%s/health", cfg.ServerPort)
 	log.Printf("🔐 Login endpoint: http://localhost:%s/api/v1/auth/login", cfg.ServerPort)
-	log.Printf("🏥 DPJP endpoint: http://localhost:%s/api/v1/ranap/dpjp", cfg.ServerPort)
-	log.Printf("👥 Patients endpoint: http://localhost:%s/api/v1/ranap/pasien", cfg.ServerPort)
+	log.Printf("👨‍⚕️ Doctor profile: http://localhost:%s/api/v1/ranap/profile", cfg.ServerPort)
+	log.Printf("👥 My patients: http://localhost:%s/api/v1/ranap/pasien", cfg.ServerPort)
 
 	r.Run(":" + cfg.ServerPort)
 }

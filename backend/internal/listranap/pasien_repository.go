@@ -5,9 +5,9 @@ import (
 )
 
 type PasienRepository interface {
-	GetDokterDPJPWithActivePatients() ([]DokterDPJP, error)
-	GetPasienRawatInapAktif(kdDokter string) ([]PasienRawatInap, error)
-	GetPasienDetail(noRawat string) (*PasienRawatInap, error)
+	GetPasienRawatInapByDokter(kdDokter string) ([]PasienRawatInap, error)
+	GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error)
+	GetDokterProfile(kdDokter string) (*DokterProfile, error)
 }
 
 type pasienRepository struct {
@@ -20,31 +20,11 @@ func NewPasienRepository(db *gorm.DB) PasienRepository {
 	}
 }
 
-func (r *pasienRepository) GetDokterDPJPWithActivePatients() ([]DokterDPJP, error) {
-	var dokterList []DokterDPJP
-
-	// Query sama seperti PHP untuk dapat dokter yang punya pasien aktif
-	query := `
-        SELECT DISTINCT d.kd_dokter, d.nm_dokter, d.no_telp
-        FROM dokter d 
-        JOIN dpjp_ranap dr ON d.kd_dokter = dr.kd_dokter
-        JOIN kamar_inap ki ON dr.no_rawat = ki.no_rawat
-        WHERE ki.stts_pulang = '-'
-        ORDER BY d.nm_dokter
-    `
-
-	err := r.db.Raw(query).Scan(&dokterList).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return dokterList, nil
-}
-
-func (r *pasienRepository) GetPasienRawatInapAktif(kdDokter string) ([]PasienRawatInap, error) {
+// ✅ SELALU filter by kode dokter (tidak optional lagi)
+func (r *pasienRepository) GetPasienRawatInapByDokter(kdDokter string) ([]PasienRawatInap, error) {
 	var pasienList []PasienRawatInap
 
-	// Query utama sama persis seperti PHP
+	// ✅ Query SELALU filter by kode dokter
 	query := `
         SELECT
             ki.no_rawat,
@@ -66,25 +46,20 @@ func (r *pasienRepository) GetPasienRawatInapAktif(kdDokter string) ([]PasienRaw
         JOIN kamar k ON ki.kd_kamar = k.kd_kamar
         JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
         LEFT JOIN penjab pj ON rp.kd_pj = pj.kd_pj
-        WHERE ki.stts_pulang = '-'
+        WHERE ki.stts_pulang = '-' AND d.kd_dokter = ?
+        ORDER BY b.nm_bangsal, k.kd_kamar, ki.tgl_masuk
     `
 
-	// Tambahkan filter DPJP jika ada
-	if kdDokter != "" {
-		query += " AND d.kd_dokter = ?"
-		query += " ORDER BY b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
-
-		err := r.db.Raw(query, kdDokter).Scan(&pasienList).Error
-		return pasienList, err
-	} else {
-		query += " ORDER BY b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
-
-		err := r.db.Raw(query).Scan(&pasienList).Error
-		return pasienList, err
+	err := r.db.Raw(query, kdDokter).Scan(&pasienList).Error
+	if err != nil {
+		return nil, err
 	}
+
+	return pasienList, nil
 }
 
-func (r *pasienRepository) GetPasienDetail(noRawat string) (*PasienRawatInap, error) {
+// ✅ Detail pasien hanya jika dokter yang login adalah DPJP-nya
+func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error) {
 	var pasien PasienRawatInap
 
 	query := `
@@ -108,13 +83,42 @@ func (r *pasienRepository) GetPasienDetail(noRawat string) (*PasienRawatInap, er
         JOIN kamar k ON ki.kd_kamar = k.kd_kamar
         JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
         LEFT JOIN penjab pj ON rp.kd_pj = pj.kd_pj
-        WHERE ki.stts_pulang = '-' AND ki.no_rawat = ?
+        WHERE ki.stts_pulang = '-' 
+        AND ki.no_rawat = ? 
+        AND d.kd_dokter = ?
     `
 
-	err := r.db.Raw(query, noRawat).Scan(&pasien).Error
+	err := r.db.Raw(query, noRawat, kdDokter).Scan(&pasien).Error
 	if err != nil {
 		return nil, err
 	}
 
+	// Check if found
+	if pasien.NoRawat == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
 	return &pasien, nil
+}
+
+// ✅ Get profile dokter yang login
+func (r *pasienRepository) GetDokterProfile(kdDokter string) (*DokterProfile, error) {
+	var dokter DokterProfile
+
+	query := `
+        SELECT kd_dokter, nm_dokter, no_telp, spesialisasi
+        FROM dokter 
+        WHERE kd_dokter = ?
+    `
+
+	err := r.db.Raw(query, kdDokter).Scan(&dokter).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if dokter.KodeDokter == "" {
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	return &dokter, nil
 }

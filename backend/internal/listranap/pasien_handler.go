@@ -16,24 +16,19 @@ func NewPasienHandler(pasienService PasienService) *PasienHandler {
 	}
 }
 
-func (h *PasienHandler) GetDokterDPJP(c *gin.Context) {
-	response, err := h.pasienService.GetDokterDPJP()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
+// ✅ Auto-ambil kode dokter dari JWT (tidak dari query parameter)
+func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
+	kdDokter := c.GetString("kd_dokter")
+
+	if kdDokter == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
-			"message": "Failed to get DPJP list",
-			"error":   err.Error(),
+			"message": "Doctor code not found in token",
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, response)
-}
-
-func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
-	kdDokter := c.Query("dpjp") // Query parameter: ?dpjp=DR001
-
-	response, err := h.pasienService.GetPasienAktif(kdDokter)
+	response, err := h.pasienService.GetPasienAktifByDokter(kdDokter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -46,14 +41,24 @@ func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
+// ✅ Detail pasien hanya jika dokter yang login adalah DPJP-nya
 func (h *PasienHandler) GetPasienDetail(c *gin.Context) {
 	noRawat := c.Param("no_rawat")
+	kdDokter := c.GetString("kd_dokter")
 
-	pasien, err := h.pasienService.GetDetailPasien(noRawat)
+	if kdDokter == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Doctor code not found in token",
+		})
+		return
+	}
+
+	pasien, err := h.pasienService.GetDetailPasien(noRawat, kdDokter)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",
-			"message": "Patient not found",
+			"message": "Patient not found or not your DPJP",
 		})
 		return
 	}
@@ -62,4 +67,28 @@ func (h *PasienHandler) GetPasienDetail(c *gin.Context) {
 		"status": "success",
 		"data":   pasien,
 	})
+}
+
+// ✅ Profile dokter yang login
+func (h *PasienHandler) GetDokterProfile(c *gin.Context) {
+	kdDokter := c.GetString("kd_dokter")
+
+	if kdDokter == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": "Doctor code not found in token",
+		})
+		return
+	}
+
+	response, err := h.pasienService.GetDokterProfile(kdDokter)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"status":  "error",
+			"message": "Failed to get doctor profile",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, response)
 }
