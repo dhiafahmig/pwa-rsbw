@@ -1,0 +1,195 @@
+/* ✅ Fixed Logo Styles - Perfect Size */
+.logo-circle {
+  width: 120px;              /* ✅ Slightly bigger circle */
+  height: 120px;             /* ✅ Maintain square */
+  border-radius: 50%;
+  background: var(--white);  /* ✅ Keep white background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 8px 32px rgba(255, 255, 255, 0.4),
+    0 4px 12px rgba(5, 150, 105, 0.2);
+  animation: pulse 3s ease-in-out infinite;
+  padding: 20px;             /* ✅ More padding around logo */
+  margin: 0 auto;            /* ✅ Center the circle */
+}
+
+.logo-image {
+  width: 80px;               /* ✅ Perfect logo size - not too big */
+  height: 80px;              /* ✅ Keep aspect ratio */
+  object-fit: contain;       /* ✅ Maintain aspect ratio */
+  filter: none;              /* ✅ Keep original colors */
+  max-width: 100%;           /* ✅ Responsive */
+  max-height: 100%;          /* ✅ Responsive */
+}
+
+/* ✅ Logo Section Spacing */
+.logo-section {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;       /* ✅ Proper spacing below logo */
+  padding: 0;
+}
+
+/* ✅ Fallback icon with proper size */
+.logo-icon-fallback {
+  font-size: 3.5rem;         /* ✅ Balanced size for fallback */
+  color: var(--primary-green);
+  text-shadow: none;
+}
+
+/* ✅ Header adjustments for better proportion */
+.header-section {
+  text-align: center;
+  margin-bottom: 32px;       /* ✅ Good spacing */
+  padding: 0 10px;           /* ✅ Slight padding for mobile */
+}
+
+.main-title {
+  font-size: 1.875rem;       /* ✅ Slightly smaller title */
+  font-weight: 800;
+  color: var(--white);
+  margin-bottom: 8px;
+  text-align: center;
+  line-height: 1.2;
+}
+
+.sub-title {
+  font-size: 1.125rem;       /* ✅ Proportional subtitle */
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 6px;
+  text-align: center;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  text-align: center;
+  margin-bottom: 0;
+}
+
+/* ✅ Login Card adjustments */
+.login-card {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
+  padding: 32px;             /* ✅ Slightly less padding */
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 35px -5px rgba(5, 150, 105, 0.25),
+    0 15px 15px -5px rgba(5, 150, 105, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 400px;          /* ✅ Slightly smaller max width */
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  z-index: 10;
+  animation: slideUpBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--white);
+}
+
+/* ✅ Enhanced pulse animation for logo */
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      0 8px 32px rgba(255, 255, 255, 0.4),
+      0 4px 12px rgba(5, 150, 105, 0.2);
+  }
+  50% { 
+    transform: scale(1.02);    /* ✅ Subtle pulse */
+    box-shadow: 
+      0 12px 40px rgba(255, 255, 255, 0.5),
+      0 6px 16px rgba(5, 150, 105, 0.3);
+  }
+}
+
+/* ✅ Responsive adjustments */
+@media (max-width: 640px) {
+  .logo-circle {
+    width: 100px;
+    height: 100px;
+    padding: 16px;
+  }
+  
+  .logo-image {
+    width: 68px;
+    height: 68px;
+  }
+  
+  .logo-icon-fallback {
+    font-size: 3rem;
+  }
+  
+  .login-card {
+    padding: 28px 24px;
+    max-width: 360px;
+  }
+  
+  .main-title {
+    font-size: 1.625rem;
+  }
+  
+  .sub-title {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-circle {
+    width: 90px;
+    height: 90px;
+    padding: 14px;
+  }
+  
+  .logo-image {
+    width: 62px;
+    height: 62px;
+  }
+  
+  .login-card {
+    margin: 10px;
+    padding: 24px 20px;
+  }
+  
+  .main-title {
+    font-size: 1.5rem;
+  }
+}
+
+/* ✅ Logo hover effect */
+.logo-circle:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+.logo-circle:hover .logo-image {
+  transform: scale(1.1);
+  transition: transform 0.3s ease;
+}
+
+/* ✅ High contrast mode support */
+@media (prefers-contrast: high) {
+  .logo-circle {
+    border: 2px solid rgba(5, 150, 105, 0.5);
+  }
+  
+  .logo-image {
+    border: 1px solid rgba(5, 150, 105, 0.3);
+    border-radius: 8px;
+  }
+}
+
+/* ✅ Print styles */
+@media print {
+  .logo-circle {
+    box-shadow: none;
+    border: 1px solid #ccc;
+  }
+  
+  .logo-image {
+    filter: grayscale(100%);
+  }
+}

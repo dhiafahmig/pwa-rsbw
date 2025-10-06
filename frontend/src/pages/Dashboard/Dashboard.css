@@ -1,0 +1,915 @@
+/* Dashboard Green Theme */
+.dashboard-page {
+  min-height: 100vh;
+  background: var(--bg-green-light, #f0fdf4);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header - Green Theme */
+.dashboard-header {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  padding: 0;
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.2);
+}
+
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo-small {
+  font-size: 2.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 12px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.header-info h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.header-info p {
+  font-size: 0.9rem;
+  margin: 0;
+  opacity: 0.9;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-icon {
+  font-size: 2rem;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 8px;
+  border-radius: 50%;
+}
+
+.user-details p {
+  margin: 0;
+  line-height: 1.3;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.logout-button {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.logout-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Main Content */
+.dashboard-main {
+  flex: 1;
+  padding: 40px 20px;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Welcome Section - Green Theme */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.welcome-text {
+  font-size: 1.1rem;
+  color: #047857;
+  margin: 0;
+}
+
+/* Section Titles - Green */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 2px;
+}
+
+/* Action Cards - Green Theme */
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+}
+
+.action-card {
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 6px rgba(5, 150, 105, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.action-card:hover:not(.coming-soon) {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(5, 150, 105, 0.15);
+  border-color: #10b981;
+}
+
+.action-card.coming-soon {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.action-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.action-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 8px;
+}
+
+.action-description {
+  color: #047857;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.action-arrow {
+  font-size: 1.5rem;
+  color: #10b981;
+  font-weight: bold;
+}
+
+.coming-soon-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #fef3c7;
+  color: #d97706;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+/* Stats Cards - Green Theme */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.05);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(16, 185, 129, 0.1);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.1);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  padding: 12px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.stat-label {
+  color: #047857;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Footer - Green Theme */
+.dashboard-footer {
+  background: #1f2937;
+  color: #a0aec0;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.875rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
+  
+  .welcome-title {
+    font-size: 2rem;
+  }
+  
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .dashboard-main {
+    padding: 20px 16px;
+  }
+}
+
+/* ✅ Header Logo Styles */
+.logo-small {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.logo-header-image {
+  width: 44px;               /* ✅ Perfect size for header */
+  height: 44px;
+  object-fit: contain;
+  filter: brightness(0) invert(1); /* ✅ Make logo white for green header */
+}
+
+.logo-header-fallback {
+  font-size: 2rem;
+  color: white;
+}
+
+/* ✅ User Info - No Emoji */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;                 /* ✅ More gap since no avatar */
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.user-details {
+  line-height: 1.3;
+  text-align: left;
+}
+
+.user-name {
+  font-weight: 600;
+  font-size: 0.95rem;        /* ✅ Slightly bigger for doctor name */
+  margin: 0;
+  color: white;
+}
+
+.user-role {
+  font-size: 0.8rem;
+  opacity: 0.9;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ✅ Single Action Card - Prominent Display */
+.actions-grid-single {
+  display: flex;
+  justify-content: center;
+  max-width: 600px;          /* ✅ Limit width for single card */
+  margin: 0 auto;
+}
+
+.action-card.primary {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%); /* ✅ Green gradient */
+  color: white;
+  padding: 40px 32px;        /* ✅ More padding for single card */
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 25px rgba(5, 150, 105, 0.3),
+    0 4px 12px rgba(5, 150, 105, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  min-width: 320px;          /* ✅ Minimum width */
+  max-width: 480px;          /* ✅ Maximum width */
+  width: 100%;
+}
+
+.action-card.primary:hover {
+  transform: translateY(-4px);
+  box-shadow: 
+    0 12px 35px rgba(5, 150, 105, 0.4),
+    0 6px 16px rgba(5, 150, 105, 0.3);
+  background: linear-gradient(135deg, #047857 0%, #059669 100%); /* ✅ Darker on hover */
+}
+
+.action-card.primary .action-icon {
+  font-size: 3.5rem;         /* ✅ Bigger icon for primary card */
+  margin-bottom: 20px;
+}
+
+.action-card.primary .action-title {
+  font-size: 1.4rem;         /* ✅ Bigger title */
+  font-weight: 700;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.action-card.primary .action-description {
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 20px;
+  line-height: 1.5;
+  font-size: 1rem;
+}
+
+.action-card.primary .action-arrow {
+  font-size: 2rem;           /* ✅ Bigger arrow */
+  color: white;
+  font-weight: bold;
+  position: absolute;
+  bottom: 20px;
+  right: 24px;
+}
+
+/* ✅ Welcome Section - Enhanced for Doctor Name */
+.welcome-title {
+  font-size: 2.25rem;        /* ✅ Slightly bigger welcome */
+  font-weight: 700;
+  color: #059669;            /* ✅ Green color */
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.welcome-text {
+  font-size: 1.125rem;       /* ✅ Bigger description */
+  color: #047857;            /* ✅ Dark green */
+  margin: 0;
+  text-align: center;
+}
+
+/* ✅ Responsive Adjustments */
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .header-left {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .header-right {
+    justify-content: center;
+  }
+  
+  .user-info {
+    gap: 12px;
+  }
+  
+  .logo-small {
+    width: 50px;
+    height: 50px;
+  }
+  
+  .logo-header-image {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .welcome-title {
+    font-size: 1.875rem;
+  }
+  
+  .actions-grid-single {
+    padding: 0 16px;
+  }
+  
+  .action-card.primary {
+    padding: 32px 24px;
+    min-width: 280px;
+  }
+  
+  .action-card.primary .action-title {
+    font-size: 1.25rem;
+  }
+  
+  .action-card.primary .action-icon {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-title {
+    font-size: 1.625rem;
+  }
+  
+  .user-name {
+    font-size: 0.875rem;
+  }
+  
+  .user-role {
+    font-size: 0.75rem;
+  }
+  
+  .action-card.primary {
+    padding: 28px 20px;
+    margin: 0 8px;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ✅ Enhanced Stats for Single Focus */
+.quick-stats {
+  margin-top: 40px;          /* ✅ More spacing above stats */
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.stat-card {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border: 1px solid rgba(5, 150, 105, 0.1);
+  transition: all 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.15);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  padding: 12px;
+  background: #059669;       /* ✅ Green background */
+  color: white;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0;
+}
+
+.stat-label {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* ✅ Fixed Header Logo Styles - Keep Original Colors */
+.logo-small {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9); /* ✅ More opaque white background */
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* ✅ Subtle shadow */
+}
+
+.logo-header-image {
+  width: 44px;               
+  height: 44px;
+  object-fit: contain;
+  filter: none;              /* ✅ REMOVE filter - keep original colors */
+  /* filter: brightness(0) invert(1); REMOVED */
+}
+
+.logo-header-fallback {
+  font-size: 2rem;
+  color: #059669;            /* ✅ Green fallback instead of white */
+}
+
+/* ✅ Alternative: White Logo Background Circle */
+.logo-small.white-bg {
+  background: rgba(255, 255, 255, 1); /* ✅ Solid white background */
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+/* ✅ Alternative: Transparent Background - Let Logo Show Naturally */
+.logo-small.transparent {
+  background: transparent;   /* ✅ No background */
+  padding: 6px;
+}
+
+.logo-small.transparent .logo-header-image {
+  width: 48px;               /* ✅ Slightly bigger without background */
+  height: 48px;
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.5)); /* ✅ White glow effect */
+}
+
+/* ✅ User Dropdown Styles */
+.user-dropdown {
+  position: relative;
+  z-index: 1000;
+}
+
+.user-dropdown-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-dropdown-trigger:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #059669;
+  font-size: 1.125rem;
+}
+
+.user-initial {
+  text-transform: uppercase;
+}
+
+.user-info-compact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.user-name-compact {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: white;
+  margin: 0;
+}
+
+.user-role-compact {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  margin: 0;
+}
+
+.dropdown-arrow {
+  color: rgba(255, 255, 255, 0.8);
+  transition: transform 0.2s ease;
+}
+
+.dropdown-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* ✅ Dropdown Menu */
+.user-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 
+    0 10px 25px rgba(0, 0, 0, 0.15),
+    0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  min-width: 280px;
+  overflow: hidden;
+  animation: dropdownSlide 0.2s ease-out;
+}
+
+@keyframes dropdownSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ✅ Dropdown Header */
+.dropdown-header {
+  padding: 20px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid rgba(5, 150, 105, 0.1);
+}
+
+.dropdown-avatar {
+  width: 60px;
+  height: 60px;
+  background: #059669;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.avatar-large {
+  text-transform: uppercase;
+}
+
+.dropdown-user-info {
+  flex: 1;
+}
+
+.dropdown-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.dropdown-role {
+  font-size: 0.875rem;
+  color: #059669;
+  font-weight: 500;
+  margin: 0 0 2px 0;
+}
+
+.dropdown-code {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+/* ✅ Dropdown Divider */
+.dropdown-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0;
+}
+
+/* ✅ Dropdown Actions */
+.dropdown-actions {
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.dropdown-item:hover {
+  background: #f9fafb;
+}
+
+.profile-item:hover {
+  background: #f0fdf4;
+}
+
+.logout-item:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.item-icon {
+  font-size: 1.125rem;
+  width: 20px;
+  text-align: center;
+}
+
+.item-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.logout-item .item-text {
+  color: #dc2626;
+}
+
+/* ✅ Responsive Dropdown */
+@media (max-width: 768px) {
+  .user-dropdown-trigger {
+    padding: 6px 12px;
+    gap: 8px;
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .user-info-compact {
+    display: none; /* ✅ Hide text on mobile, show only avatar */
+  }
+  
+  .user-dropdown-menu {
+    min-width: 260px;
+    right: -8px; /* ✅ Adjust position on mobile */
+  }
+  
+  .dropdown-header {
+    padding: 16px;
+  }
+  
+  .dropdown-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .user-dropdown-menu {
+    min-width: 240px;
+    right: -16px;
+  }
+  
+  .dropdown-item {
+    padding: 10px 16px;
+  }
+}
+
+/* ✅ Remove old styles */
+.logout-button-float {
+  display: none; /* ✅ Hide old floating button */
+}
+
+.header-right .logout-button {
+  display: none; /* ✅ Hide old header button */
+}
+
+/* ✅ Header adjustments */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* ✅ Focus states for accessibility */
+.user-dropdown-trigger:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+}
+
+.dropdown-item:focus {
+  outline: none;
+  background: #f0fdf4;
+}
+
+/* ✅ Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .user-dropdown-menu {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .dropdown-header {
+    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+  }
+  
+  .dropdown-name {
+    color: #f9fafb;
+  }
+  
+  .item-text {
+    color: #d1d5db;
+  }
+  
+  .dropdown-item:hover {
+    background: #374151;
+  }
+}

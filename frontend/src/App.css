@@ -1,0 +1,423 @@
+/* Reset and base styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important; /* ✅ Subtle gradient */
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important; /* ✅ Subtle white to light gray gradient */
+  background-attachment: fixed; /* ✅ Keep gradient fixed when scrolling */
+  overflow-x: hidden;
+}
+
+.app {
+  min-height: 100vh;
+  background: transparent; /* ✅ Let body gradient show through */
+}
+
+/* ===== GREEN THEME VARIABLES ===== */
+:root {
+  --primary-green: #059669;      /* Main green */
+  --primary-green-dark: #047857;  /* Dark green */
+  --primary-green-light: #10b981; /* Light green */
+  --accent-green: #34d399;       /* Accent green */
+  --bg-green-light: #f0fdf4;     /* Very light green */
+  --bg-green-lighter: #dcfce7;   /* Lighter green */
+  --text-green: #065f46;         /* Dark green text */
+  --text-green-light: #047857;   /* Medium green text */
+  --white: #ffffff;
+  --gray-50: #f9fafb;
+  --gray-100: #f3f4f6;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+}
+
+/* ✅ Login Container - Beautiful Gradient Background */
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  /* ✅ Beautiful subtle gradient background - white to light gray */
+  background: linear-gradient(135deg, 
+    #ffffff 0%,           /* Pure white start */
+    #f8fafc 25%,         /* Very light gray-blue */
+    #f1f5f9 50%,         /* Light gray-blue */
+    #e2e8f0 75%,         /* Medium light gray */
+    #cbd5e1 100%         /* Slightly darker gray end */
+  ) !important;
+  background-attachment: fixed; /* ✅ Keep gradient fixed */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Login Page Container */
+.login-page {
+  min-height: 100vh;
+  background: transparent; /* ✅ Let gradient show through */
+}
+
+/* ✅ Optional: Add subtle background pattern/texture */
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.3) 2px, transparent 2px),
+    radial-gradient(circle at 75% 75%, rgba(5, 150, 105, 0.05) 1px, transparent 1px);
+  background-size: 50px 50px, 30px 30px;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Background Decoration - Soft floating elements */
+.bg-decoration {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.bg-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2); /* ✅ Soft white circles */
+  backdrop-filter: blur(20px);
+  animation: float 8s ease-in-out infinite;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+}
+
+.bg-circle-1 {
+  width: 200px;
+  height: 200px;
+  top: 15%;
+  left: 10%;
+  animation-delay: 0s;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.bg-circle-2 {
+  width: 150px;
+  height: 150px;
+  top: 65%;
+  right: 15%;
+  animation-delay: 3s;
+  background: rgba(5, 150, 105, 0.08);
+}
+
+.bg-circle-3 {
+  width: 120px;
+  height: 120px;
+  bottom: 20%;
+  left: 20%;
+  animation-delay: 6s;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.bg-circle-4 {
+  width: 80px;
+  height: 80px;
+  top: 35%;
+  right: 25%;
+  animation-delay: 1.5s;
+  background: rgba(5, 150, 105, 0.06);
+}
+
+@keyframes float {
+  0%, 100% { 
+    transform: translateY(0px) translateX(0px) scale(1);
+    opacity: 0.6;
+  }
+  25% { 
+    transform: translateY(-15px) translateX(10px) scale(1.05);
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translateY(-25px) translateX(-5px) scale(0.95);
+    opacity: 0.4;
+  }
+  75% { 
+    transform: translateY(-10px) translateX(-15px) scale(1.02);
+    opacity: 0.7;
+  }
+}
+
+/* ✅ Login Card - GREEN CARD with WHITE TEXT (Enhanced shadow for gradient bg) */
+.login-card {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%); /* ✅ Green card background */
+  padding: 40px;
+  border-radius: 24px;
+  box-shadow: 
+    0 25px 35px -5px rgba(5, 150, 105, 0.25),
+    0 15px 15px -5px rgba(5, 150, 105, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.1); /* ✅ Enhanced shadow for gradient bg */
+  width: 100%;
+  max-width: 420px;
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3); /* ✅ White border */
+  position: relative;
+  z-index: 10; /* ✅ Higher z-index above background elements */
+  animation: slideUpBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  color: var(--white); /* ✅ White text by default */
+}
+
+@keyframes slideUpBounce {
+  0% {
+    opacity: 0;
+    transform: translateY(60px) scale(0.9);
+  }
+  60% {
+    opacity: 0.8;
+    transform: translateY(-10px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ✅ Logo Circle - White with Green Icon (Enhanced for gradient bg) */
+.logo-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: var(--white); /* ✅ White circle background */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 8px 32px rgba(255, 255, 255, 0.4),
+    0 4px 12px rgba(5, 150, 105, 0.2); /* ✅ Enhanced shadow */
+  animation: pulse 3s ease-in-out infinite;
+}
+
+.logo-icon {
+  font-size: 3rem;
+  color: var(--primary-green); /* ✅ Green icon on white circle */
+  text-shadow: none;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1);
+    box-shadow: 
+      0 8px 32px rgba(255, 255, 255, 0.4),
+      0 4px 12px rgba(5, 150, 105, 0.2);
+  }
+  50% { 
+    transform: scale(1.05);
+    box-shadow: 
+      0 12px 40px rgba(255, 255, 255, 0.5),
+      0 6px 16px rgba(5, 150, 105, 0.3);
+  }
+}
+
+/* Rest of the styles remain the same... */
+/* ✅ Header Styles - White Text on Green Card */
+.main-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--white); /* ✅ White title */
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.sub-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9); /* ✅ Slightly transparent white */
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.description {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8); /* ✅ More transparent white */
+  font-weight: 400;
+  text-align: center;
+}
+
+/* Form Elements remain the same... */
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: var(--white);
+  font-size: 0.9rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  background: rgba(255, 255, 255, 0.15);
+  outline: none;
+  font-weight: 500;
+  color: var(--white);
+  backdrop-filter: blur(10px);
+}
+
+.form-input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.form-input:focus {
+  border-color: var(--white);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.login-button {
+  width: 100%;
+  background: var(--white);
+  color: var(--primary-green);
+  border: none;
+  padding: 16px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.login-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 255, 255, 0.4);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+/* Footer, Password toggle, etc. remain the same... */
+.password-toggle {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.password-toggle:hover {
+  background: rgba(255, 255, 255, 0.2);
+  color: var(--white);
+  transform: translateY(-50%) scale(1.1);
+}
+
+.footer-section {
+  text-align: center;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.footer-text {
+  font-size: 0.8rem;
+  color: var(--white);
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.version-text {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Enhanced responsive for gradient background */
+@media (max-width: 640px) {
+  .login-container {
+    padding: 16px;
+    background: linear-gradient(135deg, 
+      #ffffff 0%,
+      #f8fafc 30%,
+      #f1f5f9 60%,
+      #e2e8f0 100%
+    ) !important;
+  }
+  
+  .login-card {
+    padding: 32px 24px;
+  }
+  
+  .main-title {
+    font-size: 1.75rem;
+  }
+  
+  .sub-title {
+    font-size: 1.125rem;
+  }
+}
+
+/* Additional utility classes */
+.header-section { margin-bottom: 32px; }
+.logo-section { display: flex; justify-content: center; margin-bottom: 24px; }
+.form-group { margin-bottom: 20px; }
+.password-container { position: relative; }
+.password-input { padding-right: 50px; }
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(5, 150, 105, 0.3);
+  border-top: 2px solid var(--primary-green);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-alert {
+  background: rgba(254, 226, 226, 0.95);
+  border: 1px solid rgba(252, 165, 165, 0.8);
+  color: #dc2626;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
