@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fix PWA Icon Layout - No Crop</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        canvas { border: 2px solid #059669; margin: 10px 0; }
+        button { background: #059669; color: white; padding: 10px 20px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #999; }
+    </style>
+</head>
+<body>
+    <h2>🏥 Fix PWA Icon Layout - No Crop</h2>
+    <p><strong>Fixed:</strong> Logo akan lebih kecil dengan padding supaya tidak terpotong</p>
+    
+    <input type="file" id="iconUpload" accept="image/*" />
+    <br><br>
+    <button onclick="fixLayout(512)" id="btn512" disabled>Generate 512x512 (Safe)</button>
+    <button onclick="fixLayout(192)" id="btn192" disabled>Generate 192x192 (Safe)</button>
+    <button onclick="previewBoth()" id="btnPreview" disabled>Preview Both</button>
+    <br><br>
+    <canvas id="canvas"></canvas>
+    <div id="preview"></div>
+
+    <script>
+        let originalIcon = null;
+        
+        document.getElementById('iconUpload').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const img = new Image();
+                    img.onload = function() {
+                        originalIcon = img;
+                        console.log('Icon uploaded successfully');
+                        
+                        // Enable buttons
+                        document.getElementById('btn512').disabled = false;
+                        document.getElementById('btn192').disabled = false;
+                        document.getElementById('btnPreview').disabled = false;
+                    };
+                    img.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
+        function fixLayout(size) {
+            if (!originalIcon) {
+                alert('Please upload an icon first!');
+                return;
+            }
+            
+            const canvas = document.getElementById('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            // ✅ Clear canvas
+            ctx.clearRect(0, 0, size, size);
+            
+            // ✅ Green background
+            ctx.fillStyle = '#059669';
+            ctx.fillRect(0, 0, size, size);
+            
+            // ✅ Calculate safe logo size (70% instead of 100% to avoid crop)
+            const logoSize = size * 0.70; // Reduced from 1.0 to 0.70
+            const logoX = (size - logoSize) / 2;
+            const logoY = (size - logoSize) / 2;
+            
+            // ✅ Draw original icon in smaller safe area
+            ctx.drawImage(originalIcon, logoX, logoY, logoSize, logoSize);
+            
+            // ✅ Fix black pixels to green (same as before)
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                // If pixel is very dark (close to black)
+                if (r < 30 && g < 30 && b < 30) {
+                    // Replace with green background
+                    data[i] = 5;      // R
+                    data[i + 1] = 150; // G
+                    data[i + 2] = 105; // B
+                    // Keep alpha as is
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+            
+            // ✅ Download with safe layout
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `safe-icon-${size}x${size}.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+            });
+        }
+        
+        function previewBoth() {
+            const preview = document.getElementById('preview');
+            preview.innerHTML = '<h3>🔍 Preview (No Crop):</h3>';
+            
+            [512, 192].forEach(size => {
+                fixLayoutPreview(size);
+                const dataURL = document.getElementById('canvas').toDataURL();
+                
+                const div = document.createElement('div');
+                div.style.display = 'inline-block';
+                div.style.margin = '10px';
+                div.style.textAlign = 'center';
+                div.innerHTML = `
+                    <h4>${size}x${size}px</h4>
+                    <img src="${dataURL}" width="150" height="150" style="border: 2px solid #059669; cursor: pointer;" 
+                         onclick="downloadFromPreview('${dataURL}', ${size})">
+                    <p><small>Click to download</small></p>
+                `;
+                preview.appendChild(div);
+            });
+        }
+        
+        function fixLayoutPreview(size) {
+            const canvas = document.getElementById('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.fillStyle = '#059669';
+            ctx.fillRect(0, 0, size, size);
+            
+            // ✅ Safe logo sizing
+            const logoSize = size * 0.70;
+            const logoX = (size - logoSize) / 2;
+            const logoY = (size - logoSize) / 2;
+            
+            ctx.drawImage(originalIcon, logoX, logoY, logoSize, logoSize);
+            
+            const imageData = ctx.getImageData(0, 0, size, size);
+            const data = imageData.data;
+            
+            for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                
+                if (r < 30 && g < 30 && b < 30) {
+                    data[i] = 5;
+                    data[i + 1] = 150;
+                    data[i + 2] = 105;
+                }
+            }
+            
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        function downloadFromPreview(dataURL, size) {
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = `safe-icon-${size}x${size}.png`;
+            a.click();
+        }
+    </script>
+</body>
+</html>
