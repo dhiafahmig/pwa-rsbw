@@ -19,7 +19,6 @@ func NewAuthHandler(authService AuthService) *AuthHandler {
 
 func (h *AuthHandler) Login(c *gin.Context) {
 	var req LoginRequest
-
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -45,11 +44,10 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// ✅ Middleware untuk validate JWT token dengan kode dokter
+// ✅ Middleware untuk validate JWT token dengan kode dokter DAN nama dokter
 func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
-
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"status":  "error",
@@ -59,7 +57,7 @@ func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Extract token from "Bearer <token>"
+		// Extract token from "Bearer "
 		parts := strings.Split(authHeader, " ")
 		if len(parts) != 2 || parts[0] != "Bearer" {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -80,9 +78,10 @@ func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ✅ Set user info dan kode dokter di context
+		// ✅ Set user info, kode dokter, DAN nama dokter di context
 		c.Set("id_user", claims.IDUser)
-		c.Set("kd_dokter", claims.KodeDokter) // ✅ Tambah kode dokter
+		c.Set("kd_dokter", claims.KodeDokter) // ✅ Kode dokter
+		c.Set("nm_dokter", claims.NamaDokter) // ✅ TAMBAH: Nama dokter
 		c.Next()
 	}
 }

@@ -3,24 +3,33 @@ import api from './api';
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  // Check for existing session
   useEffect(() => {
-    // Check if user is already logged in
-    const token = localStorage.getItem('token');
-    const userData = localStorage.getItem('user');
+    const token = localStorage.getItem('auth_token');
+    const userData = localStorage.getItem('user_data');
     
     if (token && userData) {
       try {
         const parsedUser = JSON.parse(userData);
         setUser(parsedUser);
-        console.log('👤 User restored from localStorage:', parsedUser);
+        setIsAuthenticated(true);
       } catch (error) {
-        console.error('❌ Error parsing user data:', error);
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+        console.error('Error parsing stored user data:', error);
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
       }
     }
     setLoading(false);
@@ -28,48 +37,43 @@ export function AuthProvider({ children }) {
 
   const login = async (id_user, password) => {
     try {
-      console.log('🔐 Attempting login:', { id_user });
-      
-      // Call backend login API
       const response = await api.post('/auth/login', {
-        id_user: id_user,
-        password: password
+        id_user,
+        password
       });
-      
-      console.log('🔐 Login response:', response.data);
-      
+
       if (response.data.status === 'success') {
-        const { token, id_user: userId, kd_dokter, expires_at } = response.data.data;
+        const responseData = response.data.data;
         
+        // Enhanced user data mapping
         const userData = {
-          id_user: userId,
-          kd_dokter: kd_dokter,
-          expires_at: expires_at
+          id_user: responseData.id_user || id_user,
+          kd_dokter: responseData.kd_dokter || responseData.id_user || 'N/A',
+          nm_dokter: responseData.nm_dokter || '', // Field nm_dokter dari backend
+          token: responseData.token
         };
         
-        // Save to localStorage
-        localStorage.setItem('token', token);
-        localStorage.setItem('user', JSON.stringify(userData));
-        setUser(userData);
+        // Store in localStorage
+        localStorage.setItem('auth_token', responseData.token);
+        localStorage.setItem('user_data', JSON.stringify(userData));
         
-        console.log('✅ Login successful:', userData);
-        return { success: true, data: userData };
+        // Update state
+        setUser(userData);
+        setIsAuthenticated(true);
+        
+        return { success: true, user: userData };
+      } else {
+        return { success: false, message: response.data.message || 'Login gagal' };
       }
-      
-      console.log('❌ Login failed:', response.data.message);
-      return { success: false, message: response.data.message || 'Login gagal' };
-      
     } catch (error) {
-      console.error('❌ Login error:', error);
+      console.error('Login error:', error);
       
-      let errorMessage = 'Login gagal. Silakan coba lagi.';
+      let errorMessage = 'Terjadi kesalahan saat login';
       
       if (error.response?.data?.message) {
         errorMessage = error.response.data.message;
       } else if (error.code === 'ERR_NETWORK') {
-        errorMessage = 'Gagal terhubung ke server. Pastikan backend sudah running.';
-      } else if (error.code === 'ECONNABORTED') {
-        errorMessage = 'Request timeout. Server tidak merespons.';
+        errorMessage = 'Tidak dapat terhubung ke server';
       }
       
       return { success: false, message: errorMessage };
@@ -77,18 +81,18 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    console.log('🚪 Logging out user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_data');
     setUser(null);
+    setIsAuthenticated(false);
   };
 
   const value = {
     user,
-    isAuthenticated: !!user,
+    isAuthenticated,
+    loading,
     login,
-    logout,
-    loading
+    logout
   };
 
   return (
@@ -96,12 +100,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}
+};

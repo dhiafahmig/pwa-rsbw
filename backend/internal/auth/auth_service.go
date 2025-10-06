@@ -28,20 +28,21 @@ func NewAuthService(authRepo AuthRepository, jwtSecret string) AuthService {
 func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	fmt.Printf("🔍 Login attempt - ID: %s\n", idUser)
 
-	// ✅ Get user dengan kode dokter
+	// ✅ Get user dengan kode dokter DAN nama dokter
 	user, err := s.authRepo.GetUserByCredentials(idUser, password)
 	if err != nil {
 		fmt.Printf("❌ Login failed: %v\n", err)
 		return nil, errors.New("invalid credentials")
 	}
 
-	fmt.Printf("✅ Login successful for user: %s, Dokter: %s\n", idUser, user.KodeDokter)
+	fmt.Printf("✅ Login successful for user: %s, Dokter: %s - %s\n", idUser, user.KodeDokter, user.NamaDokter)
 
-	// ✅ Generate JWT dengan kode dokter
+	// ✅ Generate JWT dengan kode dokter DAN nama dokter
 	expirationTime := time.Now().Add(30 * time.Minute)
 	claims := &JWTClaims{
 		IDUser:     idUser,
 		KodeDokter: user.KodeDokter, // ✅ Include kode dokter di JWT
+		NamaDokter: user.NamaDokter, // ✅ TAMBAH: Include nama dokter di JWT
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -56,18 +57,17 @@ func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	}
 
 	fmt.Printf("✅ JWT token generated successfully\n")
-
 	return &LoginResponse{
 		Token:      tokenString,
 		IDUser:     idUser,
 		KodeDokter: user.KodeDokter, // ✅ Include di response
+		NamaDokter: user.NamaDokter, // ✅ TAMBAH: Include nama dokter di response
 		ExpiresAt:  expirationTime.Unix(),
 	}, nil
 }
 
 func (s *authService) ValidateToken(tokenString string) (*JWTClaims, error) {
 	claims := &JWTClaims{}
-
 	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return s.jwtSecret, nil
 	})

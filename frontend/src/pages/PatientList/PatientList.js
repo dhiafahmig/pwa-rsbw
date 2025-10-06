@@ -36,16 +36,16 @@ function PatientList() {
     }
   };
 
-  // Load patients data
+  // Load patients data - default tanpa filter
   const loadPatients = async () => {
     try {
       setError('');
       console.log('🔄 Loading patients from: /ranap/pasien');
       
-      const result = await patientService.getPatients();
+      const result = await patientService.getPatients(); // Default call tanpa filter
       
       if (result.success) {
-        const patientData = result.data || [];
+        const patientData = result.data?.data || [];
         setPatients(patientData);
         
         // Calculate stats from real data
@@ -64,6 +64,11 @@ function PatientList() {
         });
         
         console.log('✅ Loaded patients:', patientData.length);
+        console.log('🎨 CPPT Status check:', patientData.map(p => ({
+          nama: p.nm_pasien,
+          cppt_hari_ini: p.cppt_hari_ini,
+          jumlah_cppt: p.jumlah_cppt_hari_ini
+        })));
       } else {
         setError(result.message);
         console.error('❌ Failed to load patients:', result.message);
@@ -124,7 +129,7 @@ function PatientList() {
             </button>
             <div className="header-info">
               <h1 className="page-title">Daftar Pasien Rawat Inap</h1>
-              <p className="page-subtitle">Dr. {user?.id_user} - Kode: {user?.kd_dokter}</p>
+              <p className="page-subtitle">{user?.nm_dokter} - Kode: {user?.kd_dokter}</p>
             </div>
           </div>
           
@@ -209,6 +214,18 @@ function PatientList() {
               </div>
             </div>
 
+            {/* ✅ CPPT Legend - Simple indicator */}
+            <div className="cppt-legend">
+              <div className="legend-item">
+                <div className="legend-color done"></div>
+                <span>Sudah CPPT hari ini</span>
+              </div>
+              <div className="legend-item">
+                <div className="legend-color pending"></div>
+                <span>Belum CPPT hari ini</span>
+              </div>
+            </div>
+
             <div className="table-container">
               <table className="patient-table">
                 <thead>
@@ -222,12 +239,18 @@ function PatientList() {
                     <th>Bangsal</th>
                     <th>Diagnosa</th>
                     <th>Tgl Masuk</th>
-                    {/* ✅ Kolom Aksi dihapus */}
                   </tr>
                 </thead>
                 <tbody>
                   {patients.map((patient, index) => (
-                    <tr key={patient.no_rawat || index}>
+                    <tr 
+                      key={patient.no_rawat || index}
+                      className={patient.cppt_hari_ini ? 'cppt-done' : 'cppt-pending'} // ✅ Conditional class
+                      title={patient.cppt_hari_ini ? 
+                        `CPPT sudah dibuat (${patient.jumlah_cppt_hari_ini || 1} kali)` : 
+                        'Belum ada CPPT hari ini'
+                      }
+                    >
                       {/* No. Rawat */}
                       <td className="no-rawat">
                         {patient.no_rawat}
@@ -242,10 +265,16 @@ function PatientList() {
                       <td className="nama-pasien">
                         <div className="patient-name">
                           <span className="name">{patient.nm_pasien}</span>
+                          {/* ✅ Simple indicator for CPPT status */}
+                          {patient.cppt_hari_ini && (
+                            <span className="cppt-indicator" title={`CPPT hari ini: ${patient.jumlah_cppt_hari_ini || 1}`}>
+                              ✅
+                            </span>
+                          )}
                         </div>
                       </td>
 
-                      {/* ✅ Penanggung Jawab - No Emoji */}
+                      {/* Penanggung Jawab */}
                       <td className="penanggung-jawab">
                         <span className={`pj-badge ${patient.penanggung_jawab?.toLowerCase()}`}>
                           {patient.penanggung_jawab}
@@ -279,8 +308,6 @@ function PatientList() {
                       <td className="tgl-masuk">
                         {formatDate(patient.tgl_masuk)}
                       </td>
-
-                      {/* ✅ Kolom Aksi dihapus */}
                     </tr>
                   ))}
                 </tbody>

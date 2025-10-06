@@ -9,7 +9,7 @@ function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ Close dropdown when clicking outside
+  // Close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -36,6 +36,22 @@ function Dashboard() {
     setDropdownOpen(!dropdownOpen);
   };
 
+  // Helper function untuk get nama dokter yang benar
+  const getDoctorName = () => {
+    // Jika ada nm_dokter dari backend dan tidak kosong
+    if (user?.nm_dokter && user.nm_dokter.trim() !== '') {
+      return user.nm_dokter;
+    }
+    // Fallback ke format Dr. + id_user
+    return `Dr. ${user?.id_user || 'Unknown'}`;
+  };
+
+  // Get initial untuk avatar
+  const getUserInitial = () => {
+    const name = getDoctorName();
+    return name.charAt(0).toUpperCase();
+  };
+
   return (
     <div className="dashboard-page">
       {/* Header */}
@@ -59,7 +75,7 @@ function Dashboard() {
             </div>
           </div>
           
-          {/* ✅ User Dropdown Menu - Top Right */}
+          {/* User Dropdown Menu - Top Right */}
           <div className="header-right">
             <div className="user-dropdown" ref={dropdownRef}>
               <button 
@@ -69,12 +85,12 @@ function Dashboard() {
               >
                 <div className="user-avatar">
                   <span className="user-initial">
-                    {(user?.nm_dokter || user?.id_user || 'D').charAt(0).toUpperCase()}
+                    {getUserInitial()}
                   </span>
                 </div>
                 <div className="user-info-compact">
                   <p className="user-name-compact">
-                    {user?.nm_dokter || `Dr. ${user?.id_user}`}
+                    {getDoctorName()}
                   </p>
                   <p className="user-role-compact">DPJP</p>
                 </div>
@@ -91,21 +107,21 @@ function Dashboard() {
                 </svg>
               </button>
 
-              {/* ✅ Dropdown Menu */}
+              {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="user-dropdown-menu">
                   <div className="dropdown-header">
                     <div className="dropdown-avatar">
                       <span className="avatar-large">
-                        {(user?.nm_dokter || user?.id_user || 'D').charAt(0).toUpperCase()}
+                        {getUserInitial()}
                       </span>
                     </div>
                     <div className="dropdown-user-info">
                       <h4 className="dropdown-name">
-                        {user?.nm_dokter || `Dr. ${user?.id_user}`}
+                        {getDoctorName()}
                       </h4>
                       <p className="dropdown-role">Dokter Penanggung Jawab</p>
-                      <p className="dropdown-code">Kode: {user?.kd_dokter}</p>
+                      <p className="dropdown-code">Kode: {user?.kd_dokter || user?.id_user}</p>
                     </div>
                   </div>
                   
@@ -141,7 +157,7 @@ function Dashboard() {
           {/* Welcome Section */}
           <div className="welcome-section">
             <h2 className="welcome-title">
-              Selamat Datang, {user?.nm_dokter || `Dr. ${user?.id_user}`}
+              Selamat Datang, {getDoctorName()}
             </h2>
             <p className="welcome-text">
               Kelola data pasien rawat inap dengan mudah dan efisien

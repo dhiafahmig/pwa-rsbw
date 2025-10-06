@@ -16,10 +16,9 @@ func NewPasienHandler(pasienService PasienService) *PasienHandler {
 	}
 }
 
-// ✅ Auto-ambil kode dokter dari JWT (tidak dari query parameter)
+// ✅ ENHANCED: Support filter parameter untuk CPPT
 func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 	kdDokter := c.GetString("kd_dokter")
-
 	if kdDokter == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -28,7 +27,10 @@ func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 		return
 	}
 
-	response, err := h.pasienService.GetPasienAktifByDokter(kdDokter)
+	// ✅ TAMBAH: Get filter parameter
+	filter := c.DefaultQuery("filter", "all") // "all", "sudah_cppt", "belum_cppt"
+
+	response, err := h.pasienService.GetPasienAktifByDokterWithFilter(kdDokter, filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"status":  "error",
@@ -41,11 +43,10 @@ func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 	c.JSON(http.StatusOK, response)
 }
 
-// ✅ Detail pasien hanya jika dokter yang login adalah DPJP-nya
+// Detail pasien dengan CPPT info
 func (h *PasienHandler) GetPasienDetail(c *gin.Context) {
 	noRawat := c.Param("no_rawat")
 	kdDokter := c.GetString("kd_dokter")
-
 	if kdDokter == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
@@ -69,10 +70,9 @@ func (h *PasienHandler) GetPasienDetail(c *gin.Context) {
 	})
 }
 
-// ✅ Profile dokter yang login
+// Profile dokter yang login
 func (h *PasienHandler) GetDokterProfile(c *gin.Context) {
 	kdDokter := c.GetString("kd_dokter")
-
 	if kdDokter == "" {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status":  "error",
