@@ -58,8 +58,8 @@ function PatientList() {
         
         setStats({
           total_pasien: patientData.length,
-          pasien_aktif: patientData.length, // Semua data yang ada dianggap aktif
-          pasien_keluar_hari_ini: 0, // TODO: jika ada data keluar
+          pasien_aktif: patientData.length,
+          pasien_keluar_hari_ini: 0,
           pasien_baru_hari_ini: pasienHariIni.length
         });
         
@@ -222,7 +222,7 @@ function PatientList() {
                     <th>Bangsal</th>
                     <th>Diagnosa</th>
                     <th>Tgl Masuk</th>
-                    <th>Aksi</th>
+                    {/* ✅ Kolom Aksi dihapus */}
                   </tr>
                 </thead>
                 <tbody>
@@ -245,10 +245,9 @@ function PatientList() {
                         </div>
                       </td>
 
-                      {/* Penanggung Jawab */}
+                      {/* ✅ Penanggung Jawab - No Emoji */}
                       <td className="penanggung-jawab">
                         <span className={`pj-badge ${patient.penanggung_jawab?.toLowerCase()}`}>
-                          {patient.penanggung_jawab === 'BPJS' ? '🏥' : '💳'} 
                           {patient.penanggung_jawab}
                         </span>
                       </td>
@@ -263,12 +262,12 @@ function PatientList() {
 
                       {/* Kamar */}
                       <td className="kamar">
-                        {patient.kd_kamar}
+                        <span className="ruang">{patient.kd_kamar}</span>
                       </td>
 
                       {/* Bangsal */}
                       <td className="bangsal">
-                        {patient.nm_bangsal}
+                        <span className="bangsal">{patient.nm_bangsal}</span>
                       </td>
 
                       {/* Diagnosa */}
@@ -281,25 +280,7 @@ function PatientList() {
                         {formatDate(patient.tgl_masuk)}
                       </td>
 
-                      {/* Aksi */}
-                      <td>
-                        <div className="action-buttons">
-                          <button 
-                            className="btn-detail" 
-                            title="Detail Pasien"
-                            onClick={() => console.log('Detail:', patient.no_rawat)}
-                          >
-                            👁️
-                          </button>
-                          <button 
-                            className="btn-edit" 
-                            title="Edit Data"
-                            onClick={() => console.log('Edit:', patient.no_rawat)}
-                          >
-                            ✏️
-                          </button>
-                        </div>
-                      </td>
+                      {/* ✅ Kolom Aksi dihapus */}
                     </tr>
                   ))}
                 </tbody>

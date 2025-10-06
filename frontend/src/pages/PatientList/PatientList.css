@@ -1,4 +1,8 @@
-/* Patient List Styles - RS Bumi Waras Green Theme */
+/* =======================================
+   PATIENT LIST - RS BUMI WARAS GREEN THEME
+======================================= */
+
+/* Base Layout */
 .patient-list-page {
   min-height: 100vh;
   background: #f8fafc;
@@ -6,12 +10,12 @@
   flex-direction: column;
 }
 
-/* ✅ Header - Green Theme */
+/* ===== HEADER SECTION ===== */
 .patient-header {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%); /* ✅ Green gradient */
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
   padding: 0;
-  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.2); /* ✅ Green shadow */
+  box-shadow: 0 2px 10px rgba(5, 150, 105, 0.2);
 }
 
 .header-content {
@@ -29,24 +33,9 @@
   gap: 20px;
 }
 
-.back-button {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
+.header-info {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-.back-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
+  flex-direction: column;
 }
 
 .page-title {
@@ -61,6 +50,13 @@
   opacity: 0.9;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+/* Header Buttons */
+.back-button,
 .logout-button {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -76,12 +72,13 @@
   backdrop-filter: blur(10px);
 }
 
+.back-button:hover,
 .logout-button:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
 }
 
-/* Main Content */
+/* ===== MAIN CONTENT ===== */
 .patient-main {
   flex: 1;
   padding: 30px 20px;
@@ -92,7 +89,7 @@
   margin: 0 auto;
 }
 
-/* ✅ Summary Cards - Green Theme */
+/* ===== SUMMARY CARDS ===== */
 .summary-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -104,24 +101,24 @@
   background: white;
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1); /* ✅ Green shadow */
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
   display: flex;
   align-items: center;
   gap: 16px;
-  border: 1px solid rgba(5, 150, 105, 0.1); /* ✅ Green border */
+  border: 1px solid rgba(5, 150, 105, 0.1);
   transition: all 0.2s ease;
 }
 
 .summary-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.15); /* ✅ Green shadow */
+  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.15);
   border-color: rgba(5, 150, 105, 0.2);
 }
 
 .summary-icon {
   font-size: 2.5rem;
   padding: 12px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%); /* ✅ Green gradient */
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
   color: white;
   border-radius: 12px;
   display: flex;
@@ -142,40 +139,57 @@
   font-size: 0.9rem;
 }
 
-/* ✅ Table Section - Green Theme */
+/* ===== TABLE SECTION ===== */
 .table-section {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1); /* ✅ Green shadow */
-  border: 1px solid rgba(5, 150, 105, 0.1); /* ✅ Green border */
+  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.1);
   overflow: hidden;
 }
 
 .table-header {
   padding: 24px;
-  border-bottom: 1px solid rgba(5, 150, 105, 0.1); /* ✅ Green border */
+  border-bottom: 1px solid rgba(5, 150, 105, 0.1);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #f0fdf4; /* ✅ Very light green background */
+  background: #f0fdf4;
 }
 
 .table-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: #166534; /* ✅ Dark green text */
+  color: #166534;
   margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.table-title::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 2px;
+  margin-right: 12px;
 }
 
 .data-count {
   font-size: 0.875rem;
-  color: #059669; /* ✅ Green text */
+  color: #059669;
   font-weight: 400;
   margin-left: 8px;
 }
 
+.table-actions {
+  display: flex;
+  align-items: center;
+}
+
 .refresh-button {
-  background: #059669; /* ✅ Green background */
+  background: #059669;
   color: white;
   border: none;
   padding: 10px 16px;
@@ -189,11 +203,16 @@
 }
 
 .refresh-button:hover {
-  background: #047857; /* ✅ Darker green */
+  background: #047857;
   transform: translateY(-1px);
 }
 
-/* Table */
+.refresh-button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===== PATIENT TABLE ===== */
 .table-container {
   overflow-x: auto;
 }
@@ -201,42 +220,60 @@
 .patient-table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.875rem;
 }
 
 .patient-table th {
-  background: #f0fdf4; /* ✅ Light green background */
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
   padding: 16px 12px;
   text-align: left;
   font-weight: 600;
-  color: #166534; /* ✅ Dark green text */
-  border-bottom: 1px solid rgba(5, 150, 105, 0.2); /* ✅ Green border */
-  font-size: 0.875rem;
+  color: #166534;
+  border-bottom: 2px solid #bbf7d0;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
   white-space: nowrap;
 }
 
 .patient-table td {
   padding: 16px 12px;
-  border-bottom: 1px solid rgba(5, 150, 105, 0.05); /* ✅ Very light green border */
-  font-size: 0.875rem;
+  border-bottom: 1px solid rgba(5, 150, 105, 0.05);
   vertical-align: middle;
 }
 
 .patient-table tbody tr:hover {
-  background: #f0fdf4; /* ✅ Light green hover */
+  background: linear-gradient(135deg, #f0fdf4 0%, rgba(220, 252, 231, 0.5) 100%);
+  transform: scale(1.005);
+  transition: all 0.2s ease;
 }
 
-/* ✅ Table Cell Styles - Green Theme */
+.patient-table tbody tr:nth-child(even) {
+  background: rgba(249, 250, 251, 0.5);
+}
+
+.patient-table tbody tr:nth-child(even):hover {
+  background: linear-gradient(135deg, #f0fdf4 0%, rgba(220, 252, 231, 0.7) 100%);
+}
+
+/* ===== TABLE CELL STYLES ===== */
 .no-rawat {
   font-weight: 600;
-  color: #059669; /* ✅ Green text */
+  color: #059669;
   white-space: nowrap;
   font-size: 0.8rem;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 }
 
 .no-rm {
   font-weight: 500;
   color: #1f2937;
   font-size: 0.85rem;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+.nama-pasien {
+  max-width: 200px;
 }
 
 .patient-name {
@@ -249,150 +286,125 @@
   font-weight: 600;
   color: #1f2937;
   font-size: 0.9rem;
+  line-height: 1.3;
 }
 
-.gender-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
+/* ✅ Penanggung Jawab Badge - No Emoji */
+.penanggung-jawab {
+  text-align: center;
 }
 
-.gender-badge.l {
-  background: #dbeafe;
-  color: #1e3a8a;
-}
-
-.gender-badge.p {
-  background: #fce7f3;
-  color: #be185d;
-}
-
-/* ✅ Payer Badge - Green Theme */
 .pj-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
+  padding: 6px 12px;
   border-radius: 6px;
   font-size: 0.75rem;
   font-weight: 600;
   white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.pj-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .pj-badge.bpjs {
-  background: #dcfce7; /* ✅ Light green */
-  color: #166534; /* ✅ Dark green */
+  background: #dcfce7;
+  color: #166534;
+  border-color: #bbf7d0;
 }
 
 .pj-badge.umum {
-  background: #fef3c7; /* Light yellow */
-  color: #d97706; /* Dark yellow */
+  background: #fef3c7;
+  color: #d97706;
+  border-color: #fde68a;
+}
+
+.pj-badge.asuransi {
+  background: #dbeafe;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
 }
 
 .pj-badge.default {
-  background: #dbeafe; /* Light blue */
-  color: #1d4ed8; /* Dark blue */
+  background: #f3f4f6;
+  color: #4b5563;
+  border-color: #d1d5db;
 }
 
-/* ✅ Room & Ward - Green Theme */
-.ruang {
-  font-weight: 600;
-  color: #059669; /* ✅ Green text */
-  font-size: 0.8rem;
-  white-space: nowrap;
+/* Dokter DPJP */
+.dokter {
+  max-width: 150px;
 }
 
-.bangsal {
-  color: #047857; /* ✅ Darker green */
-  font-weight: 500;
-  font-size: 0.8rem;
-}
-
-.diagnosa {
-  color: #dc2626; /* Red for diagnosis */
-  font-weight: 500;
-  font-size: 0.8rem;
-  max-width: 120px;
+.dokter-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   line-height: 1.3;
 }
 
+.dokter-kode {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+.dokter-nama {
+  font-size: 0.8rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+/* Kamar & Bangsal */
+.kamar {
+  text-align: center;
+}
+
+.ruang {
+  font-weight: 600;
+  color: #059669;
+  font-size: 0.85rem;
+  padding: 4px 8px;
+  background: #f0fdf4;
+  border-radius: 4px;
+  border: 1px solid #dcfce7;
+  display: inline-block;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+.bangsal {
+  color: #047857;
+  font-weight: 500;
+  font-size: 0.85rem;
+}
+
+/* Diagnosa */
+.diagnosa {
+  color: #dc2626;
+  font-weight: 500;
+  font-size: 0.8rem;
+  max-width: 150px;
+  line-height: 1.3;
+  word-wrap: break-word;
+}
+
+/* Tanggal Masuk */
 .tgl-masuk {
   font-size: 0.8rem;
   color: #4b5563;
   white-space: nowrap;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 }
 
-.status-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.status-badge.active {
-  background: #dcfce7; /* ✅ Light green */
-  color: #166534; /* ✅ Dark green */
-}
-
-/* ✅ Action Buttons - Green Theme */
-.action-buttons {
-  display: flex;
-  gap: 8px;
-}
-
-.action-buttons button {
-  background: none;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.2s ease;
-}
-
-.btn-detail {
-  color: #059669; /* ✅ Green */
-}
-
-.btn-detail:hover {
-  background: #dcfce7; /* ✅ Light green */
-}
-
-.btn-edit {
-  color: #f59e0b; /* Amber */
-}
-
-.btn-edit:hover {
-  background: #fef3c7; /* Light amber */
-}
-
-/* Empty State */
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #6b7280;
-}
-
-.empty-icon {
-  font-size: 4rem;
-  margin-bottom: 16px;
-  color: #059669; /* ✅ Green icon */
-}
-
-.empty-state h3 {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
-  color: #166534; /* ✅ Dark green */
-}
-
-/* ✅ Loading Container - Green Theme */
+/* ===== LOADING STATE ===== */
 .loading-container {
   min-height: 100vh;
   display: flex;
@@ -410,7 +422,7 @@
   width: 40px;
   height: 40px;
   border: 3px solid #e5e7eb;
-  border-top: 3px solid #059669; /* ✅ Green spinner */
+  border-top: 3px solid #059669;
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16px;
@@ -421,7 +433,7 @@
   100% { transform: rotate(360deg); }
 }
 
-/* ✅ Error Banner - Keep Red for Errors */
+/* ===== ERROR STATE ===== */
 .error-banner {
   background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
   border: 1px solid #fc8181;
@@ -473,32 +485,40 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: all 0.2s ease;
 }
 
 .error-close:hover {
   background: rgba(197, 48, 48, 0.1);
 }
 
-/* ✅ Demo Badge - Green Theme */
-.demo-badge {
-  background: #dcfce7; /* ✅ Light green */
-  color: #166534; /* ✅ Dark green */
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.7rem;
+/* ===== EMPTY STATE ===== */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #6b7280;
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 16px;
+  color: #059669;
+}
+
+.empty-state h3 {
+  font-size: 1.25rem;
+  margin-bottom: 8px;
+  color: #166534;
   font-weight: 600;
-  margin-left: 8px;
 }
 
-/* Refresh Button Loading */
-.refresh-button.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
+.empty-state p {
+  font-size: 0.9rem;
+  margin-bottom: 16px;
 }
 
-/* ✅ Retry Button - Green Theme */
 .retry-button {
-  background: #059669; /* ✅ Green background */
+  background: #059669;
   color: white;
   border: none;
   padding: 12px 20px;
@@ -513,31 +533,24 @@
 }
 
 .retry-button:hover {
-  background: #047857; /* ✅ Darker green */
+  background: #047857;
   transform: translateY(-1px);
 }
 
-/* ✅ Doctor Info - Green Theme */
-.dokter-info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
+/* ===== ANIMATIONS ===== */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-.dokter-kode {
-  font-size: 0.7rem;
-  color: #6b7280;
-  font-weight: 500;
-}
-
-.dokter-nama {
-  font-size: 0.8rem;
-  color: #1f2937;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-/* Responsive */
+/* ===== RESPONSIVE DESIGN ===== */
+/* ✅ Medium Tablet - Hide only Dokter DPJP */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
@@ -568,71 +581,112 @@
   .patient-table td {
     padding: 12px 8px;
   }
+  
+  /* ✅ Hide only Dokter DPJP - Keep Diagnosa */
+  .patient-table th:nth-child(5), /* Dokter DPJP */
+  .patient-table td:nth-child(5) {
+    display: none;
+  }
 }
 
-@media (max-width: 480px) {
+/* ✅ Small Mobile - Hide No. RM + Dokter DPJP */
+@media (max-width: 640px) {
   .summary-cards {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
   
   .patient-main {
     padding: 20px 16px;
   }
   
-  .action-buttons {
-    flex-direction: column;
-    gap: 4px;
+  .patient-table {
+    font-size: 0.75rem;
+  }
+  
+  .patient-table th,
+  .patient-table td {
+    padding: 10px 6px;
+  }
+  
+  /* ✅ Hide No. RM and Dokter DPJP - Keep Diagnosa */
+  .patient-table th:nth-child(2), /* No. RM */
+  .patient-table td:nth-child(2),
+  .patient-table th:nth-child(5), /* Dokter DPJP */
+  .patient-table td:nth-child(5) {
+    display: none;
   }
 }
 
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
+/* ✅ Very Small Mobile - Keep essential + Diagnosa */
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: 1fr;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .patient-main {
+    padding: 20px 12px;
+  }
+  
+  /* ✅ Hide: No. RM, Penanggung Jawab, Dokter DPJP */
+  /* ✅ Keep: No Rawat, Nama, Kamar, Bangsal, DIAGNOSA, Tgl Masuk */
+  .patient-table th:nth-child(2), /* No. RM */
+  .patient-table td:nth-child(2),
+  .patient-table th:nth-child(4), /* Penanggung Jawab */
+  .patient-table td:nth-child(4),
+  .patient-table th:nth-child(5), /* Dokter DPJP */
+  .patient-table td:nth-child(5) {
+    display: none;
+  }
+  
+  /* ✅ Adjust remaining column sizes */
+  .nama-pasien {
+    max-width: 100px;
+  }
+  
+  .name {
+    font-size: 0.8rem;
+  }
+  
+  .ruang {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+  }
+  
+  .bangsal {
+    font-size: 0.75rem;
+  }
+  
+  .diagnosa {
+    font-size: 0.7rem;
+    max-width: 100px;
+  }
+  
+  .tgl-masuk {
+    font-size: 0.7rem;
   }
 }
 
-/* ✅ Additional Green Theme Elements */
-.table-title::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 20px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  border-radius: 2px;
-  margin-right: 12px;
-  vertical-align: middle;
-}
-
-/* Patient count badge */
-.patient-count {
-  background: #dcfce7; /* ✅ Light green */
-  color: #166534; /* ✅ Dark green */
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  margin-left: 8px;
-}
-
-/* Success states */
-.success-message {
-  background: #dcfce7; /* ✅ Light green */
-  border: 1px solid #bbf7d0;
-  color: #166534; /* ✅ Dark green */
-  padding: 12px 16px;
-  border-radius: 8px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.success-icon {
-  color: #059669; /* ✅ Green */
-  font-size: 1.1rem;
+/* ✅ Extra Small Mobile - Final optimization */
+@media (max-width: 360px) {
+  .patient-table th,
+  .patient-table td {
+    padding: 8px 4px;
+  }
+  
+  .patient-table th {
+    font-size: 0.65rem;
+  }
+  
+  .patient-table {
+    font-size: 0.7rem;
+  }
+  
+  .nama-pasien {
+    max-width: 80px;
+  }
+  
+  .diagnosa {
+    max-width: 80px;
+    font-size: 0.65rem;
+  }
 }
