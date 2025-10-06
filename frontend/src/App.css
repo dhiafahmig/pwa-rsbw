@@ -421,3 +421,264 @@ body {
   font-weight: 500;
   backdrop-filter: blur(10px);
 }
+
+/* ===== PWA FULL SCREEN SUPPORT ===== */
+
+/* ✅ Base app container */
+.app {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  min-height: calc(var(--vh, 1vh) * 100);
+  display: flex;
+  flex-direction: column;
+  background: #f8fafc;
+}
+
+/* ✅ Standalone PWA mode specific styles */
+@media (display-mode: standalone) {
+  .app {
+    /* ✅ Remove any drag regions */
+    -webkit-app-region: drag;
+    
+    /* ✅ Safe area support for devices with notch */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    
+    /* ✅ Full height utilization */
+    height: 100vh;
+    height: -webkit-fill-available;
+  }
+  
+  /* ✅ Make interactive elements clickable in drag region */
+  button, input, textarea, select, a, [role="button"], .clickable {
+    -webkit-app-region: no-drag;
+    -webkit-user-select: auto;
+    user-select: auto;
+  }
+  
+  /* ✅ Header adjustments for standalone mode */
+  .dashboard-header, .patient-header {
+    padding-top: max(20px, env(safe-area-inset-top));
+    border-top: 1px solid transparent; /* Prevent content jumping */
+  }
+  
+  /* ✅ Hide any browser UI remnants */
+  body {
+    overflow-x: hidden;
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* ✅ Status bar integration */
+  .app::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: env(safe-area-inset-top);
+    background: #059669;
+    z-index: 999;
+  }
+}
+
+/* ✅ iOS Safari specific fixes */
+@supports (-webkit-touch-callout: none) {
+  .app {
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+  }
+  
+  /* ✅ Fix iOS viewport units */
+  .loading-screen {
+    height: -webkit-fill-available;
+  }
+}
+
+/* ✅ Prevent zoom and improve touch */
+* {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ✅ Enable selection for text inputs */
+input, textarea, [contenteditable] {
+  -webkit-user-select: auto;
+  user-select: auto;
+  -webkit-touch-callout: default;
+}
+
+/* ✅ PWA loading states */
+.pwa-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  height: -webkit-fill-available;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  color: white;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* ✅ PWA status indicator */
+.pwa-status {
+  position: fixed;
+  top: env(safe-area-inset-top, 10px);
+  left: 10px;
+  background: rgba(5, 150, 105, 0.9);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  transition: opacity 0.3s ease;
+}
+
+/* ✅ Hide status in browser mode */
+@media (display-mode: browser) {
+  .pwa-status {
+    display: none;
+  }
+}
+
+/* ✅ Landscape mode optimizations */
+@media (orientation: landscape) and (max-height: 500px) {
+  .dashboard-header, .patient-header {
+    padding-top: max(10px, env(safe-area-inset-top));
+    padding-bottom: 10px;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+  
+  .table-section {
+    flex: 1;
+    overflow: hidden;
+  }
+  
+  .table-container {
+    height: calc(100vh - 200px);
+    overflow-y: auto;
+  }
+}
+
+/* ✅ Small screen optimizations */
+@media (max-width: 480px) {
+  @media (display-mode: standalone) {
+    .app {
+      padding-left: max(8px, env(safe-area-inset-left));
+      padding-right: max(8px, env(safe-area-inset-right));
+    }
+  }
+}
+
+/* ✅ Prevent overscroll bounce */
+.patient-main, .dashboard-main {
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ✅ Full screen table containers */
+.table-container {
+  max-height: calc(100vh - 300px);
+  max-height: calc(var(--vh, 1vh) * 100 - 300px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (display-mode: standalone) {
+  .table-container {
+    max-height: calc(100vh - 320px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  }
+}
+
+/* ✅ Button improvements for PWA */
+button {
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  outline: none;
+  touch-action: manipulation;
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+/* ✅ Form inputs for PWA */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 12px;
+  font-size: 16px; /* Prevent zoom on iOS */
+}
+
+/* ✅ PWA offline indicator */
+.offline-indicator {
+  position: fixed;
+  top: env(safe-area-inset-top, 10px);
+  right: 10px;
+  background: #ef4444;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  z-index: 1001;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+
+/* ✅ FORCE FULL SCREEN */
+@media (display-mode: standalone) {
+  /* Hide any remaining browser chrome */
+  html, body {
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  
+  /* Force app to use full screen */
+  .app {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    height: -webkit-fill-available !important;
+    z-index: 0 !important;
+  }
+  
+  /* Safe area adjustments */
+  .app {
+    padding-top: env(safe-area-inset-top) !important;
+    padding-bottom: env(safe-area-inset-bottom) !important;
+    padding-left: env(safe-area-inset-left) !important;
+    padding-right: env(safe-area-inset-right) !important;
+  }
+}
+
+/* ✅ iOS specific fixes */
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    .app {
+      height: -webkit-fill-available !important;
+    }
+  }
+}
+

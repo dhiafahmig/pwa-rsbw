@@ -1,43 +1,339 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
-    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
-    <!--
-      manifest.json provides metadata used when your web app is installed on a
-      user's mobile device or desktop. See https://developers.google.com/web/fundamentals/web-app-manifest/
-    -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
-    <!--
-      Notice the use of %PUBLIC_URL% in the tags above.
-      It will be replaced with the URL of the `public` folder during the build.
-      Only files inside the `public` folder can be referenced from the HTML.
-
-      Unlike "/favicon.ico" or "favicon.ico", "%PUBLIC_URL%/favicon.ico" will
-      work correctly both with client-side routing and a non-root public URL.
-      Learn how to configure a non-root public URL by running `npm run build`.
-    -->
-    <title>React App</title>
-  </head>
-  <body>
-    <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
-    <!--
-      This HTML file is a template.
-      If you open it directly in the browser, you will see an empty page.
-
-      You can add webfonts, meta tags, or analytics to this file.
-      The build step will place the bundled scripts into the <body> tag.
-
-      To begin the development, run `npm start` or `yarn start`.
-      To create a production bundle, use `npm run build` or `yarn build`.
-    -->
-  </body>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+  
+  <!-- ✅ CRITICAL: Full Screen Viewport for PWA -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  
+  <!-- ✅ PWA Theme Colors -->
+  <meta name="theme-color" content="#059669" />
+  <meta name="background-color" content="#059669" />
+  <meta name="msapplication-navbutton-color" content="#059669" />
+  
+  <!-- ✅ iOS Full Screen Meta Tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="DPJP App" />
+  <meta name="apple-touch-fullscreen" content="yes" />
+  
+  <!-- ✅ Android Full Screen Meta Tags -->
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="application-name" content="DPJP App" />
+  
+  <!-- ✅ Microsoft Tiles -->
+  <meta name="msapplication-TileColor" content="#059669" />
+  <meta name="msapplication-TileImage" content="%PUBLIC_URL%/icons/android-chrome-144x144.png" />
+  <meta name="msapplication-tap-highlight" content="no" />
+  <meta name="msapplication-starturl" content="/dashboard" />
+  
+  <!-- ✅ Prevent Zoom and Selection -->
+  <meta name="format-detection" content="telephone=no" />
+  <meta name="format-detection" content="email=no" />
+  <meta name="format-detection" content="address=no" />
+  
+  <!-- ✅ Security Headers -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  
+  <!-- ✅ SEO Meta Tags -->
+  <meta name="description" content="Sistem Dokter Penanggung Jawab Pasien - RS Bumi Waras. Aplikasi mobile untuk mengelola data pasien rawat inap dengan mudah dan efisien." />
+  <meta name="keywords" content="hospital, medical, doctor, patient, RS Bumi Waras, DPJP, rawat inap, rumah sakit" />
+  <meta name="author" content="RS Bumi Waras" />
+  <meta name="robots" content="noindex, nofollow" />
+  
+  <!-- ✅ Web App Manifest -->
+  <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+  
+  <!-- ✅ Apple Touch Icons - Multiple Sizes -->
+  <link rel="apple-touch-icon" href="%PUBLIC_URL%/icons/android-chrome-192x192.png" />
+  <link rel="apple-touch-icon" sizes="72x72" href="%PUBLIC_URL%/icons/android-chrome-72x72.png" />
+  <link rel="apple-touch-icon" sizes="96x96" href="%PUBLIC_URL%/icons/android-chrome-96x96.png" />
+  <link rel="apple-touch-icon" sizes="144x144" href="%PUBLIC_URL%/icons/android-chrome-144x144.png" />
+  <link rel="apple-touch-icon" sizes="192x192" href="%PUBLIC_URL%/icons/android-chrome-192x192.png" />
+  <link rel="apple-touch-icon" sizes="512x512" href="%PUBLIC_URL%/icons/android-chrome-512x512.png" />
+  
+  <!-- ✅ Favicon Links -->
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/icons/android-chrome-96x96.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/icons/android-chrome-72x72.png" />
+  
+  <!-- ✅ iOS Splash Screens -->
+  <link rel="apple-touch-startup-image" href="%PUBLIC_URL%/icons/android-chrome-512x512.png" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3)" />
+  <link rel="apple-touch-startup-image" href="%PUBLIC_URL%/icons/android-chrome-512x512.png" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2)" />
+  <link rel="apple-touch-startup-image" href="%PUBLIC_URL%/icons/android-chrome-512x512.png" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3)" />
+  
+  <title>RS Bumi Waras - Sistem DPJP</title>
+  
+  <!-- ✅ Critical CSS - Prevent FOUC and Setup Full Screen -->
+  <style>
+    /* ✅ Reset and Base Styles */
+    * {
+      box-sizing: border-box;
+    }
+    
+    html {
+      height: 100%;
+      height: -webkit-fill-available;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      height: -webkit-fill-available;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      
+      /* ✅ Prevent overscroll bounce */
+      overscroll-behavior: none;
+      overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      
+      /* ✅ Prevent zoom and selection */
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      
+      /* ✅ Prevent tap highlights */
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      
+      /* ✅ Background color */
+      background-color: #f8fafc;
+    }
+    
+    /* ✅ Root container full height */
+    #root {
+      height: 100%;
+      height: -webkit-fill-available;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* ✅ Enable selection for interactive elements */
+    button, input, textarea, select, a, [contenteditable] {
+      -webkit-user-select: auto;
+      -moz-user-select: auto;
+      -ms-user-select: auto;
+      user-select: auto;
+    }
+    
+    /* ✅ Standalone PWA Mode Styles */
+    @media (display-mode: standalone) {
+      body {
+        /* ✅ Hide any remaining browser UI */
+        overflow-x: hidden;
+        -webkit-app-region: drag;
+      }
+      
+      /* ✅ Safe area support for notch phones */
+      #root {
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: env(safe-area-inset-bottom);
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+      
+      /* ✅ Interactive elements */
+      button, input, textarea, select, a, [role="button"] {
+        -webkit-app-region: no-drag;
+      }
+      
+      /* ✅ Status bar area styling */
+      .dashboard-header, .patient-header {
+        padding-top: max(20px, env(safe-area-inset-top));
+      }
+    }
+    
+    /* ✅ iOS Specific Fixes */
+    @supports (-webkit-touch-callout: none) {
+      html, body, #root {
+        height: -webkit-fill-available;
+      }
+      
+      /* ✅ Fix iOS viewport height issues */
+      .app {
+        min-height: 100vh;
+        min-height: -webkit-fill-available;
+      }
+    }
+    
+    /* ✅ Loading Screen */
+    .loading-screen {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      height: -webkit-fill-available;
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+      color: white;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    
+    /* ✅ Loading spinner */
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* ✅ Hide scrollbars but keep functionality */
+    ::-webkit-scrollbar {
+      width: 0px;
+      background: transparent;
+    }
+    
+    /* ✅ Landscape mode adjustments */
+    @media (orientation: landscape) and (max-height: 500px) {
+      .dashboard-header, .patient-header {
+        padding-top: max(10px, env(safe-area-inset-top));
+        padding-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <noscript>
+    <div style="
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      height: 100vh; 
+      background: #059669; 
+      color: white; 
+      text-align: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+    ">
+      <div>
+        <h2>JavaScript Required</h2>
+        <p>Please enable JavaScript to run this application.</p>
+      </div>
+    </div>
+  </noscript>
+  
+  <div id="root">
+    <!-- ✅ Initial loading screen while React loads -->
+    <div class="loading-screen">
+      <div class="loading-spinner"></div>
+      Loading DPJP App...
+    </div>
+  </div>
+  
+  <!-- ✅ PWA Service Worker Registration -->
+  <script>
+    // ✅ Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('✅ SW registered successfully:', registration.scope);
+          })
+          .catch((registrationError) => {
+            console.log('❌ SW registration failed:', registrationError);
+          });
+      });
+    }
+    
+    // ✅ Prevent iOS zoom on input focus
+    if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+      document.addEventListener('focusin', function(e) {
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+          document.querySelector('meta[name=viewport]').setAttribute(
+            'content', 
+            'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+          );
+        }
+      });
+      
+      document.addEventListener('focusout', function(e) {
+        document.querySelector('meta[name=viewport]').setAttribute(
+          'content', 
+          'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover'
+        );
+      });
+    }
+    
+    // ✅ Prevent pinch zoom
+    document.addEventListener('gesturestart', function (e) {
+      e.preventDefault();
+    });
+    
+    document.addEventListener('gesturechange', function (e) {
+      e.preventDefault();
+    });
+    
+    document.addEventListener('gestureend', function (e) {
+      e.preventDefault();
+    });
+    
+    // ✅ Set CSS custom properties for viewport height
+    function setViewportHeight() {
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
+    }
+    
+    setViewportHeight();
+    window.addEventListener('resize', setViewportHeight);
+    window.addEventListener('orientationchange', () => {
+      setTimeout(setViewportHeight, 100);
+    });
+    
+    // ✅ PWA Display Mode Detection
+    window.addEventListener('DOMContentLoaded', () => {
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || 
+                          window.navigator.standalone === true;
+      
+      if (isStandalone) {
+        console.log('📱 Running in PWA standalone mode');
+        document.body.classList.add('pwa-standalone');
+      } else {
+        console.log('🌐 Running in browser mode');
+        document.body.classList.add('pwa-browser');
+      }
+    });
+    
+    // ✅ Prevent context menu on long press (mobile)
+    document.addEventListener('contextmenu', function(e) {
+      if (window.matchMedia('(display-mode: standalone)').matches) {
+        e.preventDefault();
+      }
+    });
+    
+    // ✅ Hide loading screen when React takes over
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        const loadingScreen = document.querySelector('.loading-screen');
+        if (loadingScreen) {
+          loadingScreen.style.opacity = '0';
+          loadingScreen.style.transition = 'opacity 0.3s ease';
+          setTimeout(() => {
+            if (loadingScreen.parentNode) {
+              loadingScreen.parentNode.removeChild(loadingScreen);
+            }
+          }, 300);
+        }
+      }, 1000);
+    });
+  </script>
+</body>
 </html>
