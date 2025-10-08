@@ -6,33 +6,33 @@
 }
 
 html {
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important; /* ✅ Subtle gradient */
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important; /* ✅ Subtle white to light gray gradient */
-  background-attachment: fixed; /* ✅ Keep gradient fixed when scrolling */
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  background-attachment: fixed;
   overflow-x: hidden;
 }
 
 .app {
   min-height: 100vh;
-  background: transparent; /* ✅ Let body gradient show through */
+  background: transparent;
 }
 
 /* ===== GREEN THEME VARIABLES ===== */
 :root {
-  --primary-green: #059669;      /* Main green */
-  --primary-green-dark: #047857;  /* Dark green */
-  --primary-green-light: #10b981; /* Light green */
-  --accent-green: #34d399;       /* Accent green */
-  --bg-green-light: #f0fdf4;     /* Very light green */
-  --bg-green-lighter: #dcfce7;   /* Lighter green */
-  --text-green: #065f46;         /* Dark green text */
-  --text-green-light: #047857;   /* Medium green text */
+  --primary-green: #059669;
+  --primary-green-dark: #047857;
+  --primary-green-light: #10b981;
+  --accent-green: #34d399;
+  --bg-green-light: #f0fdf4;
+  --bg-green-lighter: #dcfce7;
+  --text-green: #065f46;
+  --text-green-light: #047857;
   --white: #ffffff;
   --gray-50: #f9fafb;
   --gray-100: #f3f4f6;
@@ -46,33 +46,30 @@ body {
   --gray-900: #111827;
 }
 
-/* ✅ Login Container - Beautiful Gradient Background */
+/* ✅ Login Container */
 .login-container {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  /* ✅ Beautiful subtle gradient background - white to light gray */
   background: linear-gradient(135deg, 
-    #ffffff 0%,           /* Pure white start */
-    #f8fafc 25%,         /* Very light gray-blue */
-    #f1f5f9 50%,         /* Light gray-blue */
-    #e2e8f0 75%,         /* Medium light gray */
-    #cbd5e1 100%         /* Slightly darker gray end */
+    #ffffff 0%,
+    #f8fafc 25%,
+    #f1f5f9 50%,
+    #e2e8f0 75%,
+    #cbd5e1 100%
   ) !important;
-  background-attachment: fixed; /* ✅ Keep gradient fixed */
+  background-attachment: fixed;
   position: relative;
   overflow: hidden;
 }
 
-/* Login Page Container */
 .login-page {
   min-height: 100vh;
-  background: transparent; /* ✅ Let gradient show through */
+  background: transparent;
 }
 
-/* ✅ Optional: Add subtle background pattern/texture */
 .login-container::before {
   content: '';
   position: absolute;
@@ -89,7 +86,7 @@ body {
   z-index: 1;
 }
 
-/* Background Decoration - Soft floating elements */
+/* Background Decoration */
 .bg-decoration {
   position: absolute;
   top: 0;
@@ -103,7 +100,7 @@ body {
 .bg-circle {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.2); /* ✅ Soft white circles */
+  background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(20px);
   animation: float 8s ease-in-out infinite;
   box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
@@ -164,23 +161,23 @@ body {
   }
 }
 
-/* ✅ Login Card - GREEN CARD with WHITE TEXT (Enhanced shadow for gradient bg) */
+/* ✅ Login Card */
 .login-card {
-  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%); /* ✅ Green card background */
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
   padding: 40px;
   border-radius: 24px;
   box-shadow: 
     0 25px 35px -5px rgba(5, 150, 105, 0.25),
     0 15px 15px -5px rgba(5, 150, 105, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1); /* ✅ Enhanced shadow for gradient bg */
+    0 0 0 1px rgba(255, 255, 255, 0.1);
   width: 100%;
   max-width: 420px;
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3); /* ✅ White border */
+  border: 1px solid rgba(255, 255, 255, 0.3);
   position: relative;
-  z-index: 10; /* ✅ Higher z-index above background elements */
+  z-index: 10;
   animation: slideUpBounce 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-  color: var(--white); /* ✅ White text by default */
+  color: var(--white);
 }
 
 @keyframes slideUpBounce {
@@ -198,24 +195,24 @@ body {
   }
 }
 
-/* ✅ Logo Circle - White with Green Icon (Enhanced for gradient bg) */
+/* ✅ Logo Circle */
 .logo-circle {
   width: 100px;
   height: 100px;
   border-radius: 50%;
-  background: var(--white); /* ✅ White circle background */
+  background: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 
     0 8px 32px rgba(255, 255, 255, 0.4),
-    0 4px 12px rgba(5, 150, 105, 0.2); /* ✅ Enhanced shadow */
+    0 4px 12px rgba(5, 150, 105, 0.2);
   animation: pulse 3s ease-in-out infinite;
 }
 
 .logo-icon {
   font-size: 3rem;
-  color: var(--primary-green); /* ✅ Green icon on white circle */
+  color: var(--primary-green);
   text-shadow: none;
 }
 
@@ -234,12 +231,11 @@ body {
   }
 }
 
-/* Rest of the styles remain the same... */
-/* ✅ Header Styles - White Text on Green Card */
+/* Header Styles */
 .main-title {
   font-size: 2rem;
   font-weight: 800;
-  color: var(--white); /* ✅ White title */
+  color: var(--white);
   margin-bottom: 8px;
   text-align: center;
 }
@@ -247,19 +243,19 @@ body {
 .sub-title {
   font-size: 1.25rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.9); /* ✅ Slightly transparent white */
+  color: rgba(255, 255, 255, 0.9);
   margin-bottom: 8px;
   text-align: center;
 }
 
 .description {
   font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.8); /* ✅ More transparent white */
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 400;
   text-align: center;
 }
 
-/* Form Elements remain the same... */
+/* Form Elements */
 .form-label {
   display: flex;
   align-items: center;
@@ -321,7 +317,6 @@ body {
   background: rgba(255, 255, 255, 0.95);
 }
 
-/* Footer, Password toggle, etc. remain the same... */
 .password-toggle {
   position: absolute;
   right: 14px;
@@ -361,7 +356,7 @@ body {
   color: rgba(255, 255, 255, 0.7);
 }
 
-/* Enhanced responsive for gradient background */
+/* Responsive */
 @media (max-width: 640px) {
   .login-container {
     padding: 16px;
@@ -422,263 +417,37 @@ body {
   backdrop-filter: blur(10px);
 }
 
-/* ===== PWA FULL SCREEN SUPPORT ===== */
-
-/* ✅ Base app container */
-.app {
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  min-height: calc(var(--vh, 1vh) * 100);
-  display: flex;
-  flex-direction: column;
-  background: #f8fafc;
-}
-
-/* ✅ Standalone PWA mode specific styles */
+/* ✅ PWA SUPPORT - SAFE SCROLLING VERSION */
 @media (display-mode: standalone) {
+  /* ✅ Allow scrolling in PWA mode */
+  html, body {
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
+  }
+  
   .app {
-    /* ✅ Remove any drag regions */
-    -webkit-app-region: drag;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
     
-    /* ✅ Safe area support for devices with notch */
+    /* Safe area support */
     padding-top: env(safe-area-inset-top);
     padding-bottom: env(safe-area-inset-bottom);
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    
-    /* ✅ Full height utilization */
-    height: 100vh;
-    height: -webkit-fill-available;
   }
   
-  /* ✅ Make interactive elements clickable in drag region */
-  button, input, textarea, select, a, [role="button"], .clickable {
-    -webkit-app-region: no-drag;
-    -webkit-user-select: auto;
-    user-select: auto;
-  }
-  
-  /* ✅ Header adjustments for standalone mode */
-  .dashboard-header, .patient-header {
-    padding-top: max(20px, env(safe-area-inset-top));
-    border-top: 1px solid transparent; /* Prevent content jumping */
-  }
-  
-  /* ✅ Hide any browser UI remnants */
-  body {
-    overflow-x: hidden;
-    overscroll-behavior: none;
+  /* Make sure all main containers can scroll */
+  .login-container,
+  .patient-list-page,
+  .dashboard-page {
+    overflow-y: auto !important;
     -webkit-overflow-scrolling: touch;
   }
   
-  /* ✅ Status bar integration */
-  .app::before {
-    content: '';
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: env(safe-area-inset-top);
-    background: #059669;
-    z-index: 999;
-  }
-}
-
-/* ✅ iOS Safari specific fixes */
-@supports (-webkit-touch-callout: none) {
-  .app {
-    height: -webkit-fill-available;
-    min-height: -webkit-fill-available;
-  }
-  
-  /* ✅ Fix iOS viewport units */
-  .loading-screen {
-    height: -webkit-fill-available;
-  }
-}
-
-/* ✅ Prevent zoom and improve touch */
-* {
-  -webkit-tap-highlight-color: transparent;
-  -webkit-touch-callout: none;
-}
-
-/* ✅ Enable selection for text inputs */
-input, textarea, [contenteditable] {
-  -webkit-user-select: auto;
-  user-select: auto;
-  -webkit-touch-callout: default;
-}
-
-/* ✅ PWA loading states */
-.pwa-loading {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  height: -webkit-fill-available;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: white;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-/* ✅ PWA status indicator */
-.pwa-status {
-  position: fixed;
-  top: env(safe-area-inset-top, 10px);
-  left: 10px;
-  background: rgba(5, 150, 105, 0.9);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  z-index: 1000;
-  backdrop-filter: blur(10px);
-  transition: opacity 0.3s ease;
-}
-
-/* ✅ Hide status in browser mode */
-@media (display-mode: browser) {
-  .pwa-status {
-    display: none;
-  }
-}
-
-/* ✅ Landscape mode optimizations */
-@media (orientation: landscape) and (max-height: 500px) {
-  .dashboard-header, .patient-header {
-    padding-top: max(10px, env(safe-area-inset-top));
-    padding-bottom: 10px;
-  }
-  
-  .summary-cards {
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
-  
-  .table-section {
-    flex: 1;
-    overflow: hidden;
-  }
-  
+  /* Table containers */
   .table-container {
-    height: calc(100vh - 200px);
-    overflow-y: auto;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
-
-/* ✅ Small screen optimizations */
-@media (max-width: 480px) {
-  @media (display-mode: standalone) {
-    .app {
-      padding-left: max(8px, env(safe-area-inset-left));
-      padding-right: max(8px, env(safe-area-inset-right));
-    }
-  }
-}
-
-/* ✅ Prevent overscroll bounce */
-.patient-main, .dashboard-main {
-  overscroll-behavior: contain;
-  -webkit-overflow-scrolling: touch;
-}
-
-/* ✅ Full screen table containers */
-.table-container {
-  max-height: calc(100vh - 300px);
-  max-height: calc(var(--vh, 1vh) * 100 - 300px);
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-
-@media (display-mode: standalone) {
-  .table-container {
-    max-height: calc(100vh - 320px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
-  }
-}
-
-/* ✅ Button improvements for PWA */
-button {
-  cursor: pointer;
-  -webkit-appearance: none;
-  appearance: none;
-  border: none;
-  outline: none;
-  touch-action: manipulation;
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-/* ✅ Form inputs for PWA */
-input, textarea, select {
-  -webkit-appearance: none;
-  appearance: none;
-  border-radius: 8px;
-  border: 1px solid #d1d5db;
-  padding: 12px;
-  font-size: 16px; /* Prevent zoom on iOS */
-}
-
-/* ✅ PWA offline indicator */
-.offline-indicator {
-  position: fixed;
-  top: env(safe-area-inset-top, 10px);
-  right: 10px;
-  background: #ef4444;
-  color: white;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 14px;
-  z-index: 1001;
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
-}
-
-
-/* ✅ FORCE FULL SCREEN */
-@media (display-mode: standalone) {
-  /* Hide any remaining browser chrome */
-  html, body {
-    height: 100vh !important;
-    height: -webkit-fill-available !important;
-    overflow: hidden !important;
-    margin: 0 !important;
-    padding: 0 !important;
-  }
-  
-  /* Force app to use full screen */
-  .app {
-    position: fixed !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100vw !important;
-    height: 100vh !important;
-    height: -webkit-fill-available !important;
-    z-index: 0 !important;
-  }
-  
-  /* Safe area adjustments */
-  .app {
-    padding-top: env(safe-area-inset-top) !important;
-    padding-bottom: env(safe-area-inset-bottom) !important;
-    padding-left: env(safe-area-inset-left) !important;
-    padding-right: env(safe-area-inset-right) !important;
-  }
-}
-
-/* ✅ iOS specific fixes */
-@supports (-webkit-touch-callout: none) {
-  @media (display-mode: standalone) {
-    .app {
-      height: -webkit-fill-available !important;
-    }
-  }
-}
-
