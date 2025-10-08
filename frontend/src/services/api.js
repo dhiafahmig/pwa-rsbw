@@ -1,23 +1,27 @@
 import axios from 'axios';
 
-// Create axios instance dengan config yang tepat
+// ✅ Create axios instance with ngrok bypass header
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api/v1', // ✅ Use localhost
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://eloquently-bewhiskered-blake.ngrok-free.dev/api/v1',
   timeout: parseInt(process.env.REACT_APP_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // ✅ Skip ngrok browser warning
   },
 });
 
-// Request interceptor - add auth token dan logging
+// ✅ Enhanced request interceptor
 api.interceptors.request.use(
   (config) => {
-    // ✅ FIXED: Use correct token key
+    // Add auth token
     const token = localStorage.getItem('auth_token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // ✅ Always add ngrok bypass header
+    config.headers['ngrok-skip-browser-warning'] = 'true';
 
     // Debug logging
     console.log('🔄 API Request:', {
@@ -25,7 +29,8 @@ api.interceptors.request.use(
       url: config.url,
       baseURL: config.baseURL,
       fullURL: `${config.baseURL}${config.url}`,
-      hasToken: !!token
+      hasToken: !!token,
+      headers: config.headers
     });
 
     return config;
@@ -36,10 +41,16 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor - handle responses dan errors
+// ✅ Response interceptor with HTML detection
 api.interceptors.response.use(
   (response) => {
-    // Debug logging
+    // ✅ Check if response is HTML (ngrok warning page)
+    if (typeof response.data === 'string' && response.data.includes('<!DOCTYPE html>')) {
+      console.error('❌ Received HTML instead of JSON - likely ngrok warning page');
+      console.error('🔧 Solution: Visit ngrok URL in browser first or add bypass header');
+      throw new Error('Received ngrok warning page instead of API response');
+    }
+
     console.log('✅ API Response:', {
       status: response.status,
       url: response.config.url,
@@ -49,7 +60,6 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    // Debug logging
     console.error('❌ API Response Error:', {
       status: error.response?.status,
       url: error.config?.url,
@@ -57,20 +67,15 @@ api.interceptors.response.use(
       data: error.response?.data
     });
 
-    // Handle unauthorized (401)
     if (error.response?.status === 401) {
       console.log('🔐 Unauthorized - clearing auth data');
-      localStorage.removeItem('auth_token'); // ✅ FIXED: Use correct key
-      localStorage.removeItem('user_data');  // ✅ FIXED: Use correct key
-      // Redirect to login jika tidak sedang di login page
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('user_data');
+      
       if (!window.location.pathname.includes('/login')) {
+        console.log('🔄 Redirecting to login...');
         window.location.href = '/login';
       }
-    }
-
-    // Handle network error
-    if (error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK') {
-      console.error('🌐 Network Error - Backend mungkin tidak running');
     }
 
     return Promise.reject(error);
