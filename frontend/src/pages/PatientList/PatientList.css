@@ -1,9 +1,9 @@
 /* =======================================
    PATIENT LIST - RS BUMI WARAS GREEN THEME
-   WITH RESPONSIVE CPPT LEGEND & PENJAMIN COLUMN
+   FIXED TABLE HEADERS
 ======================================= */
 
-/* Base Layout */
+/* Base Layout - Same as before */
 .patient-list-page {
   min-height: 100vh;
   background: #f8fafc;
@@ -78,12 +78,6 @@
 .logout-button:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.back-button:active,
-.logout-button:active {
-  transform: translateY(0);
 }
 
 /* ===== MAIN CONTENT ===== */
@@ -120,7 +114,6 @@
 .summary-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(5, 150, 105, 0.15);
-  border-color: rgba(5, 150, 105, 0.2);
 }
 
 .summary-icon {
@@ -215,12 +208,7 @@
   transform: translateY(-1px);
 }
 
-.refresh-button.loading {
-  opacity: 0.7;
-  cursor: not-allowed;
-}
-
-/* ===== CPPT LEGEND - MIRIP DESKTOP, RESPONSIVE ===== */
+/* ===== CPPT LEGEND ===== */
 .cppt-legend {
   display: flex;
   justify-content: center;
@@ -254,8 +242,7 @@
 }
 
 .legend-color.pending {
-  background: #ffffff;
-  border: 2px solid #d1d5db;
+  background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
 }
 
 .legend-text {
@@ -263,20 +250,24 @@
   white-space: nowrap;
 }
 
-/* ===== PATIENT TABLE ===== */
+/* ===== PATIENT TABLE - FIXED HEADERS ===== */
 .table-container {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .patient-table {
   width: 100%;
+  min-width: 1200px; /* Ensure minimum width for proper header display */
   border-collapse: collapse;
   font-size: 0.875rem;
+  table-layout: auto; /* Let columns size naturally */
 }
 
+/* ✅ FIXED TABLE HEADERS */
 .patient-table th {
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-  padding: 16px 12px;
+  padding: 14px 12px;
   text-align: left;
   font-weight: 600;
   color: #166534;
@@ -285,48 +276,43 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   white-space: nowrap;
-}
-
-.patient-table td {
-  padding: 16px 12px;
-  border-bottom: 1px solid rgba(5, 150, 105, 0.05);
+  position: relative;
   vertical-align: middle;
 }
 
-.patient-table tbody tr:hover {
-  background: linear-gradient(135deg, #f0fdf4 0%, rgba(220, 252, 231, 0.5) 100%);
-  transform: scale(1.005);
-  transition: all 0.2s ease;
+.patient-table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid rgba(5, 150, 105, 0.05);
+  vertical-align: top;
 }
 
-.patient-table tbody tr:nth-child(even) {
-  background: rgba(249, 250, 251, 0.5);
-}
+/* ✅ SPECIFIC COLUMN STYLES WITH PROPER WIDTHS */
+.patient-table th:nth-child(1) { width: 60px; min-width: 60px; } /* No */
+.patient-table th:nth-child(2) { width: 140px; min-width: 140px; } /* No. Rawat */
+.patient-table th:nth-child(3) { width: 120px; min-width: 120px; } /* No. RM */
+.patient-table th:nth-child(4) { width: 200px; min-width: 200px; } /* Nama Pasien */
+.patient-table th:nth-child(5) { width: 120px; min-width: 120px; } /* Penjamin */
+.patient-table th:nth-child(6) { width: 160px; min-width: 160px; } /* Dokter DPJP */
+.patient-table th:nth-child(7) { width: 100px; min-width: 100px; } /* Kamar */
+.patient-table th:nth-child(8) { width: 140px; min-width: 140px; } /* Bangsal */
+.patient-table th:nth-child(9) { width: 180px; min-width: 180px; } /* Diagnosa */
+.patient-table th:nth-child(10) { width: 120px; min-width: 120px; } /* Tgl Masuk */
 
-.patient-table tbody tr:nth-child(even):hover {
-  background: linear-gradient(135deg, #f0fdf4 0%, rgba(220, 252, 231, 0.7) 100%);
-}
-
-/* ===== TABLE CELL STYLES ===== */
-
-/* ✅ NOMOR URUT STYLE */
+/* ===== TABLE CELL CONTENT STYLES ===== */
 .no-urut {
   text-align: center;
   font-weight: 600;
   color: #374151;
   font-size: 0.85rem;
   background: #f9fafb;
-  width: 50px;
-  min-width: 50px;
-  padding: 16px 8px;
 }
 
 .no-rawat {
   font-weight: 600;
   color: #059669;
-  white-space: nowrap;
   font-size: 0.8rem;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  white-space: nowrap;
 }
 
 .no-rm {
@@ -334,26 +320,29 @@
   color: #1f2937;
   font-size: 0.85rem;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+  white-space: nowrap;
 }
 
 .nama-pasien {
-  max-width: 200px;
+  overflow: hidden;
 }
 
 .patient-name {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .name {
   font-weight: 600;
   color: #1f2937;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* ✅ KOLOM PENJAMIN */
 .penjamin {
   text-align: center;
 }
@@ -361,56 +350,46 @@
 .pj-badge {
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.75rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
   font-weight: 600;
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.025em;
-  border: 1px solid transparent;
-  transition: all 0.2s ease;
-}
-
-.pj-badge:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .pj-badge.bpjs {
   background: #dcfce7;
   color: #166534;
-  border-color: #bbf7d0;
 }
 
 .pj-badge.umum {
   background: #fef3c7;
   color: #d97706;
-  border-color: #fde68a;
 }
 
 .pj-badge.asuransi {
   background: #dbeafe;
   color: #1d4ed8;
-  border-color: #bfdbfe;
 }
 
 .pj-badge.default {
   background: #f3f4f6;
   color: #4b5563;
-  border-color: #d1d5db;
 }
 
-/* Dokter DPJP */
 .dokter {
-  max-width: 150px;
+  overflow: hidden;
 }
 
 .dokter-info {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  line-height: 1.3;
 }
 
 .dokter-kode {
@@ -422,12 +401,14 @@
 }
 
 .dokter-nama {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #1f2937;
   font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Kamar & Bangsal */
 .kamar {
   text-align: center;
 }
@@ -435,7 +416,7 @@
 .ruang {
   font-weight: 600;
   color: #059669;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   padding: 4px 8px;
   background: #f0fdf4;
   border-radius: 4px;
@@ -447,67 +428,51 @@
 .bangsal {
   color: #047857;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Diagnosa */
 .diagnosa {
   color: #dc2626;
   font-weight: 500;
-  font-size: 0.8rem;
-  max-width: 150px;
+  font-size: 0.75rem;
   line-height: 1.3;
-  word-wrap: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* Tanggal Masuk */
 .tgl-masuk {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: #4b5563;
   white-space: nowrap;
   font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
 }
 
 /* ===== CPPT COLOR CODING ===== */
-/* ✅ Green background for patients with CPPT today */
 .patient-table tbody tr.cppt-done {
   background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%) !important;
   border-left: 4px solid #059669;
-  position: relative;
 }
 
-.patient-table tbody tr.cppt-done:hover {
-  background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%) !important;
-  transform: scale(1.002);
-  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.15);
-}
-
-/* ✅ Normal background for patients without CPPT today */
 .patient-table tbody tr.cppt-pending {
   background: #ffffff !important;
+  border-left: 4px solid #f59e0b;
 }
 
-.patient-table tbody tr.cppt-pending:hover {
-  background: #f9fafb !important;
-}
-
-/* ✅ Zebra striping with CPPT coloring */
 .patient-table tbody tr:nth-child(even).cppt-done {
   background: linear-gradient(135deg, #ecfdf5 0%, #dcfce7 100%) !important;
 }
 
-.patient-table tbody tr:nth-child(even).cppt-done:hover {
-  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%) !important;
-}
-
 .patient-table tbody tr:nth-child(even).cppt-pending {
-  background: #fafafa !important;
+  background: #fffbeb !important;
 }
 
-/* ✅ CPPT Indicator */
 .cppt-indicator {
-  margin-left: 8px;
-  font-size: 0.8rem;
+  margin-left: 4px;
+  font-size: 0.7rem;
   animation: pulse 2s infinite;
 }
 
@@ -516,19 +481,7 @@
   50% { opacity: 0.7; }
 }
 
-/* Enhanced mobile border animation */
-@keyframes pulse-border {
-  0%, 100% {
-    opacity: 1;
-    box-shadow: 0 0 0 rgba(5, 150, 105, 0.4);
-  }
-  50% {
-    opacity: 0.8;
-    box-shadow: 0 0 8px rgba(5, 150, 105, 0.3);
-  }
-}
-
-/* ===== LOADING STATE ===== */
+/* ===== LOADING & ERROR STATES ===== */
 .loading-container {
   min-height: 100vh;
   display: flex;
@@ -557,7 +510,6 @@
   100% { transform: rotate(360deg); }
 }
 
-/* ===== ERROR STATE ===== */
 .error-banner {
   background: linear-gradient(135deg, #fed7d7 0%, #feb2b2 100%);
   border: 1px solid #fc8181;
@@ -567,12 +519,10 @@
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  animation: slideDown 0.3s ease;
 }
 
 .error-icon {
   font-size: 1.2rem;
-  margin-top: 2px;
   color: #c53030;
 }
 
@@ -580,20 +530,6 @@
   flex: 1;
   color: #c53030;
   font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-.error-details {
-  margin-top: 8px;
-  font-size: 0.8rem;
-  color: #975a5a;
-}
-
-.error-details code {
-  background: rgba(255, 255, 255, 0.3);
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
 }
 
 .error-close {
@@ -602,21 +538,8 @@
   font-size: 1.2rem;
   color: #c53030;
   cursor: pointer;
-  padding: 0;
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
 }
 
-.error-close:hover {
-  background: rgba(197, 48, 48, 0.1);
-}
-
-/* ===== EMPTY STATE ===== */
 .empty-state {
   text-align: center;
   padding: 60px 20px;
@@ -629,18 +552,6 @@
   color: #059669;
 }
 
-.empty-state h3 {
-  font-size: 1.25rem;
-  margin-bottom: 8px;
-  color: #166534;
-  font-weight: 600;
-}
-
-.empty-state p {
-  font-size: 0.9rem;
-  margin-bottom: 16px;
-}
-
 .retry-button {
   background: #059669;
   color: white;
@@ -648,160 +559,80 @@
   padding: 12px 20px;
   border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
   margin: 16px auto 0;
-  transition: all 0.2s ease;
 }
 
-.retry-button:hover {
-  background: #047857;
-  transform: translateY(-1px);
-}
-
-/* ===== ANIMATIONS ===== */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ===== RESPONSIVE DESIGN ===== */
-/* ✅ Medium Tablet (768px) - Hide only Dokter DPJP */
+/* ===== RESPONSIVE DESIGN - MOBILE OPTIMIZED ===== */
 @media (max-width: 768px) {
   .header-content {
     flex-direction: column;
     gap: 16px;
-  }
-  
-  .header-left {
-    flex-direction: column;
-    text-align: center;
-    gap: 12px;
-  }
-  
-  .back-button {
-    align-self: flex-start; /* Keep back button on the left */
-    font-size: 0.85rem;
-    padding: 8px 12px;
-  }
-  
-  .header-info {
-    text-align: center;
-  }
-  
-  .table-header {
-    flex-direction: column;
-    gap: 16px;
-    align-items: stretch;
     padding: 16px;
   }
   
-  .table-title {
-    font-size: 1.1rem;
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+    flex-direction: row;
+  }
+  
+  .back-button {
+    font-size: 0.8rem;
+    padding: 6px 10px;
   }
   
   .summary-cards {
     grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .patient-table {
-    font-size: 0.8rem;
-  }
-  
-  .patient-table th,
-  .patient-table td {
-    padding: 12px 8px;
-  }
-  
-  /* ✅ Mobile Legend - Compact but Visible */
-  .cppt-legend {
-    padding: 10px 16px;
     gap: 16px;
-    font-size: 0.8rem;
-    margin-bottom: 12px;
-  }
-  
-  .legend-color {
-    width: 14px;
-    height: 14px;
-  }
-  
-  .cppt-indicator {
-    display: none; /* Hide on mobile to save space */
-  }
-  
-  /* Enhanced mobile CPPT styling */
-  .patient-table tbody tr.cppt-done {
-    border-left: 3px solid #059669;
-    animation: pulse-border 3s ease-in-out infinite;
-  }
-  
-  .patient-table tbody tr.cppt-done::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  }
-  
-  /* Add status info to table header for mobile */
-  .table-title::after {
-    content: " • 🟢 CPPT ✅ 🔘 Belum";
-    font-size: 0.7rem;
-    font-weight: 400;
-    color: #6b7280;
-    margin-left: 8px;
-    display: inline-block;
-  }
-  
-  /* ✅ UPDATE: Hide Dokter DPJP (now column 6) */
-  .patient-table th:nth-child(6),
-  .patient-table td:nth-child(6) {
-    display: none;
-  }
-}
-
-/* ✅ Small Mobile (640px) - Hide No. RM + Dokter DPJP */
-@media (max-width: 640px) {
-  .summary-cards {
-    grid-template-columns: repeat(2, 1fr);
   }
   
   .patient-main {
     padding: 20px 16px;
   }
   
+  .table-header {
+    padding: 16px;
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .table-title {
+    font-size: 1rem;
+  }
+  
+  /* ✅ MOBILE TABLE ADJUSTMENTS */
   .patient-table {
-    font-size: 0.75rem;
+    min-width: 800px; /* Reduced for mobile but still readable */
+    font-size: 0.8rem;
   }
   
-  .patient-table th,
+  .patient-table th {
+    padding: 10px 8px;
+    font-size: 0.7rem;
+  }
+  
   .patient-table td {
-    padding: 10px 6px;
+    padding: 10px 8px;
   }
   
-  /* ✅ Small Mobile Legend - Even More Compact */
+  /* ✅ MOBILE COLUMN WIDTHS */
+  .patient-table th:nth-child(1) { width: 50px; min-width: 50px; }
+  .patient-table th:nth-child(2) { width: 120px; min-width: 120px; }
+  .patient-table th:nth-child(3) { width: 100px; min-width: 100px; }
+  .patient-table th:nth-child(4) { width: 160px; min-width: 160px; }
+  .patient-table th:nth-child(5) { width: 100px; min-width: 100px; }
+  .patient-table th:nth-child(7) { width: 80px; min-width: 80px; }
+  .patient-table th:nth-child(8) { width: 120px; min-width: 120px; }
+  .patient-table th:nth-child(9) { width: 140px; min-width: 140px; }
+  .patient-table th:nth-child(10) { width: 100px; min-width: 100px; }
+  
+  /* ✅ COMPACT MOBILE LEGEND */
   .cppt-legend {
     padding: 8px 12px;
     gap: 12px;
     font-size: 0.75rem;
-    border-radius: 6px;
-    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-    margin-bottom: 10px;
-  }
-  
-  .legend-item {
-    gap: 6px;
+    margin-bottom: 12px;
   }
   
   .legend-color {
@@ -809,235 +640,94 @@
     height: 12px;
   }
   
-  .table-title::after {
-    content: " • 🟢 ✅ 🔘";
-    font-size: 0.65rem;
+  .cppt-indicator {
+    display: none;
   }
   
-  /* ✅ UPDATE: Hide No. RM (column 3) and Dokter DPJP (column 6) */
-  .patient-table th:nth-child(3),
-  .patient-table td:nth-child(3),
+  /* Hide Dokter DPJP column on mobile */
   .patient-table th:nth-child(6),
   .patient-table td:nth-child(6) {
     display: none;
   }
 }
 
-/* ✅ Very Small Mobile (480px) - Keep essential + Diagnosa + Penjamin */
-@media (max-width: 480px) {
-  .summary-cards {
-    grid-template-columns: 1fr;
+@media (max-width: 640px) {
+  .patient-table {
+    min-width: 700px;
+    font-size: 0.75rem;
   }
   
-  .patient-main {
-    padding: 20px 12px;
+  .patient-table th {
+    padding: 8px 6px;
+    font-size: 0.65rem;
   }
   
-  .back-button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
-    gap: 4px;
+  .patient-table td {
+    padding: 8px 6px;
   }
   
-  /* ✅ Very Small Mobile Legend - Minimal but Informative */
+  /* Hide No. RM column too */
+  .patient-table th:nth-child(3),
+  .patient-table td:nth-child(3) {
+    display: none;
+  }
+  
   .cppt-legend {
-    display: flex !important; /* Override any previous display: none */
-    flex-direction: row;
-    justify-content: center;
     padding: 6px 10px;
     gap: 10px;
     font-size: 0.7rem;
-    margin-bottom: 8px;
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    border-radius: 4px;
-  }
-  
-  .legend-item {
-    display: flex;
-    align-items: center;
-    gap: 4px;
   }
   
   .legend-color {
     width: 10px;
     height: 10px;
-    border-radius: 2px;
-    flex-shrink: 0;
-  }
-  
-  .legend-text {
-    white-space: nowrap;
-    font-weight: 500;
-  }
-  
-  .table-title::after {
-    content: " • ✅ ⭕";
-    font-size: 0.65rem;
-  }
-  
-  /* ✅ UPDATE: Hide No. RM (column 3) and Dokter DPJP (column 6) */
-  .patient-table th:nth-child(3),
-  .patient-table td:nth-child(3),
-  .patient-table th:nth-child(6),
-  .patient-table td:nth-child(6) {
-    display: none;
-  }
-  
-  /* ✅ Adjust remaining column sizes */
-  .nama-pasien {
-    max-width: 100px;
-  }
-  
-  .name {
-    font-size: 0.8rem;
-  }
-  
-  .pj-badge {
-    font-size: 0.65rem;
-    padding: 4px 8px;
-  }
-  
-  .ruang {
-    font-size: 0.7rem;
-    padding: 2px 6px;
-  }
-  
-  .bangsal {
-    font-size: 0.75rem;
-  }
-  
-  .diagnosa {
-    font-size: 0.7rem;
-    max-width: 100px;
-  }
-  
-  .tgl-masuk {
-    font-size: 0.7rem;
-  }
-  
-  /* ✅ NOMOR URUT RESPONSIVE */
-  .no-urut {
-    padding: 12px 4px;
-    font-size: 0.75rem;
-    width: 35px;
-    min-width: 35px;
   }
 }
 
-/* ✅ Extra Small Mobile (360px) - Final optimization */
-@media (max-width: 360px) {
-  .patient-table th,
-  .patient-table td {
-    padding: 8px 4px;
-  }
-  
-  .patient-table th {
-    font-size: 0.65rem;
-  }
-  
+@media (max-width: 480px) {
   .patient-table {
+    min-width: 600px;
     font-size: 0.7rem;
   }
   
-  /* ✅ Ultra-compact Legend */
+  .patient-table th {
+    padding: 6px 4px;
+    font-size: 0.6rem;
+  }
+  
+  .patient-table td {
+    padding: 6px 4px;
+  }
+  
+  .summary-cards {
+    grid-template-columns: 1fr;
+  }
+  
+  .patient-main {
+    padding: 16px 12px;
+  }
+  
   .cppt-legend {
     padding: 4px 8px;
     gap: 8px;
     font-size: 0.65rem;
-    margin-bottom: 6px;
-  }
-  
-  .legend-item {
-    gap: 3px;
   }
   
   .legend-color {
     width: 8px;
     height: 8px;
-    border-radius: 1px;
-  }
-  
-  /* Show compact version with pseudoelements */
-  .legend-item:first-child .legend-text::after {
-    content: "✅ CPPT";
-    font-weight: 600;
-    color: #166534;
-  }
-  
-  .legend-item:last-child .legend-text::after {
-    content: "⭕ Belum";
-    font-weight: 600;
-    color: #6b7280;
-  }
-  
-  /* Hide original text */
-  .legend-item .legend-text {
-    font-size: 0;
-  }
-  
-  .legend-item .legend-text::after {
-    font-size: 0.6rem;
-  }
-  
-  .nama-pasien {
-    max-width: 80px;
-  }
-  
-  .pj-badge {
-    font-size: 0.6rem;
-    padding: 2px 6px;
-  }
-  
-  .diagnosa {
-    max-width: 80px;
-    font-size: 0.65rem;
-  }
-  
-  .table-title::after {
-    content: " • ✅⭕";
-    font-size: 0.7rem;
-  }
-  
-  /* ✅ NOMOR URUT VERY SMALL */
-  .no-urut {
-    padding: 8px 2px;
-    font-size: 0.7rem;
-    width: 30px;
-    min-width: 30px;
-  }
-  
-  /* Hide Penjamin at very small screens, prioritize medical info */
-  .patient-table th:nth-child(5), /* Penjamin */
-  .patient-table td:nth-child(5) {
-    display: none;
   }
 }
 
-/* ✅ Ultra Small Mobile (320px) - Final compact */
-@media (max-width: 320px) {
-  .cppt-legend {
-    padding: 2px 6px;
-    font-size: 0.6rem;
-    gap: 6px;
+@media (max-width: 360px) {
+  /* Hide Penjamin column to save more space */
+  .patient-table th:nth-child(5),
+  .patient-table td:nth-child(5) {
+    display: none;
   }
   
-  .legend-color {
-    width: 6px;
-    height: 6px;
-  }
-  
-  .legend-item:first-child .legend-text::after {
-    content: "✅";
-  }
-  
-  .legend-item:last-child .legend-text::after {
-    content: "⭕";
-  }
-  
-  .table-title::after {
-    content: " ✅⭕";
-    font-size: 0.65rem;
+  .patient-table {
+    min-width: 500px;
   }
 }
 
@@ -1060,13 +750,7 @@
     border: 1px solid #000 !important;
   }
   
-  .patient-table th {
-    background: #f0f0f0 !important;
-    color: #000 !important;
-  }
-  
-  .patient-table tbody tr.cppt-done {
-    background: #f0f0f0 !important;
-    border-left: 3px solid #000 !important;
+  .patient-table {
+    min-width: auto !important;
   }
 }
