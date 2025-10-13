@@ -1,34 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../services/auth';
-import { patientService } from '../../services/patient';
+import { patientService } from '../../services/patient'; // Sesuaikan path
 import './PatientList.css';
 
-function PatientList() {
-  const navigate = useNavigate();
-  const { user, logout } = useAuth();
-  
-  // State management
+const PatientList = () => {
+  // ===== STATE MANAGEMENT =====
   const [patients, setPatients] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
     total_pasien: 0,
     pasien_aktif: 0,
-    pasien_keluar_hari_ini: 0,
-    pasien_baru_hari_ini: 0
+    pasien_baru_hari_ini: 0,
+    cppt_done_today: 0,
+    cppt_pending_today: 0
   });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [refreshing, setRefreshing] = useState(false);
 
-  // Format date untuk tampilan
+  // ===== UTILITY FUNCTIONS =====
   const formatDate = (dateString) => {
     if (!dateString) return '-';
-    
     try {
       const date = new Date(dateString);
       return date.toLocaleDateString('id-ID', {
         day: '2-digit',
-        month: '2-digit',  
+        month: '2-digit',
         year: 'numeric'
       });
     } catch (error) {
@@ -36,131 +31,231 @@ function PatientList() {
     }
   };
 
-  // Load patients data - default tanpa filter
-  const loadPatients = async () => {
+  const formatDateTime = (dateString) => {
+    if (!dateString) return '-';
     try {
-      setError('');
-      console.log('🔄 Loading patients from: /ranap/pasien');
-      
-      const result = await patientService.getPatients(); // Default call tanpa filter
-      
-      if (result.success) {
-        const patientData = result.data?.data || [];
-        setPatients(patientData);
-        
-        // Calculate stats from real data
-        const today = new Date().toDateString();
-        const pasienHariIni = patientData.filter(p => {
-          if (!p.tgl_masuk) return false;
-          const tglMasuk = new Date(p.tgl_masuk).toDateString();
-          return tglMasuk === today;
-        });
-        
-        setStats({
-          total_pasien: patientData.length,
-          pasien_aktif: patientData.length,
-          pasien_keluar_hari_ini: 0,
-          pasien_baru_hari_ini: pasienHariIni.length
-        });
-        
-        console.log('✅ Loaded patients:', patientData.length);
-        console.log('🎨 CPPT Status check:', patientData.map(p => ({
-          nama: p.nm_pasien,
-          cppt_hari_ini: p.cppt_hari_ini,
-          jumlah_cppt: p.jumlah_cppt_hari_ini
-        })));
-      } else {
-        setError(result.message);
-        console.error('❌ Failed to load patients:', result.message);
-        setPatients([]);
-      }
-    } catch (err) {
-      console.error('❌ Load patients error:', err);
-      setError('Gagal memuat data pasien dari server');
-      setPatients([]);
-    } finally {
-      setLoading(false);
+      const date = new Date(dateString);
+      return date.toLocaleString('id-ID', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    } catch (error) {
+      return dateString;
     }
   };
 
-  // Load data on component mount
-  useEffect(() => {
-    loadPatients();
-  }, []);
-
-  // Refresh handler
-  const handleRefresh = async () => {
-    setRefreshing(true);
-    await loadPatients();
-    setRefreshing(false);
+  // ✅ PENJAMIN BADGE CLASSIFICATION
+  const getPenjaminBadgeClass = (penjamin) => {
+    if (!penjamin) return 'default';
+    
+    const p = penjamin.toLowerCase();
+    if (p.includes('bpjs') || p.includes('jkn') || p.includes('jamkesmas') || p.includes('jamkesda')) {
+      return 'bpjs';
+    }
+    if (p.includes('umum') || p.includes('pribadi') || p.includes('bayar sendiri')) {
+      return 'umum';
+    }
+    if (p.includes('asuransi') || p.includes('insurance') || p.includes('prudential') || 
+        p.includes('allianz') || p.includes('aia') || p.includes('sinar mas')) {
+      return 'asuransi';
+    }
+    if (p.includes('perusahaan') || p.includes('korporat') || p.includes('company')) {
+      return 'asuransi';
+    }
+    
+    return 'default';
   };
 
-  const goBack = () => {
-    navigate('/dashboard');
+  // ===== FETCH PATIENTS DATA =====
+  const fetchPatients = async (showLoadingState = true) => {
+    try {
+      if (showLoadingState) {
+        setLoading(true);
+      } else {
+        setRefreshing(true);
+      }
+      
+      setError(null);
+      
+      console.log('🔄 Fetching patients data...');
+      const result = await patientService.getPatients();
+      console.log('📋 Patient service result:', result);
+      
+      if (result.success) {
+        // Akses data sesuai struktur response service
+        const patientsList = result.data?.data || result.data?.patients || result.data || [];
+        console.log('👥 Patients list:', patientsList);
+        
+        setPatients(patientsList);
+        
+        // ✅ HITUNG STATISTIK TERMASUK CPPT
+        const today = new Date().toISOString().split('T')[0];
+        
+        const pasienBaruHariIni = patientsList.filter(p => {
+          if (!p.tgl_masuk) return false;
+          const tglMasuk = new Date(p.tgl_masuk).toISOString().split('T')[0];
+          return tglMasuk === today;
+        }).length;
+        
+        const cpptDoneToday = patientsList.filter(p => p.cppt_hari_ini === true || p.cppt_hari_ini === 1).length;
+        const cpptPendingToday = patientsList.length - cpptDoneToday;
+        
+        setStats({
+          total_pasien: patientsList.length,
+          pasien_aktif: patientsList.length,
+          pasien_baru_hari_ini: pasienBaruHariIni,
+          cppt_done_today: cpptDoneToday,
+          cppt_pending_today: cpptPendingToday
+        });
+        
+        console.log('📊 Stats updated:', {
+          total: patientsList.length,
+          cppt_done: cpptDoneToday,
+          cppt_pending: cpptPendingToday,
+          baru_hari_ini: pasienBaruHariIni
+        });
+        
+      } else {
+        setError(result.message || 'Gagal mengambil data pasien');
+        setPatients([]);
+        
+        // Set default stats on error
+        setStats({
+          total_pasien: 0,
+          pasien_aktif: 0,
+          pasien_baru_hari_ini: 0,
+          cppt_done_today: 0,
+          cppt_pending_today: 0
+        });
+      }
+      
+    } catch (err) {
+      console.error('❌ Error in fetchPatients:', err);
+      setError(err.message || 'Gagal mengambil data pasien');
+      setPatients([]);
+      
+      // Set default stats on error
+      setStats({
+        total_pasien: 0,
+        pasien_aktif: 0,
+        pasien_baru_hari_ini: 0,
+        cppt_done_today: 0,
+        cppt_pending_today: 0
+      });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // ===== COMPONENT LIFECYCLE =====
+  useEffect(() => {
+    fetchPatients(true);
+    
+    // ✅ AUTO REFRESH SETIAP 5 MENIT
+    const interval = setInterval(() => {
+      console.log('🔄 Auto refresh patients data...');
+      fetchPatients(false);
+    }, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // ===== EVENT HANDLERS =====
+  const handleRefresh = () => {
+    console.log('🔄 Manual refresh triggered');
+    fetchPatients(false);
+  };
+
+  const handleBack = () => {
+    // Option 1: React Router (jika menggunakan useNavigate)
+    // navigate(-1);
+    
+    // Option 2: Browser back
+    window.history.back();
+    
+    // Option 3: Specific route
+    // window.location.href = '/dashboard';
   };
 
   const handleLogout = () => {
-    logout();
+    console.log('🚪 Logout triggered');
+    localStorage.removeItem('token');
+    localStorage.removeItem('user_data');
+    window.location.href = '/login';
   };
 
-  // Loading state
+  const handleCloseError = () => {
+    setError(null);
+  };
+
+  // ===== LOADING STATE =====
   if (loading) {
     return (
-      <div className="patient-list-page">
-        <div className="loading-container">
-          <div className="loading-spinner">
-            <div className="spinner"></div>
-            <p>Memuat data pasien rawat inap...</p>
-          </div>
+      <div className="loading-container">
+        <div className="loading-spinner">
+          <div className="spinner"></div>
+          <p>Memuat data pasien...</p>
+          <small>Menghubungi server RS Bumi Waras</small>
         </div>
       </div>
     );
   }
 
+  // ===== MAIN RENDER =====
   return (
     <div className="patient-list-page">
-      {/* Header */}
+      {/* ===== HEADER SECTION ===== */}
       <header className="patient-header">
         <div className="header-content">
           <div className="header-left">
-            <button onClick={goBack} className="back-button">
-              <span>←</span>
-              Back
+            {/* ✅ TOMBOL KEMBALI */}
+            <button className="back-button" onClick={handleBack} title="Kembali ke halaman sebelumnya">
+              ← Kembali
             </button>
             <div className="header-info">
-              <h1 className="page-title">Daftar Pasien Rawat Inap</h1>
-              <p className="page-subtitle">{user?.nm_dokter} - Kode: {user?.kd_dokter}</p>
+              <h1 className="page-title">Data Pasien Rawat Inap</h1>
+              <p className="page-subtitle">
+                RS Bumi Waras - Sistem DPJP • {new Date().toLocaleDateString('id-ID', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </p>
             </div>
           </div>
-          
           <div className="header-right">
-            <button onClick={handleLogout} className="logout-button">
-              <span>🚪</span>
-              Logout
+            <button className="logout-button" onClick={handleLogout} title="Logout dari sistem">
+              🚪 Logout
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* ===== MAIN CONTENT ===== */}
       <main className="patient-main">
         <div className="patient-container">
           
-          {/* Error Alert */}
+          {/* ===== ERROR BANNER ===== */}
           {error && (
             <div className="error-banner">
-              <span className="error-icon">⚠️</span>
+              <div className="error-icon">⚠️</div>
               <div className="error-content">
-                <strong>Koneksi API Gagal:</strong> {error}
+                <strong>Koneksi API Gagal:</strong>
                 <div className="error-details">
-                  Pastikan backend running dan endpoint <code>/api/v1/ranap/pasien</code> tersedia.
+                  <code>{error}</code>
                 </div>
+                <p>Pastikan backend berjalan di <code>/api/v1/ranap/pasien</code> dan gunakan <code>localhost</code>.</p>
               </div>
-              <button onClick={() => setError('')} className="error-close">×</button>
+              <button className="error-close" onClick={handleCloseError} title="Tutup pesan error">×</button>
             </div>
           )}
-          
-          {/* Summary Cards */}
+
+          {/* ===== SUMMARY CARDS ===== */}
           <div className="summary-cards">
             <div className="summary-card">
               <div className="summary-icon">👥</div>
@@ -185,18 +280,29 @@ function PatientList() {
                 <p>Masuk Hari Ini</p>
               </div>
             </div>
-
+            
+            {/* ✅ CPPT DONE CARD */}
             <div className="summary-card">
-              <div className="summary-icon">🔄</div>
+              <div className="summary-icon">✅</div>
               <div className="summary-info">
-                <h3>{error ? 'Error' : 'Live'}</h3>
+                <h3>{stats.cppt_done_today}</h3>
+                <p>CPPT Hari Ini</p>
+              </div>
+            </div>
+            
+            {/* ✅ STATUS CARD */}
+            <div className="summary-card">
+              <div className="summary-icon">{error ? '❌' : refreshing ? '🔄' : '📊'}</div>
+              <div className="summary-info">
+                <h3>{error ? 'Error' : refreshing ? 'Loading' : 'Live'}</h3>
                 <p>Status Data</p>
               </div>
             </div>
           </div>
 
-          {/* Patient Table */}
-          <div className="table-section">
+          {/* ===== TABLE SECTION ===== */}
+          <section className="table-section">
+            {/* TABLE HEADER */}
             <div className="table-header">
               <h2 className="table-title">
                 Data Pasien Rawat Inap
@@ -204,133 +310,161 @@ function PatientList() {
               </h2>
               <div className="table-actions">
                 <button 
-                  onClick={handleRefresh} 
                   className={`refresh-button ${refreshing ? 'loading' : ''}`}
+                  onClick={handleRefresh}
                   disabled={refreshing}
+                  title="Refresh data pasien"
                 >
-                  <span>{refreshing ? '⏳' : '🔄'}</span>
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
+                  🔄 {refreshing ? 'Loading...' : 'Refresh'}
                 </button>
               </div>
             </div>
 
-            {/* ✅ CPPT Legend - Simple indicator */}
+            {/* ✅ CPPT STATUS LEGEND - MIRIP DESKTOP, RESPONSIVE */}
             <div className="cppt-legend">
               <div className="legend-item">
                 <div className="legend-color done"></div>
-                <span>Sudah CPPT hari ini</span>
+                <span className="legend-text">Sudah CPPT Hari Ini ({stats.cppt_done_today})</span>
               </div>
               <div className="legend-item">
                 <div className="legend-color pending"></div>
-                <span>Belum CPPT hari ini</span>
+                <span className="legend-text">Belum CPPT Hari Ini ({stats.cppt_pending_today})</span>
               </div>
             </div>
 
+            {/* TABLE CONTAINER */}
             <div className="table-container">
-              <table className="patient-table">
-                <thead>
-                  <tr>
-                    <th>No. Rawat</th>
-                    <th>No. RM</th>
-                    <th>Nama Pasien</th>
-                    <th>Penanggung Jawab</th>
-                    <th>Dokter DPJP</th>
-                    <th>Kamar</th>
-                    <th>Bangsal</th>
-                    <th>Diagnosa</th>
-                    <th>Tgl Masuk</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {patients.map((patient, index) => (
-                    <tr 
-                      key={patient.no_rawat || index}
-                      className={patient.cppt_hari_ini ? 'cppt-done' : 'cppt-pending'} // ✅ Conditional class
-                      title={patient.cppt_hari_ini ? 
-                        `CPPT sudah dibuat (${patient.jumlah_cppt_hari_ini || 1} kali)` : 
-                        'Belum ada CPPT hari ini'
-                      }
-                    >
-                      {/* No. Rawat */}
-                      <td className="no-rawat">
-                        {patient.no_rawat}
-                      </td>
-
-                      {/* No. RM */}
-                      <td className="no-rm">
-                        {patient.no_rkm_medis}
-                      </td>
-
-                      {/* Nama Pasien */}
-                      <td className="nama-pasien">
-                        <div className="patient-name">
-                          <span className="name">{patient.nm_pasien}</span>
-                          {/* ✅ Simple indicator for CPPT status */}
-                          {patient.cppt_hari_ini && (
-                            <span className="cppt-indicator" title={`CPPT hari ini: ${patient.jumlah_cppt_hari_ini || 1}`}>
-                              ✅
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Penanggung Jawab */}
-                      <td className="penanggung-jawab">
-                        <span className={`pj-badge ${patient.penanggung_jawab?.toLowerCase()}`}>
-                          {patient.penanggung_jawab}
-                        </span>
-                      </td>
-
-                      {/* Dokter DPJP */}
-                      <td className="dokter">
-                        <div className="dokter-info">
-                          <span className="dokter-kode">{patient.kd_dokter}</span>
-                          <span className="dokter-nama">{patient.nm_dokter}</span>
-                        </div>
-                      </td>
-
-                      {/* Kamar */}
-                      <td className="kamar">
-                        <span className="ruang">{patient.kd_kamar}</span>
-                      </td>
-
-                      {/* Bangsal */}
-                      <td className="bangsal">
-                        <span className="bangsal">{patient.nm_bangsal}</span>
-                      </td>
-
-                      {/* Diagnosa */}
-                      <td className="diagnosa">
-                        {patient.diagnosa_awal}
-                      </td>
-
-                      {/* Tanggal Masuk */}
-                      <td className="tgl-masuk">
-                        {formatDate(patient.tgl_masuk)}
-                      </td>
+              {patients.length > 0 ? (
+                <table className="patient-table">
+                  <thead>
+                    <tr>
+                      {/* ✅ NOMOR URUT */}
+                      <th>No</th>
+                      <th>No. Rawat</th>
+                      <th>No. RM</th>
+                      <th>Nama Pasien</th>
+                      <th>Penjamin</th>
+                      <th>Dokter DPJP</th>
+                      <th>Kamar</th>
+                      <th>Bangsal</th>
+                      <th>Diagnosa</th>
+                      <th>Tgl Masuk</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {patients.map((patient, index) => {
+                      const hasCpptToday = patient.cppt_hari_ini === true || patient.cppt_hari_ini === 1;
+                      
+                      return (
+                        <tr 
+                          key={patient.no_rawat || `patient-${index}`}
+                          className={hasCpptToday ? 'cppt-done' : 'cppt-pending'}
+                        >
+                          {/* ✅ NOMOR URUT */}
+                          <td className="no-urut">{index + 1}</td>
+                          
+                          {/* No. Rawat */}
+                          <td className="no-rawat">
+                            {patient.no_rawat || '-'}
+                          </td>
+                          
+                          {/* No. RM */}
+                          <td className="no-rm">
+                            {patient.no_rkm_medis || patient.no_rm || '-'}
+                          </td>
+                          
+                          {/* Nama Pasien */}
+                          <td className="nama-pasien">
+                            <div className="patient-name">
+                              <span className="name">{patient.nm_pasien || 'Nama tidak tersedia'}</span>
+                              {/* ✅ CPPT Indicator seperti desktop */}
+                              {hasCpptToday && (
+                                <span className="cppt-indicator" title="Sudah CPPT hari ini">✅</span>
+                              )}
+                            </div>
+                          </td>
+                          
+                          {/* ✅ KOLOM PENJAMIN */}
+                          <td className="penjamin">
+                            <span className={`pj-badge ${getPenjaminBadgeClass(patient.penanggung_jawab || patient.penjamin || patient.png_jawab)}`}>
+                              {patient.penanggung_jawab || patient.penjamin || patient.png_jawab || 'Umum'}
+                            </span>
+                          </td>
+                          
+                          {/* Dokter DPJP */}
+                          <td className="dokter">
+                            <div className="dokter-info">
+                              <div className="dokter-kode">
+                                {patient.kd_dokter || '-'}
+                              </div>
+                              <div className="dokter-nama">
+                                {patient.nm_dokter || 'Dokter tidak tersedia'}
+                              </div>
+                            </div>
+                          </td>
+                          
+                          {/* Kamar */}
+                          <td className="kamar">
+                            <div className="ruang">
+                              {patient.kd_kamar || patient.kamar || '-'}
+                            </div>
+                          </td>
+                          
+                          {/* Bangsal */}
+                          <td className="bangsal">
+                            <span className="bangsal">
+                              {patient.nm_bangsal || patient.bangsal || '-'}
+                            </span>
+                          </td>
+                          
+                          {/* Diagnosa */}
+                          <td className="diagnosa">
+                            {patient.diagnosa_awal || patient.diagnosa || patient.diagnosis || '-'}
+                          </td>
+                          
+                          {/* Tanggal Masuk */}
+                          <td className="tgl-masuk">
+                            {formatDate(patient.tgl_masuk || patient.tgl_registrasi)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              ) : (
+                /* ===== EMPTY STATE ===== */
+                <div className="empty-state">
+                  <div className="empty-icon">🏥</div>
+                  <h3>Tidak ada data pasien</h3>
+                  <p>
+                    {error 
+                      ? 'Terjadi kesalahan saat memuat data. Silakan coba lagi.'
+                      : 'Tidak ada pasien rawat inap saat ini.'
+                    }
+                  </p>
+                  <button className="retry-button" onClick={handleRefresh} disabled={refreshing}>
+                    🔄 {refreshing ? 'Loading...' : 'Coba Lagi'}
+                  </button>
+                </div>
+              )}
             </div>
+          </section>
 
-            {/* Empty state */}
-            {patients.length === 0 && !loading && (
-              <div className="empty-state">
-                <div className="empty-icon">📋</div>
-                <h3>Tidak ada data pasien</h3>
-                <p>Tidak ada pasien rawat inap saat ini</p>
-                <button onClick={handleRefresh} className="retry-button">
-                  <span>🔄</span>
-                  Coba Lagi
-                </button>
-              </div>
-            )}
+          {/* ===== FOOTER INFO ===== */}
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '20px', 
+            color: '#6b7280', 
+            fontSize: '0.875rem' 
+          }}>
+            <p>
+              🏥 RS Bumi Waras - Sistem DPJP |  {new Date().toLocaleString('id-ID')}
+            </p>
           </div>
         </div>
       </main>
     </div>
   );
-}
+};
 
 export default PatientList;

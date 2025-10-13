@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // ✅ Create axios instance with ngrok bypass header
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || 'https://eloquently-bewhiskered-blake.ngrok-free.dev/api/v1',
+  baseURL: process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080/api/v1',
   timeout: parseInt(process.env.REACT_APP_API_TIMEOUT) || 10000,
   headers: {
     'Content-Type': 'application/json',

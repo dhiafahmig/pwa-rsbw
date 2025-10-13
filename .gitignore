@@ -32,3 +32,5 @@ go.work.sum
 # .vscode/
 backend/go.mod
 backend/go.sum
+
+node_modules
