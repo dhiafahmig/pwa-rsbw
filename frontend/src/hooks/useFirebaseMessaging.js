@@ -12,161 +12,134 @@ const useFirebaseMessaging = () => {
   const [error, setError] = useState(null);
   const [isSupported, setIsSupported] = useState(false);
 
-  // Check initial permission status
+  // Fungsi untuk mengambil atau me-refresh token FCM
+  const fetchAndSetToken = useCallback(async () => {
+    if (!messaging || !vapidKey) {
+      console.warn("⚠️ Firebase Messaging or VAPID key is not available.");
+      return null;
+    }
+
+    try {
+      console.log('🔄 Getting/Refreshing FCM token...');
+      const registration = await navigator.serviceWorker.ready; // Menunggu service worker siap
+      const currentToken = await getToken(messaging, {
+        vapidKey: vapidKey,
+        serviceWorkerRegistration: registration,
+      });
+      
+      if (currentToken) {
+        console.log('✅ FCM token available:', currentToken);
+        setToken(currentToken);
+        return currentToken;
+      } else {
+        console.warn("⚠️ Failed to get FCM token. User may need to grant permission again.");
+        return null;
+      }
+    } catch (err) {
+      console.error('❌ Error getting/refreshing FCM token:', err);
+      setError('Gagal mendapatkan token notifikasi. Coba segarkan halaman atau aktifkan ulang.');
+      return null;
+    }
+  }, []);
+
+  // useEffect untuk setup awal: memeriksa dukungan browser dan izin yang sudah ada
   useEffect(() => {
-    const checkInitialPermission = () => {
-      if (typeof window !== 'undefined' && 'Notification' in window) {
+    const setup = async () => {
+      if (typeof window !== 'undefined' && 'Notification' in window && 'serviceWorker' in navigator) {
         setIsSupported(true);
-        
         const currentPermission = Notification.permission;
-        setIsPermissionGranted(currentPermission === 'granted');
         
-        // Jika sudah granted, setup listener langsung
-        if (currentPermission === 'granted' && messaging) {
-          setupForegroundMessageListener();
+        if (currentPermission === 'granted') {
+          setIsPermissionGranted(true);
+          const currentToken = await fetchAndSetToken();
+          // Secara proaktif sinkronisasi token ke server jika sudah ada
+          if (currentToken) {
+             sendTokenToServer(currentToken, false); // `false` agar tidak menampilkan loading
+          }
         }
       } else {
         setIsSupported(false);
       }
     };
+    setup();
+  }, [fetchAndSetToken]); // Bergantung pada fetchAndSetToken
 
-    checkInitialPermission();
-  }, []);
-
-  // Setup foreground message listener
-  const setupForegroundMessageListener = useCallback(() => {
-    if (!messaging) return;
-
-    console.log('📡 Setting up foreground message listener');
-    
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log('📨 Foreground message received:', payload);
-      setNotification(payload);
+  // useEffect untuk memasang listener notifikasi HANYA jika izin sudah diberikan
+  useEffect(() => {
+    if (isPermissionGranted && messaging) {
+      console.log('📡 Izin diberikan, memasang listener notifikasi foreground...');
       
-      // Show browser notification untuk messages yang diterima saat app active
-      if (payload.notification) {
-        showBrowserNotification(payload.notification, payload.data);
-      }
-    });
-
-    return unsubscribe;
-  }, [messaging]);
-
-  // Show browser notification
-  const showBrowserNotification = (notification, data = {}) => {
-    if (Notification.permission === 'granted') {
-      new Notification(notification.title, {
-        body: notification.body,
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/badge-72x72.png',
-        tag: 'rsbw-notification',
-        data: data,
-        requireInteraction: true
+      const unsubscribe = onMessage(messaging, (payload) => {
+        console.log('📨 Foreground message received:', payload);
+        setNotification(payload);
+        if (payload.notification) {
+          showBrowserNotification(payload.notification, payload.data);
+        }
       });
-    }
-  };
 
-  // Register service worker
-  const registerServiceWorker = async () => {
-    try {
-      console.log('🔄 Registering service worker');
-      
-      if ('serviceWorker' in navigator) {
-        const registration = await navigator.serviceWorker.register(
-          '/firebase-messaging-sw.js',
-          { scope: '/' }
-        );
-        
-        console.log('✅ Service Worker registered:', registration);
-        
-        // Wait for service worker to be ready
-        await navigator.serviceWorker.ready;
-        
-        return registration;
-      } else {
-        throw new Error('Service Worker not supported');
-      }
-    } catch (error) {
-      console.error('❌ Service Worker registration failed:', error);
-      throw error;
+      // Cleanup function: melepaskan listener saat komponen tidak lagi digunakan
+      return () => {
+        console.log('🔌 Melepaskan listener notifikasi foreground.');
+        unsubscribe();
+      };
     }
-  };
+  }, [isPermissionGranted]); // Efek ini akan berjalan setiap kali `isPermissionGranted` berubah
 
-  // Request notification permission
+
+  // Fungsi untuk meminta izin dari pengguna
   const requestPermission = async () => {
-    if (!isSupported) {
-      throw new Error('Notifications not supported in this browser');
-    }
-
-    if (!messaging) {
-      throw new Error('Firebase messaging not initialized');
-    }
-
-    if (!vapidKey) {
-      throw new Error('VAPID key not configured');
+    if (!isSupported || !messaging) {
+      setError('Notifikasi tidak didukung di browser ini.');
+      return;
     }
 
     setLoading(true);
     setError(null);
 
     try {
-      // Step 1: Register service worker
-      console.log('🔄 Step 1: Registering service worker');
-      const registration = await registerServiceWorker();
-
-      // Step 2: Request notification permission
-      console.log('🔄 Step 2: Requesting notification permission');
+      // Minta izin pop-up ke pengguna
       const permission = await Notification.requestPermission();
       
       if (permission === 'granted') {
-        console.log('✅ Notification permission granted');
-        setIsPermissionGranted(true);
+        console.log('✅ Izin notifikasi diberikan oleh pengguna');
+        setIsPermissionGranted(true); // Ini akan memicu useEffect di atas untuk memasang listener
 
-        // Step 3: Get FCM token
-        console.log('🔄 Step 3: Getting FCM token');
-        const currentToken = await getToken(messaging, {
-          vapidKey: vapidKey,
-          serviceWorkerRegistration: registration
-        });
-
-        if (currentToken) {
-          console.log('✅ FCM token generated:', currentToken);
-          setToken(currentToken);
-
-          // Step 4: Setup message listener
-          console.log('🔄 Step 4: Setting up message listener');
-          setupForegroundMessageListener();
-
-          // Step 5: Send token to backend (optional)
-          await sendTokenToServer(currentToken);
-
-          return currentToken;
+        // Ambil token baru setelah izin diberikan
+        const newToken = await fetchAndSetToken();
+        if (newToken) {
+          // Kirim token baru ke server
+          await sendTokenToServer(newToken, true);
         } else {
-          throw new Error('Failed to generate FCM token');
+          throw new Error('Gagal mendapatkan token setelah izin diberikan.');
         }
       } else {
-        throw new Error('Notification permission denied');
+        throw new Error('Izin notifikasi ditolak oleh pengguna.');
       }
     } catch (err) {
-      console.error('❌ Error requesting permission:', err);
+      console.error('❌ Error saat meminta izin:', err);
       setError(err.message);
-      throw err;
     } finally {
       setLoading(false);
     }
   };
-
-  // Send token to server
-  const sendTokenToServer = async (fcmToken) => {
+  
+  // Fungsi untuk mengirim token ke backend Anda
+  const sendTokenToServer = async (fcmToken, showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
-      const userInfo = JSON.parse(localStorage.getItem('userdata') || '{}');
-      const authToken = localStorage.getItem('authtoken');
+      const userInfo = JSON.parse(localStorage.getItem('user_data') || '{}');
+      const authToken = localStorage.getItem('auth_token');
       
+      if (!authToken) {
+        console.warn("⚠️ Token otentikasi tidak ditemukan. Tidak bisa mengirim FCM token ke server.");
+        return;
+      }
+
       const response = await fetch(`${process.env.REACT_APP_API_BASE_URL}/notifications/register-token`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(authToken && { 'Authorization': `Bearer ${authToken}` })
+          'Authorization': `Bearer ${authToken}`,
         },
         body: JSON.stringify({
           token: fcmToken,
@@ -181,59 +154,47 @@ const useFirebaseMessaging = () => {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ Token sent to server:', result);
+        console.log('✅ Token berhasil dikirim ke server:', result);
       } else {
-        console.warn('⚠️ Failed to send token to server:', response.status);
+        const errorBody = await response.text();
+        console.warn(`⚠️ Gagal mengirim token ke server. Status: ${response.status}. Body: ${errorBody}`);
       }
     } catch (err) {
-      console.error('❌ Error sending token to server:', err);
-      // Don't throw error - FCM still works without backend
+      console.error('❌ Error saat mengirim token ke server:', err);
+    } finally {
+      if (showLoading) setLoading(false);
     }
   };
 
-  // Clear current notification
+  // Fungsi untuk menampilkan notifikasi browser asli
+  const showBrowserNotification = (notification, data = {}) => {
+    if (Notification.permission === 'granted') {
+      const options = {
+        body: notification.body,
+        icon: '/logo192.png', // Pastikan path icon benar
+        badge: '/logo72.png',  // Pastikan path badge benar
+        tag: 'rsbw-notification', // Mengganti notifikasi lama dengan tag yang sama
+        data: data,
+        requireInteraction: true, // Notifikasi tidak akan hilang sampai di-klik atau ditutup
+      };
+      new Notification(notification.title, options);
+    }
+  };
+
+  // Fungsi untuk membersihkan state notifikasi di UI
   const clearNotification = () => {
     setNotification(null);
   };
-
-  // Get current token (if already exists)
-  const getCurrentToken = async () => {
-    if (!messaging || !vapidKey) return null;
-
-    try {
-      const registration = await navigator.serviceWorker.getRegistration();
-      if (registration) {
-        const currentToken = await getToken(messaging, {
-          vapidKey: vapidKey,
-          serviceWorkerRegistration: registration
-        });
-        
-        if (currentToken) {
-          setToken(currentToken);
-          return currentToken;
-        }
-      }
-    } catch (err) {
-      console.error('❌ Error getting current token:', err);
-    }
-    
-    return null;
-  };
-
+  
   return {
-    // State
     token,
     notification,
     isPermissionGranted,
     loading,
     error,
     isSupported,
-    
-    // Actions
     requestPermission,
     clearNotification,
-    getCurrentToken,
-    sendTokenToServer
   };
 };
 

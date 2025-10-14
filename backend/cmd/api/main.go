@@ -6,6 +6,7 @@ import (
 	"pwa-rsbw/internal/config"
 	"pwa-rsbw/internal/database"
 	"pwa-rsbw/internal/listranap"
+	"pwa-rsbw/internal/notifications" // Impor modul notifikasi
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -13,120 +14,94 @@ import (
 )
 
 func main() {
-	// ✅ Load .env file
+	// Muat file .env
 	if err := godotenv.Load(); err != nil {
 		log.Printf("⚠️ No .env file found, using system environment variables")
 	} else {
 		log.Printf("✅ .env file loaded successfully")
 	}
 
-	// Load configuration
+	// Muat konfigurasi
 	cfg := config.Load()
 
-	// Set Gin mode
+	// Atur mode Gin
 	if cfg.Environment == "production" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Setup database connection
+	// Koneksi database menggunakan GORM (menghasilkan *gorm.DB)
 	db := database.Connect(cfg)
 
-	// Setup dependencies
+	// --- DEPENDENCY INJECTION (Merakit semua lapisan) ---
+	// ✅ FIX: Berikan setiap repository tipe DB yang benar.
+
+	// Repository untuk Auth dan ListRanap dirancang untuk menggunakan GORM.
+	// Jadi kita berikan objek 'db' (*gorm.DB) secara langsung.
 	authRepo := auth.NewAuthRepository(db)
+	listRanapRepo := listranap.NewPasienRepository(db)
+
+	// Repository untuk Notifications dirancang untuk menggunakan *sql.DB standar.
+	// Jadi kita ekstrak objek *sql.DB dari GORM.
+	sqlDB, err := db.DB()
+	if err != nil {
+		log.Fatalf("❌ Failed to get underlying sql.DB from GORM: %v", err)
+	}
+	notificationRepo := notifications.NewRepository(sqlDB)
+
+	// Inisialisasi Service dan Handler seperti biasa
 	authService := auth.NewAuthService(authRepo, cfg.JWTSecret)
 	authHandler := auth.NewAuthHandler(authService)
 
-	listRanapRepo := listranap.NewPasienRepository(db)
 	listRanapService := listranap.NewPasienService(listRanapRepo)
 	listRanapHandler := listranap.NewPasienHandler(listRanapService)
 
-	// Setup router
+	notificationService := notifications.NewService(notificationRepo)
+	notificationHandler := notifications.NewHandler(notificationService)
+	// --- AKHIR DARI DEPENDENCY INJECTION ---
+
+	// Setup router Gin
 	r := gin.Default()
 
-	// ✅ FIXED CORS - Include ngrok-skip-browser-warning
+	// Middleware untuk CORS
 	r.Use(func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
-		method := c.Request.Method
-
-		log.Printf("🔄 %s %s from Origin: [%s]", method, c.Request.URL.Path, origin)
-
-		// ✅ Allow all origins and include ngrok header
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		c.Header("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token, X-Requested-With, Origin, ngrok-skip-browser-warning")
 		c.Header("Access-Control-Allow-Credentials", "false")
 		c.Header("Access-Control-Max-Age", "86400")
-
-		log.Printf("✅ CORS Headers Set (with ngrok support)")
-
-		if method == "OPTIONS" {
-			log.Printf("✅ OPTIONS preflight handled for: %s", c.Request.URL.Path)
+		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return
 		}
-
 		c.Next()
 	})
 
-	// ✅ Root endpoint
+	// --- ROUTING ---
+	// Root & Health check endpoints
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"service": "RS Bumi Waras - DPJP API",
-			"version": "1.0.0",
 			"status":  "running",
 			"time":    time.Now().Format("2006-01-02 15:04:05"),
 		})
 	})
 
-	// ✅ Health check endpoints
-	r.GET("/health", func(c *gin.Context) {
-		log.Printf("💓 Health check accessed")
-		c.JSON(200, gin.H{
-			"status":  "ok",
-			"message": "API is running",
-			"time":    time.Now().Format("2006-01-02 15:04:05"),
-		})
+	apiV1 := r.Group("/api/v1")
+	apiV1.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{"status": "success", "message": "API is running"})
 	})
 
-	r.GET("/api/v1/health", func(c *gin.Context) {
-		log.Printf("💓 API v1 health check accessed")
-		c.JSON(200, gin.H{
-			"status":  "success",
-			"service": "DPJP API",
-			"message": "Backend running successfully",
-			"version": "1.0.0",
-			"time":    time.Now().Format("2006-01-02 15:04:05"),
-		})
-	})
-
-	// ✅ Test endpoint
-	r.GET("/api/v1/test", func(c *gin.Context) {
-		log.Printf("🧪 Test endpoint accessed")
-		c.JSON(200, gin.H{
-			"message":   "✅ Backend connection successful!",
-			"timestamp": time.Now().Format("2006-01-02 15:04:05"),
-			"origin":    c.Request.Header.Get("Origin"),
-			"headers":   c.Request.Header,
-		})
-	})
-
-	// ✅ Auth routes
-	authRoutes := r.Group("/api/v1/auth")
+	// Rute Auth (Publik)
+	authRoutes := apiV1.Group("/auth")
 	{
-		authRoutes.POST("/login", func(c *gin.Context) {
-			log.Printf("🔐 Login attempt from: %s", c.ClientIP())
-			authHandler.Login(c)
-		})
+		authRoutes.POST("/login", authHandler.Login)
 	}
 
-	// ✅ Protected routes
-	protectedRoutes := r.Group("/api/v1")
-	protectedRoutes.Use(func(c *gin.Context) {
-		log.Printf("🔒 Protected route access: %s %s from %s",
-			c.Request.Method, c.Request.URL.Path, c.ClientIP())
-		authHandler.JWTMiddleware()(c)
-	})
+	// Rute yang Dilindungi (Membutuhkan JWT)
+	protectedRoutes := apiV1.Group("/")
+	protectedRoutes.Use(authHandler.JWTMiddleware())
 	{
+		// Rute Profile
 		protectedRoutes.GET("/profile", func(c *gin.Context) {
 			idUser := c.GetString("id_user")
 			kdDokter := c.GetString("kd_dokter")
@@ -135,48 +110,36 @@ func main() {
 				"data": gin.H{
 					"id_user":   idUser,
 					"kd_dokter": kdDokter,
-					"message":   "Profile accessed successfully",
-					"timestamp": time.Now().Format("2006-01-02 15:04:05"),
 				},
 			})
 		})
+
+		// Rute Ranap (Rawat Inap)
+		ranapRoutes := protectedRoutes.Group("/ranap")
+		{
+			ranapRoutes.GET("/profile", listRanapHandler.GetDokterProfile)
+			ranapRoutes.GET("/pasien", listRanapHandler.GetPasienRawatInapAktif)
+			ranapRoutes.GET("/pasien/:no_rawat", listRanapHandler.GetPasienDetail)
+		}
+
+		// Rute Notifikasi
+		notificationRoutes := protectedRoutes.Group("/notifications")
+		{
+			notificationRoutes.POST("/register-token", notificationHandler.RegisterToken)
+		}
 	}
+	// --- AKHIR DARI ROUTING ---
 
-	// ✅ Ranap routes (protected)
-	ranapRoutes := protectedRoutes.Group("/ranap")
-	{
-		ranapRoutes.GET("/profile", func(c *gin.Context) {
-			kdDokter := c.GetString("kd_dokter")
-			log.Printf("👨‍⚕️ Doctor profile requested by: %s", kdDokter)
-			listRanapHandler.GetDokterProfile(c)
-		})
-
-		ranapRoutes.GET("/pasien", func(c *gin.Context) {
-			kdDokter := c.GetString("kd_dokter")
-			log.Printf("👥 Patients list requested by dokter: %s", kdDokter)
-			listRanapHandler.GetPasienRawatInapAktif(c)
-		})
-
-		ranapRoutes.GET("/pasien/:no_rawat", func(c *gin.Context) {
-			kdDokter := c.GetString("kd_dokter")
-			noRawat := c.Param("no_rawat")
-			log.Printf("👤 Patient detail requested: %s by dokter: %s", noRawat, kdDokter)
-			listRanapHandler.GetPasienDetail(c)
-		})
-	}
-
-	// ✅ Server startup
+	// Jalankan Server
 	serverAddr := "0.0.0.0:" + cfg.ServerPort
 
 	log.Printf("🚀 Starting server on %s", serverAddr)
 	log.Printf("📋 Available endpoints:")
-	log.Printf("   GET  /health")
 	log.Printf("   GET  /api/v1/health")
-	log.Printf("   GET  /api/v1/test")
 	log.Printf("   POST /api/v1/auth/login")
 	log.Printf("   GET  /api/v1/profile (protected)")
 	log.Printf("   GET  /api/v1/ranap/pasien (protected)")
-	log.Printf("✅ CORS configured for ngrok support")
+	log.Printf("   POST /api/v1/notifications/register-token (protected)")
 	log.Printf("")
 
 	if err := r.Run(serverAddr); err != nil {
