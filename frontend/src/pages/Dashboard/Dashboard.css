@@ -1,4 +1,5 @@
 /* Dashboard Green Theme */
+
 .dashboard-page {
   min-height: 100vh;
   background: var(--bg-green-light, #f0fdf4);
@@ -30,20 +31,35 @@
 }
 
 .logo-small {
-  font-size: 2.5rem;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 12px;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.9);
   border-radius: 12px;
-  backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.header-info h1 {
+.logo-header-image {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+}
+
+.logo-header-fallback {
+  font-size: 2rem;
+  color: #059669;
+}
+
+.header-info .header-title {
   font-size: 1.5rem;
   font-weight: 700;
   margin: 0;
 }
 
-.header-info p {
+.header-info .header-subtitle {
   font-size: 0.9rem;
   margin: 0;
   opacity: 0.9;
@@ -52,570 +68,10 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 20px;
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.user-icon {
-  font-size: 2rem;
-  background: rgba(255, 255, 255, 0.2);
-  padding: 8px;
-  border-radius: 50%;
-}
-
-.user-details p {
-  margin: 0;
-  line-height: 1.3;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 0.9rem;
-}
-
-.user-role {
-  font-size: 0.8rem;
-  opacity: 0.8;
-}
-
-.logout-button {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: all 0.2s ease;
-  backdrop-filter: blur(10px);
-}
-
-.logout-button:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateY(-1px);
-}
-
-/* Main Content */
-.dashboard-main {
-  flex: 1;
-  padding: 40px 20px;
-}
-
-.dashboard-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-/* Welcome Section - Green Theme */
-.welcome-section {
-  text-align: center;
-  margin-bottom: 50px;
-}
-
-.welcome-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 12px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.welcome-text {
-  font-size: 1.1rem;
-  color: #047857;
-  margin: 0;
-}
-
-/* Section Titles - Green */
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-title::before {
-  content: '';
-  width: 4px;
-  height: 24px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  border-radius: 2px;
-}
-
-/* Action Cards - Green Theme */
-.actions-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-}
-
-.action-card {
-  background: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 4px 6px rgba(5, 150, 105, 0.05);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  border: 1px solid rgba(16, 185, 129, 0.1);
-}
-
-.action-card:hover:not(.coming-soon) {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(5, 150, 105, 0.15);
-  border-color: #10b981;
-}
-
-.action-card.coming-soon {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.action-icon {
-  font-size: 3rem;
-  margin-bottom: 16px;
-}
-
-.action-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-  margin-bottom: 8px;
-}
-
-.action-description {
-  color: #047857;
-  margin-bottom: 16px;
-  line-height: 1.5;
-}
-
-.action-arrow {
-  font-size: 1.5rem;
-  color: #10b981;
-  font-weight: bold;
-}
-
-.coming-soon-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: #fef3c7;
-  color: #d97706;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
-/* Stats Cards - Green Theme */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.stat-card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.05);
-  display: flex;
-  align-items: center;
   gap: 16px;
-  border: 1px solid rgba(16, 185, 129, 0.1);
-  transition: all 0.2s ease;
 }
 
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.1);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  padding: 12px;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.stat-label {
-  color: #047857;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-/* Footer - Green Theme */
-.dashboard-footer {
-  background: #1f2937;
-  color: #a0aec0;
-  text-align: center;
-  padding: 20px;
-  font-size: 0.875rem;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 16px;
-    text-align: center;
-  }
-  
-  .header-right {
-    justify-content: center;
-  }
-  
-  .welcome-title {
-    font-size: 2rem;
-  }
-  
-  .actions-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .dashboard-main {
-    padding: 20px 16px;
-  }
-}
-
-/* ✅ Header Logo Styles */
-.logo-small {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-}
-
-.logo-header-image {
-  width: 44px;               /* ✅ Perfect size for header */
-  height: 44px;
-  object-fit: contain;
-  filter: brightness(0) invert(1); /* ✅ Make logo white for green header */
-}
-
-.logo-header-fallback {
-  font-size: 2rem;
-  color: white;
-}
-
-/* ✅ User Info - No Emoji */
-.user-info {
-  display: flex;
-  align-items: center;
-  gap: 16px;                 /* ✅ More gap since no avatar */
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
-  backdrop-filter: blur(10px);
-}
-
-.user-details {
-  line-height: 1.3;
-  text-align: left;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: 0.95rem;        /* ✅ Slightly bigger for doctor name */
-  margin: 0;
-  color: white;
-}
-
-.user-role {
-  font-size: 0.8rem;
-  opacity: 0.9;
-  margin: 0;
-  color: rgba(255, 255, 255, 0.9);
-}
-
-/* ✅ Single Action Card - Prominent Display */
-.actions-grid-single {
-  display: flex;
-  justify-content: center;
-  max-width: 600px;          /* ✅ Limit width for single card */
-  margin: 0 auto;
-}
-
-.action-card.primary {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%); /* ✅ Green gradient */
-  color: white;
-  padding: 40px 32px;        /* ✅ More padding for single card */
-  border-radius: 16px;
-  box-shadow: 
-    0 8px 25px rgba(5, 150, 105, 0.3),
-    0 4px 12px rgba(5, 150, 105, 0.2);
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  min-width: 320px;          /* ✅ Minimum width */
-  max-width: 480px;          /* ✅ Maximum width */
-  width: 100%;
-}
-
-.action-card.primary:hover {
-  transform: translateY(-4px);
-  box-shadow: 
-    0 12px 35px rgba(5, 150, 105, 0.4),
-    0 6px 16px rgba(5, 150, 105, 0.3);
-  background: linear-gradient(135deg, #047857 0%, #059669 100%); /* ✅ Darker on hover */
-}
-
-.action-card.primary .action-icon {
-  font-size: 3.5rem;         /* ✅ Bigger icon for primary card */
-  margin-bottom: 20px;
-}
-
-.action-card.primary .action-title {
-  font-size: 1.4rem;         /* ✅ Bigger title */
-  font-weight: 700;
-  color: white;
-  margin-bottom: 12px;
-}
-
-.action-card.primary .action-description {
-  color: rgba(255, 255, 255, 0.9);
-  margin-bottom: 20px;
-  line-height: 1.5;
-  font-size: 1rem;
-}
-
-.action-card.primary .action-arrow {
-  font-size: 2rem;           /* ✅ Bigger arrow */
-  color: white;
-  font-weight: bold;
-  position: absolute;
-  bottom: 20px;
-  right: 24px;
-}
-
-/* ✅ Welcome Section - Enhanced for Doctor Name */
-.welcome-title {
-  font-size: 2.25rem;        /* ✅ Slightly bigger welcome */
-  font-weight: 700;
-  color: #059669;            /* ✅ Green color */
-  margin-bottom: 12px;
-  text-align: center;
-}
-
-.welcome-text {
-  font-size: 1.125rem;       /* ✅ Bigger description */
-  color: #047857;            /* ✅ Dark green */
-  margin: 0;
-  text-align: center;
-}
-
-/* ✅ Responsive Adjustments */
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 16px;
-    text-align: center;
-  }
-  
-  .header-left {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .header-right {
-    justify-content: center;
-  }
-  
-  .user-info {
-    gap: 12px;
-  }
-  
-  .logo-small {
-    width: 50px;
-    height: 50px;
-  }
-  
-  .logo-header-image {
-    width: 34px;
-    height: 34px;
-  }
-  
-  .welcome-title {
-    font-size: 1.875rem;
-  }
-  
-  .actions-grid-single {
-    padding: 0 16px;
-  }
-  
-  .action-card.primary {
-    padding: 32px 24px;
-    min-width: 280px;
-  }
-  
-  .action-card.primary .action-title {
-    font-size: 1.25rem;
-  }
-  
-  .action-card.primary .action-icon {
-    font-size: 3rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .welcome-title {
-    font-size: 1.625rem;
-  }
-  
-  .user-name {
-    font-size: 0.875rem;
-  }
-  
-  .user-role {
-    font-size: 0.75rem;
-  }
-  
-  .action-card.primary {
-    padding: 28px 20px;
-    margin: 0 8px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-/* ✅ Enhanced Stats for Single Focus */
-.quick-stats {
-  margin-top: 40px;          /* ✅ More spacing above stats */
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 20px;
-}
-
-.stat-card {
-  background: white;
-  padding: 24px;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  border: 1px solid rgba(5, 150, 105, 0.1);
-  transition: all 0.2s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(5, 150, 105, 0.15);
-}
-
-.stat-icon {
-  font-size: 2.5rem;
-  padding: 12px;
-  background: #059669;       /* ✅ Green background */
-  color: white;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #1f2937;
-  margin: 0;
-}
-
-.stat-label {
-  color: #6b7280;
-  margin: 0;
-  font-size: 0.9rem;
-}
-
-/* ✅ Fixed Header Logo Styles - Keep Original Colors */
-.logo-small {
-  width: 60px;
-  height: 60px;
-  background: rgba(255, 255, 255, 0.9); /* ✅ More opaque white background */
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* ✅ Subtle shadow */
-}
-
-.logo-header-image {
-  width: 44px;               
-  height: 44px;
-  object-fit: contain;
-  filter: none;              /* ✅ REMOVE filter - keep original colors */
-  /* filter: brightness(0) invert(1); REMOVED */
-}
-
-.logo-header-fallback {
-  font-size: 2rem;
-  color: #059669;            /* ✅ Green fallback instead of white */
-}
-
-/* ✅ Alternative: White Logo Background Circle */
-.logo-small.white-bg {
-  background: rgba(255, 255, 255, 1); /* ✅ Solid white background */
-  border: 2px solid rgba(255, 255, 255, 0.3);
-}
-
-/* ✅ Alternative: Transparent Background - Let Logo Show Naturally */
-.logo-small.transparent {
-  background: transparent;   /* ✅ No background */
-  padding: 6px;
-}
-
-.logo-small.transparent .logo-header-image {
-  width: 48px;               /* ✅ Slightly bigger without background */
-  height: 48px;
-  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.5)); /* ✅ White glow effect */
-}
-
-/* ✅ User Dropdown Styles */
+/* User Dropdown Styles */
 .user-dropdown {
   position: relative;
   z-index: 1000;
@@ -686,14 +142,14 @@
   transform: rotate(180deg);
 }
 
-/* ✅ Dropdown Menu */
+/* Dropdown Menu */
 .user-dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
   right: 0;
   background: white;
   border-radius: 12px;
-  box-shadow: 
+  box-shadow:
     0 10px 25px rgba(0, 0, 0, 0.15),
     0 4px 12px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -713,7 +169,7 @@
   }
 }
 
-/* ✅ Dropdown Header */
+/* Dropdown Header */
 .dropdown-header {
   padding: 20px;
   background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
@@ -765,14 +221,14 @@
   margin: 0;
 }
 
-/* ✅ Dropdown Divider */
+/* Dropdown Divider */
 .dropdown-divider {
   height: 1px;
   background: #e5e7eb;
   margin: 0;
 }
 
-/* ✅ Dropdown Actions */
+/* Dropdown Actions */
 .dropdown-actions {
   padding: 8px 0;
 }
@@ -800,6 +256,9 @@
 
 .logout-item:hover {
   background: #fef2f2;
+}
+
+.logout-item:hover .item-text {
   color: #dc2626;
 }
 
@@ -816,39 +275,270 @@
 }
 
 .logout-item .item-text {
-  color: #dc2626;
+  color: #374151;
 }
 
-/* ✅ Responsive Dropdown */
+/* Main Content */
+.dashboard-main {
+  flex: 1;
+  padding: 40px 20px;
+}
+
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Welcome Section */
+.welcome-section {
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 40px 20px;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.1);
+}
+
+.welcome-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: #059669;
+  margin: 0 0 12px 0;
+  text-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
+}
+
+.welcome-text {
+  font-size: 1.125rem;
+  color: #6b7280;
+  margin: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* ✅ NOTIFICATION SECTION - NEW STYLES */
+.notification-section {
+  margin-bottom: 40px;
+}
+
+.notification-wrapper {
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
+  border: 1px solid rgba(5, 150, 105, 0.1);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.notification-wrapper:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(5, 150, 105, 0.15);
+}
+
+/* Quick Actions */
+.quick-actions {
+  margin-bottom: 48px;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  text-align: center;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 2px;
+}
+
+/* Single Action Card */
+.actions-grid-single {
+  display: flex;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Action Cards */
+.action-card {
+  background: white;
+  border-radius: 16px;
+  padding: 32px 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  text-align: center;
+}
+
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.action-card.primary {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: rgba(5, 150, 105, 0.2);
+  box-shadow: 0 8px 25px rgba(5, 150, 105, 0.15);
+}
+
+.action-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(5, 150, 105, 0.2);
+}
+
+.action-card.primary:hover::before {
+  opacity: 0.95;
+}
+
+.action-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+.action-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.action-card.primary:hover .action-icon {
+  transform: scale(1.1);
+  filter: grayscale(1) brightness(0) invert(1);
+}
+
+.action-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #059669;
+  margin: 0 0 12px 0;
+  transition: color 0.3s ease;
+}
+
+.action-card.primary:hover .action-title {
+  color: white;
+}
+
+.action-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 20px 0;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.action-card.primary:hover .action-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.action-arrow {
+  font-size: 1.5rem;
+  color: #10b981;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.action-card.primary:hover .action-arrow {
+  color: white;
+  transform: translateX(8px);
+}
+
+/* Footer - Green Theme */
+.dashboard-footer {
+  background: #1f2937;
+  color: #a0aec0;
+  text-align: center;
+  padding: 20px;
+  font-size: 0.875rem;
+}
+
+/* Responsive Design */
 @media (max-width: 768px) {
+  .header-content {
+    padding: 16px 20px;
+  }
+
+  .user-info-compact {
+    display: none; /* Hide text on mobile, show only avatar */
+  }
+
   .user-dropdown-trigger {
     padding: 6px 12px;
     gap: 8px;
   }
-  
+
   .user-avatar {
     width: 36px;
     height: 36px;
     font-size: 1rem;
   }
-  
-  .user-info-compact {
-    display: none; /* ✅ Hide text on mobile, show only avatar */
-  }
-  
+
   .user-dropdown-menu {
     min-width: 260px;
-    right: -8px; /* ✅ Adjust position on mobile */
+    right: -8px;
   }
-  
-  .dropdown-header {
-    padding: 16px;
+
+  .dashboard-main {
+    padding: 20px 16px;
   }
-  
-  .dropdown-avatar {
-    width: 50px;
-    height: 50px;
+
+  .welcome-section {
+    margin-bottom: 32px;
+    padding: 32px 20px;
+    border-radius: 16px;
+  }
+
+  .welcome-title {
+    font-size: 2rem;
+  }
+
+  .welcome-text {
+    font-size: 1rem;
+  }
+
+  .notification-section {
+    margin-bottom: 32px;
+  }
+
+  .section-title {
     font-size: 1.25rem;
+    text-align: center;
+  }
+
+  .actions-grid-single {
+    max-width: 100%;
+  }
+
+  .action-card {
+    padding: 24px 20px;
+  }
+
+  .action-icon {
+    font-size: 2.5rem;
+  }
+
+  .action-title {
+    font-size: 1.125rem;
   }
 }
 
@@ -857,59 +547,311 @@
     min-width: 240px;
     right: -16px;
   }
-  
-  .dropdown-item {
-    padding: 10px 16px;
+
+  .dashboard-main {
+    padding: 16px 12px;
+  }
+
+  .welcome-section {
+    padding: 24px 16px;
+    margin-bottom: 24px;
+  }
+
+  .welcome-title {
+    font-size: 1.75rem;
   }
 }
 
-/* ✅ Remove old styles */
-.logout-button-float {
-  display: none; /* ✅ Hide old floating button */
+/* Existing CSS tetap sama, tambahkan ini: */
+
+/* ✅ MENU CARDS SECTION - NEW */
+.menu-cards-section {
+  margin-bottom: 48px;
 }
 
-.header-right .logout-button {
-  display: none; /* ✅ Hide old header button */
-}
-
-/* ✅ Header adjustments */
-.header-right {
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 32px;
   display: flex;
   align-items: center;
+  gap: 12px;
+  justify-content: center;
+  text-align: center;
+}
+
+.section-title::before {
+  content: '';
+  width: 4px;
+  height: 24px;
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  border-radius: 2px;
+}
+
+/* Menu Cards Grid */
+.menu-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Menu Card Base */
+.menu-card {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.menu-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.menu-card > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* Menu Card Variants */
+.menu-card.primary {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
+.menu-card.primary::before {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+}
+
+.menu-card.secondary {
+  background: linear-gradient(135deg, #fef7ff 0%, #f3e8ff 100%);
+  border-color: rgba(147, 51, 234, 0.2);
+}
+
+.menu-card.secondary::before {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+}
+
+.menu-card.tertiary {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-color: rgba(59, 130, 246, 0.2);
+}
+
+.menu-card.tertiary::before {
+  background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+}
+
+.menu-card.quaternary {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border-color: rgba(251, 146, 60, 0.2);
+}
+
+.menu-card.quaternary::before {
+  background: linear-gradient(135deg, #ea580c 0%, #f97316 100%);
+}
+
+.menu-card.quinary {
+  background: linear-gradient(135deg, #fdf4ff 0%, #fae8ff 100%);
+  border-color: rgba(236, 72, 153, 0.2);
+}
+
+.menu-card.quinary::before {
+  background: linear-gradient(135deg, #db2777 0%, #ec4899 100%);
+}
+
+.menu-card.info {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-color: rgba(100, 116, 139, 0.2);
+  cursor: default;
+}
+
+/* Menu Card Hover Effects */
+.menu-card:hover:not(.info) {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.menu-card:hover:not(.info)::before {
+  opacity: 0.95;
+}
+
+/* Menu Card Header */
+.menu-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.menu-card-icon {
+  font-size: 2.5rem;
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover:not(.info) .menu-card-icon {
+  transform: scale(1.1);
+  filter: grayscale(1) brightness(0) invert(1);
+}
+
+.menu-card-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.8);
+  color: #374151;
+  transition: all 0.3s ease;
+}
+
+.menu-card:hover:not(.info) .menu-card-badge {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+/* Menu Card Content */
+.menu-card-content {
+  margin-bottom: 20px;
+}
+
+.menu-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  transition: color 0.3s ease;
+}
+
+.menu-card:hover:not(.info) .menu-card-title {
+  color: white;
+}
+
+.menu-card-description {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0;
+  line-height: 1.5;
+  transition: color 0.3s ease;
+}
+
+.menu-card:hover:not(.info) .menu-card-description {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* Menu Card Footer */
+.menu-card-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.menu-card-action {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #059669;
+  transition: all 0.3s ease;
+}
+
+.menu-card.secondary .menu-card-action {
+  color: #7c3aed;
+}
+
+.menu-card.tertiary .menu-card-action {
+  color: #2563eb;
+}
+
+.menu-card.quaternary .menu-card-action {
+  color: #ea580c;
+}
+
+.menu-card.quinary .menu-card-action {
+  color: #db2777;
+}
+
+.menu-card:hover:not(.info) .menu-card-action {
+  color: white;
+  transform: translateX(4px);
+}
+
+/* Stats Grid (for info card) */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 16px;
+  margin-top: 8px;
 }
 
-/* ✅ Focus states for accessibility */
-.user-dropdown-trigger:focus {
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+.stat-item {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 8px;
 }
 
-.dropdown-item:focus {
-  outline: none;
-  background: #f0fdf4;
+.stat-number {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #059669;
+  margin-bottom: 4px;
 }
 
-/* ✅ Dark mode support (if needed) */
-@media (prefers-color-scheme: dark) {
-  .user-dropdown-menu {
-    background: #1f2937;
-    border-color: #374151;
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .menu-cards-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 0 16px;
   }
-  
-  .dropdown-header {
-    background: linear-gradient(135deg, #374151 0%, #4b5563 100%);
+
+  .menu-card {
+    padding: 20px;
   }
-  
-  .dropdown-name {
-    color: #f9fafb;
+
+  .menu-card-icon {
+    font-size: 2rem;
   }
-  
-  .item-text {
-    color: #d1d5db;
+
+  .menu-card-title {
+    font-size: 1.125rem;
   }
-  
-  .dropdown-item:hover {
-    background: #374151;
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .menu-cards-section {
+    margin-bottom: 32px;
+  }
+
+  .menu-card {
+    padding: 16px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
   }
 }

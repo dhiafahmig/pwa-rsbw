@@ -1,6 +1,8 @@
+// src/pages/Dashboard/Dashboard.js
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../services/auth';
 import { useNavigate } from 'react-router-dom';
+import useFirebaseMessaging from '../../hooks/useFirebaseMessaging'; // ✅ 1. Import hook
 import './Dashboard.css';
 
 function Dashboard() {
@@ -8,6 +10,13 @@ function Dashboard() {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+
+  // ✅ 2. Gunakan hook untuk mendapatkan fungsi dan status
+  const { 
+    requestPermission, 
+    isPermissionGranted, 
+    loading: notificationLoading // Ganti nama 'loading' agar tidak bentrok jika ada state loading lain
+  } = useFirebaseMessaging();
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -23,6 +32,29 @@ function Dashboard() {
     };
   }, []);
 
+  // ✅ 3. Buat fungsi handler untuk kartu notifikasi
+  const handleEnableNotifications = async () => {
+    // Jika notifikasi sudah diizinkan, beri tahu pengguna dan jangan lakukan apa-apa.
+    if (isPermissionGranted) {
+      alert('Notifikasi sudah aktif di browser ini.');
+      return;
+    }
+
+    try {
+      // Panggil fungsi inti dari hook Anda
+      await requestPermission();
+      alert('Terima kasih! Notifikasi berhasil diaktifkan. Anda akan menerima notifikasi jika ada update.');
+    } catch (error) {
+      console.error('Gagal mengaktifkan notifikasi:', error);
+      // Beri tahu pengguna jika mereka menolak izin
+      if (error.message && error.message.includes('denied')) {
+        alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
+      } else {
+        alert('Gagal mengaktifkan notifikasi. Silakan coba lagi.');
+      }
+    }
+  };
+
   const handleLogout = () => {
     setDropdownOpen(false);
     logout();
@@ -32,17 +64,20 @@ function Dashboard() {
     navigate('/patients');
   };
 
+  // Kita tidak lagi menggunakan fungsi ini, tapi biarkan saja jika dibutuhkan di tempat lain
+  const navigateToNotifications = () => {
+    navigate('/notifications');
+  };
+
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
 
   // Helper function untuk get nama dokter yang benar
   const getDoctorName = () => {
-    // Jika ada nm_dokter dari backend dan tidak kosong
     if (user?.nm_dokter && user.nm_dokter.trim() !== '') {
       return user.nm_dokter;
     }
-    // Fallback ke format Dr. + id_user
     return `Dr. ${user?.id_user || 'Unknown'}`;
   };
 
@@ -164,18 +199,72 @@ function Dashboard() {
             </p>
           </div>
 
-          {/* Single Main Action - Data Pasien Only */}
-          <div className="quick-actions">
-            <h3 className="section-title">Menu Utama</h3>
-            <div className="actions-grid-single">
+          {/* MENU CARDS SECTION */}
+          <div className="menu-cards-section">
+            <h3 className="section-title">📋 Menu Utama</h3>
+            
+            <div className="menu-cards-grid">
               
-              <div className="action-card primary" onClick={navigateToPatients}>
-                <div className="action-icon">👥</div>
-                <h4 className="action-title">Data Pasien Rawat Inap</h4>
-                <p className="action-description">
-                  Lihat dan kelola daftar pasien rawat inap DPJP Anda
-                </p>
-                <div className="action-arrow">→</div>
+              {/* Data Pasien Card */}
+              <div className="menu-card primary" onClick={navigateToPatients}>
+                <div className="menu-card-header">
+                  <div className="menu-card-icon">👥</div>
+                  <div className="menu-card-badge">Utama</div>
+                </div>
+                <div className="menu-card-content">
+                  <h4 className="menu-card-title">Data Pasien</h4>
+                  <p className="menu-card-description">
+                    Kelola daftar pasien rawat inap DPJP Anda
+                  </p>
+                </div>
+                <div className="menu-card-footer">
+                  <span className="menu-card-action">Buka →</span>
+                </div>
+              </div>
+
+              {/* Notifikasi Card */}
+              <div 
+                className="menu-card secondary" 
+                onClick={handleEnableNotifications} // ✅ 4. Hubungkan handler ke kartu
+                style={{ cursor: 'pointer' }} // Menambahkan indikator visual bahwa kartu bisa diklik
+              >
+                <div className="menu-card-header">
+                  <div className="menu-card-icon">🔔</div>
+                  <div className="menu-card-badge">Utility</div>
+                </div>
+                <div className="menu-card-content">
+                  <h4 className="menu-card-title">Notifikasi</h4>
+                  <p className="menu-card-description">
+                    Atur push notifications dan alert sistem
+                  </p>
+                </div>
+                <div className="menu-card-footer">
+                  <span className="menu-card-action">
+                    {/* ✅ 5. Beri feedback visual berdasarkan status */}
+                    {notificationLoading ? 'Memproses...' : (isPermissionGranted ? 'Sudah Aktif ✓' : 'Aktifkan →')}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick Stats Card - Info only */}
+              <div className="menu-card info">
+                <div className="menu-card-header">
+                  <div className="menu-card-icon">📈</div>
+                  <div className="menu-card-badge">Info</div>
+                </div>
+                <div className="menu-card-content">
+                  <h4 className="menu-card-title">Statistik Hari Ini</h4>
+                  <div className="stats-grid">
+                    <div className="stat-item">
+                      <span className="stat-number">12</span>
+                      <span className="stat-label">Pasien Aktif</span>
+                    </div>
+                    <div className="stat-item">
+                      <span className="stat-number">5</span>
+                      <span className="stat-label">Visite Hari Ini</span>
+                    </div>
+                  </div>
+                </div>
               </div>
 
             </div>
