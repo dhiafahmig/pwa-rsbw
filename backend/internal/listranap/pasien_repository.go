@@ -6,7 +6,7 @@ import (
 
 type PasienRepository interface {
 	GetPasienRawatInapByDokter(kdDokter string) ([]PasienRawatInap, error)
-	GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error) // ✅ TAMBAH: With CPPT filter
+	GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error)
 	GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error)
 	GetDokterProfile(kdDokter string) (*DokterProfile, error)
 }
@@ -21,16 +21,14 @@ func NewPasienRepository(db *gorm.DB) PasienRepository {
 	}
 }
 
-// ✅ ENHANCED: Query dengan CPPT status
 func (r *pasienRepository) GetPasienRawatInapByDokter(kdDokter string) ([]PasienRawatInap, error) {
 	return r.GetPasienRawatInapByDokterWithCppt(kdDokter, "all")
 }
 
-// ✅ TAMBAH: Query dengan CPPT filter
+// ✅ DIPERBARUI: Query dengan 3 status CPPT
 func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error) {
 	var pasienList []PasienRawatInap
 
-	// ✅ Enhanced query dengan CPPT check
 	query := `
 	SELECT 
 		ki.no_rawat,
@@ -44,11 +42,17 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 		d.nm_dokter,
 		d.kd_dokter,
 		d.no_telp,
-		-- ✅ CPPT Status untuk hari ini
+		
+		-- ✅ DIPERBARUI: Logika CASE untuk 3 status (new, done, pending)
 		CASE 
-			WHEN cppt_today.jumlah_cppt > 0 THEN 1 
-			ELSE 0 
-		END as cppt_hari_ini,
+			-- Kriteria 1: Pasien baru masuk hari ini
+			WHEN DATE(ki.tgl_masuk) = CURDATE() THEN 'new'
+			-- Kriteria 2: Sudah ada CPPT hari ini (pasien lama)
+			WHEN cppt_today.jumlah_cppt > 0 THEN 'done'
+			-- Lainnya (Pasien lama, belum CPPT)
+			ELSE 'pending' 
+		END as cppt_status,
+		
 		COALESCE(cppt_today.jumlah_cppt, 0) as jumlah_cppt,
 		cppt_last.cppt_terakhir
 	FROM kamar_inap ki
@@ -59,21 +63,16 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	JOIN kamar k ON ki.kd_kamar = k.kd_kamar
 	JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
 	LEFT JOIN penjab pj ON rp.kd_pj = pj.kd_pj
-	-- ✅ CPPT hari ini
+	-- CPPT hari ini
 	LEFT JOIN (
-		SELECT 
-			no_rawat,
-			COUNT(*) as jumlah_cppt
+		SELECT no_rawat, COUNT(*) as jumlah_cppt
 		FROM pemeriksaan_ranap 
-		WHERE DATE(tgl_perawatan) = CURDATE() 
-		AND nip = ?
+		WHERE DATE(tgl_perawatan) = CURDATE() AND nip = ?
 		GROUP BY no_rawat
 	) cppt_today ON ki.no_rawat = cppt_today.no_rawat
-	-- ✅ CPPT terakhir
+	-- CPPT terakhir
 	LEFT JOIN (
-		SELECT 
-			no_rawat,
-			MAX(tgl_perawatan) as cppt_terakhir
+		SELECT no_rawat, MAX(tgl_perawatan) as cppt_terakhir
 		FROM pemeriksaan_ranap 
 		WHERE nip = ?
 		GROUP BY no_rawat
@@ -81,17 +80,23 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	WHERE ki.stts_pulang = '-' 
 	AND d.kd_dokter = ?`
 
-	// ✅ TAMBAH: Filter berdasarkan CPPT status
+	// ✅ DIPERBARUI: Filter berdasarkan 3 status
 	switch filter {
 	case "sudah_cppt":
-		query += " AND cppt_today.jumlah_cppt > 0"
+		// Hanya pasien lama yang sudah CPPT
+		query += " AND cppt_today.jumlah_cppt > 0 AND DATE(ki.tgl_masuk) != CURDATE()"
 	case "belum_cppt":
+		// Hanya pasien lama yang belum CPPT
 		query += " AND (cppt_today.jumlah_cppt IS NULL OR cppt_today.jumlah_cppt = 0)"
+		query += " AND DATE(ki.tgl_masuk) != CURDATE()"
+	case "pasien_baru":
+		// ✅ TAMBAH: Hanya pasien baru
+		query += " AND DATE(ki.tgl_masuk) = CURDATE()"
 	}
 
-	query += " ORDER BY b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
+	// ✅ DIPERBARUI: Order by status dulu, agar pending/kuning di atas
+	query += " ORDER BY CASE cppt_status WHEN 'pending' THEN 1 WHEN 'new' THEN 2 WHEN 'done' THEN 3 ELSE 4 END, b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
 
-	// ✅ Parameter: nip (untuk cppt_today), nip (untuk cppt_last), kd_dokter
 	err := r.db.Raw(query, kdDokter, kdDokter, kdDokter).Scan(&pasienList).Error
 	if err != nil {
 		return nil, err
@@ -100,7 +105,7 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	return pasienList, nil
 }
 
-// ✅ Detail pasien dengan CPPT info
+// ✅ DIPERBARUI: Detail pasien dengan 3 status CPPT
 func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error) {
 	var pasien PasienRawatInap
 
@@ -117,11 +122,14 @@ func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*Pa
 		d.nm_dokter,
 		d.kd_dokter,
 		d.no_telp,
-		-- ✅ CPPT Status
+		
+		-- ✅ DIPERBARUI: Logika CASE untuk 3 status (new, done, pending)
 		CASE 
-			WHEN cppt_today.jumlah_cppt > 0 THEN 1 
-			ELSE 0 
-		END as cppt_hari_ini,
+			WHEN DATE(ki.tgl_masuk) = CURDATE() THEN 'new'
+			WHEN cppt_today.jumlah_cppt > 0 THEN 'done'
+			ELSE 'pending' 
+		END as cppt_status,
+		
 		COALESCE(cppt_today.jumlah_cppt, 0) as jumlah_cppt,
 		cppt_last.cppt_terakhir
 	FROM kamar_inap ki
@@ -133,18 +141,13 @@ func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*Pa
 	JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
 	LEFT JOIN penjab pj ON rp.kd_pj = pj.kd_pj
 	LEFT JOIN (
-		SELECT 
-			no_rawat,
-			COUNT(*) as jumlah_cppt
+		SELECT no_rawat, COUNT(*) as jumlah_cppt
 		FROM pemeriksaan_ranap 
-		WHERE DATE(tgl_perawatan) = CURDATE() 
-		AND nip = ?
+		WHERE DATE(tgl_perawatan) = CURDATE() AND nip = ?
 		GROUP BY no_rawat
 	) cppt_today ON ki.no_rawat = cppt_today.no_rawat
 	LEFT JOIN (
-		SELECT 
-			no_rawat,
-			MAX(tgl_perawatan) as cppt_terakhir
+		SELECT no_rawat, MAX(tgl_perawatan) as cppt_terakhir
 		FROM pemeriksaan_ranap 
 		WHERE nip = ?
 		GROUP BY no_rawat
@@ -158,7 +161,6 @@ func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*Pa
 		return nil, err
 	}
 
-	// Check if found
 	if pasien.NoRawat == "" {
 		return nil, gorm.ErrRecordNotFound
 	}

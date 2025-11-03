@@ -32,3 +32,8 @@ go.work.sum
 # .vscode/
 backend/go.mod
 backend/go.sum
+
+node_modules
+build
+
+rs-bumi-waras-notifications-firebase-adminsdk-fbsvc-1e464ae917.json
