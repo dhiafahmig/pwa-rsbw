@@ -17,21 +17,21 @@ type PasienRawatInap struct {
 	NamaBangsal     string    `json:"nm_bangsal" gorm:"column:nm_bangsal"`
 	DiagnosaAwal    string    `json:"diagnosa_awal" gorm:"column:diagnosa_awal"`
 	TanggalMasuk    time.Time `json:"tgl_masuk" gorm:"column:tgl_masuk"`
-	// ✅ TAMBAH: CPPT Status
-	CpptHariIni       bool       `json:"cppt_hari_ini" gorm:"column:cppt_hari_ini"`           // Sudah ada CPPT hari ini
+
+	// ✅ DIPERBARUI: Mengganti bool CpptHariIni dengan string CpptStatus
+	CpptStatus        string     `json:"cppt_status" gorm:"column:cppt_status"`               // "done", "pending", "new"
 	JumlahCpptHariIni int        `json:"jumlah_cppt_hari_ini" gorm:"column:jumlah_cppt"`      // Jumlah CPPT hari ini
 	CpptTerakhir      *time.Time `json:"cppt_terakhir,omitempty" gorm:"column:cppt_terakhir"` // Tanggal CPPT terakhir
 }
 
 // Response structure
 type PasienListResponse struct {
-	Status     string            `json:"status"`
-	Message    string            `json:"message"`
-	Total      int               `json:"total"`
-	Data       []PasienRawatInap `json:"data"`
-	DokterInfo DokterInfo        `json:"dokter_info"`
-	// ✅ TAMBAH: CPPT Summary
-	CpptSummary CpptSummary `json:"cppt_summary"`
+	Status      string            `json:"status"`
+	Message     string            `json:"message"`
+	Total       int               `json:"total"`
+	Data        []PasienRawatInap `json:"data"`
+	DokterInfo  DokterInfo        `json:"dokter_info"`
+	CpptSummary CpptSummary       `json:"cppt_summary"`
 }
 
 // ✅ Info dokter yang login
@@ -42,12 +42,13 @@ type DokterInfo struct {
 	TanggalList string `json:"tanggal_list"`
 }
 
-// ✅ TAMBAH: CPPT Summary
+// ✅ DIPERBARUI: CPPT Summary dengan 3 status
 type CpptSummary struct {
-	TotalPasien      int     `json:"total_pasien"`
-	SudahCpptHariIni int     `json:"sudah_cppt_hari_ini"`
-	BelumCpptHariIni int     `json:"belum_cppt_hari_ini"`
-	PersentaseCppt   float64 `json:"persentase_cppt"`
+	TotalPasien       int     `json:"total_pasien"`
+	SudahCpptHariIni  int     `json:"sudah_cppt_hari_ini"`  // "done"
+	BelumCpptHariIni  int     `json:"belum_cppt_hari_ini"`  // "pending"
+	PasienBaruHariIni int     `json:"pasien_baru_hari_ini"` // "new"
+	PersentaseCppt    float64 `json:"persentase_cppt"`      // Persentase (done / (done + pending))
 }
 
 // Dokter profile
@@ -64,7 +65,7 @@ type DokterProfileResponse struct {
 	Data    DokterProfile `json:"data"`
 }
 
-// ✅ TAMBAH: Request filter untuk frontend
+// ✅ DIPERBARUI: Request filter untuk frontend
 type PasienFilterRequest struct {
-	Filter string `json:"filter" form:"filter"` // "all", "sudah_cppt", "belum_cppt"
+	Filter string `json:"filter" form:"filter"` // "all", "sudah_cppt", "belum_cppt", "pasien_baru"
 }
