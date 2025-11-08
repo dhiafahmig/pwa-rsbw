@@ -91,17 +91,26 @@ func main() {
 		c.JSON(200, gin.H{"status": "success", "message": "API is running"})
 	})
 
-	// Rute Auth (Publik)
+	// Rute Auth (Publik dan Dilindungi)
 	authRoutes := apiV1.Group("/auth")
 	{
+		// Rute Publik (Login)
 		authRoutes.POST("/login", authHandler.Login)
+
+		// ✅ PERUBAHAN: Grup baru untuk rute auth yang dilindungi JWT
+		authProtected := authRoutes.Group("")
+		authProtected.Use(authHandler.JWTMiddleware())
+		{
+			// ✅ PERUBAHAN: Rute validasi token baru
+			authProtected.GET("/validate", authHandler.Validate)
+		}
 	}
 
 	// Rute yang Dilindungi (Membutuhkan JWT)
 	protectedRoutes := apiV1.Group("/")
 	protectedRoutes.Use(authHandler.JWTMiddleware())
 	{
-		// Rute Profile
+		// Rute Profile (Contoh)
 		protectedRoutes.GET("/profile", func(c *gin.Context) {
 			idUser := c.GetString("id_user")
 			kdDokter := c.GetString("kd_dokter")
@@ -137,6 +146,7 @@ func main() {
 	log.Printf("📋 Available endpoints:")
 	log.Printf("   GET  /api/v1/health")
 	log.Printf("   POST /api/v1/auth/login")
+	log.Printf("   GET  /api/v1/auth/validate (protected)") // ✅ Ditambahkan
 	log.Printf("   GET  /api/v1/profile (protected)")
 	log.Printf("   GET  /api/v1/ranap/pasien (protected)")
 	log.Printf("   POST /api/v1/notifications/register-token (protected)")
