@@ -6,7 +6,7 @@ import (
 	"pwa-rsbw/internal/config"
 	"pwa-rsbw/internal/database"
 	"pwa-rsbw/internal/listranap"
-	"pwa-rsbw/internal/notifications" // Impor modul notifikasi
+	"pwa-rsbw/internal/notifications"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -29,34 +29,29 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	// Koneksi database menggunakan GORM (menghasilkan *gorm.DB)
-	db := database.Connect(cfg)
+	// KONEKSI DATABASE TUNGGAL
+	db, sqlDB_worker := database.Connect(cfg)
 
 	// --- DEPENDENCY INJECTION (Merakit semua lapisan) ---
-	// ✅ FIX: Berikan setiap repository tipe DB yang benar.
-
-	// Repository untuk Auth dan ListRanap dirancang untuk menggunakan GORM.
-	// Jadi kita berikan objek 'db' (*gorm.DB) secara langsung.
 	authRepo := auth.NewAuthRepository(db)
 	listRanapRepo := listranap.NewPasienRepository(db)
+	notificationRepo := notifications.NewRepository(sqlDB_worker)
 
-	// Repository untuk Notifications dirancang untuk menggunakan *sql.DB standar.
-	// Jadi kita ekstrak objek *sql.DB dari GORM.
-	sqlDB, err := db.DB()
-	if err != nil {
-		log.Fatalf("❌ Failed to get underlying sql.DB from GORM: %v", err)
-	}
-	notificationRepo := notifications.NewRepository(sqlDB)
-
-	// Inisialisasi Service dan Handler seperti biasa
+	// Inisialisasi Service dan Handler
 	authService := auth.NewAuthService(authRepo, cfg.JWTSecret)
 	authHandler := auth.NewAuthHandler(authService)
 
 	listRanapService := listranap.NewPasienService(listRanapRepo)
 	listRanapHandler := listranap.NewPasienHandler(listRanapService)
 
-	notificationService := notifications.NewService(notificationRepo)
-	notificationHandler := notifications.NewHandler(notificationService)
+	// ✅ PERBAIKAN: Berikan AppID, APIKey, dan FrontendURL ke Service
+	notificationService := notifications.NewService(
+		notificationRepo,
+		cfg.OneSignalAppID,
+		cfg.OneSignalAPIKey,
+		cfg.FrontendURL, // <-- TAMBAHKAN INI
+	)
+
 	// --- AKHIR DARI DEPENDENCY INJECTION ---
 
 	// Setup router Gin
@@ -77,7 +72,6 @@ func main() {
 	})
 
 	// --- ROUTING ---
-	// Root & Health check endpoints
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"service": "RS Bumi Waras - DPJP API",
@@ -91,17 +85,21 @@ func main() {
 		c.JSON(200, gin.H{"status": "success", "message": "API is running"})
 	})
 
-	// Rute Auth (Publik)
+	// Rute Auth (Publik dan Dilindungi)
 	authRoutes := apiV1.Group("/auth")
 	{
 		authRoutes.POST("/login", authHandler.Login)
+		authProtected := authRoutes.Group("")
+		authProtected.Use(authHandler.JWTMiddleware())
+		{
+			authProtected.GET("/validate", authHandler.Validate)
+		}
 	}
 
 	// Rute yang Dilindungi (Membutuhkan JWT)
 	protectedRoutes := apiV1.Group("/")
 	protectedRoutes.Use(authHandler.JWTMiddleware())
 	{
-		// Rute Profile
 		protectedRoutes.GET("/profile", func(c *gin.Context) {
 			idUser := c.GetString("id_user")
 			kdDokter := c.GetString("kd_dokter")
@@ -119,28 +117,18 @@ func main() {
 		{
 			ranapRoutes.GET("/profile", listRanapHandler.GetDokterProfile)
 			ranapRoutes.GET("/pasien", listRanapHandler.GetPasienRawatInapAktif)
-			ranapRoutes.GET("/pasien/:no_rawat", listRanapHandler.GetPasienDetail)
-		}
-
-		// Rute Notifikasi
-		notificationRoutes := protectedRoutes.Group("/notifications")
-		{
-			notificationRoutes.POST("/register-token", notificationHandler.RegisterToken)
+			ranapRoutes.GET("/pasien/:no_rat", listRanapHandler.GetPasienDetail)
 		}
 	}
 	// --- AKHIR DARI ROUTING ---
 
+	// --- TAMBAHAN: JALANKAN WORKER ---
+	go notificationService.StartWorker(5 * time.Second)
+
 	// Jalankan Server
 	serverAddr := "0.0.0.0:" + cfg.ServerPort
-
 	log.Printf("🚀 Starting server on %s", serverAddr)
-	log.Printf("📋 Available endpoints:")
-	log.Printf("   GET  /api/v1/health")
-	log.Printf("   POST /api/v1/auth/login")
-	log.Printf("   GET  /api/v1/profile (protected)")
-	log.Printf("   GET  /api/v1/ranap/pasien (protected)")
-	log.Printf("   POST /api/v1/notifications/register-token (protected)")
-	log.Printf("")
+	log.Printf("✅ Notification Worker (OneSignal) dimulai (cek DB setiap 5 detik).")
 
 	if err := r.Run(serverAddr); err != nil {
 		log.Fatalf("❌ Failed to start server: %v", err)

@@ -85,3 +85,18 @@ func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
+
+// ✅ TAMBAHAN: Handler untuk memvalidasi token
+func (h *AuthHandler) Validate(c *gin.Context) {
+	// Jika request bisa sampai sini, itu karena JWTMiddleware() SUKSES
+	// dan tokennya valid. Kita hanya perlu mengembalikan data user.
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Token is valid",
+		"data": gin.H{
+			"id_user":   c.GetString("id_user"),
+			"kd_dokter": c.GetString("kd_dokter"),
+			"nm_dokter": c.GetString("nm_dokter"),
+		},
+	})
+}

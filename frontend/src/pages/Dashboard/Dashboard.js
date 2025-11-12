@@ -2,7 +2,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../services/auth';
 import { useNavigate } from 'react-router-dom';
-import useFirebaseMessaging from '../../hooks/useFirebaseMessaging'; // ✅ 1. Import hook
+import useOneSignal from '../../hooks/useOneSignal'; 
+import { patientService } from '../../services/patient'; 
 import './Dashboard.css';
 
 function Dashboard() {
@@ -11,77 +12,132 @@ function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  // ✅ 2. Gunakan hook untuk mendapatkan fungsi dan status
+  // Gunakan hook useOneSignal
   const { 
     requestPermission, 
-    isPermissionGranted, 
-    loading: notificationLoading // Ganti nama 'loading' agar tidak bentrok jika ada state loading lain
-  } = useFirebaseMessaging();
+    isSubscribed, 
+    isPermissionDenied,
+    loading: notificationLoading,
+    login: oneSignalLogin,
+    logout: oneSignalLogout
+  } = useOneSignal();
 
-  // Close dropdown when clicking outside
+  const [dashboardStats, setDashboardStats] = useState({
+    pasienAktif: 0,
+    visiteHariIni: 0,
+    pasienBaru: 0, 
+  });
+  const [statsLoading, setStatsLoading] = useState(true);
+  const [statsError, setStatsError] = useState(null);
+
+  // Close dropdown (tidak berubah)
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setDropdownOpen(false);
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Hubungkan user DPJP ke OneSignal saat user terautentikasi
+  useEffect(() => {
+    // Gunakan kd_dokter atau id_user sebagai ID unik untuk OneSignal
+    const doctorId = user?.kd_dokter || user?.id_user;
+    
+    if (doctorId) {
+      console.log(`Menghubungkan DPJP (${doctorId}) ke OneSignal...`);
+      oneSignalLogin(doctorId);
+    }
+  }, [user, oneSignalLogin]); // Berjalan saat 'user' atau 'oneSignalLogin' berubah
 
-  // ✅ 3. Buat fungsi handler untuk kartu notifikasi
+  // useEffect untuk ambil data statistik (tidak berubah)
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      console.log('🔄 Memuat statistik dashboard...');
+      setStatsLoading(true); 
+      setStatsError(null);
+      try {
+        const result = await patientService.getPatients('all');
+        if (result.success && result.data.cppt_summary) {
+          const summary = result.data.cppt_summary;
+          
+          setDashboardStats({
+            pasienAktif: summary.total_pasien,
+            visiteHariIni: summary.sudah_cppt_hari_ini,
+            pasienBaru: summary.pasien_baru_hari_ini, 
+          });
+          console.log('📊 Statistik dashboard dimuat:', summary);
+        } else {
+          throw new Error(result.message || 'Gagal mengambil data statistik');
+        }
+      } catch (error) {
+        console.error("❌ Error fetching dashboard stats:", error);
+        setStatsError(error.message);
+        setDashboardStats({ pasienAktif: 0, visiteHariIni: 0, pasienBaru: 0 }); 
+      } finally {
+        setStatsLoading(false);
+      }
+    };
+
+    fetchDashboardStats();
+    const intervalId = setInterval(fetchDashboardStats, 5 * 60 * 1000); 
+    return () => clearInterval(intervalId); 
+  }, []); 
+
+  // Handler notifikasi
   const handleEnableNotifications = async () => {
-    // Jika notifikasi sudah diizinkan, beri tahu pengguna dan jangan lakukan apa-apa.
-    if (isPermissionGranted) {
-      alert('Notifikasi sudah aktif di browser ini.');
+    if (isSubscribed) {
+      alert('✅ Notifikasi sudah aktif di browser ini.');
+      return;
+    }
+    
+    if (isPermissionDenied) {
+      alert('⚠️ Anda menolak izin notifikasi sebelumnya.\n\n' +
+            'Untuk mengaktifkan kembali:\n' +
+            '1. Klik ikon 🔒 Gembok di address bar\n' +
+            '2. Cari "Notifications" dan klik settingnya\n' +
+            '3. Ubah dari "Block" ke "Allow"\n' +
+            '4. Refresh halaman (F5)\n' +
+            '5. Klik tombol "🔔 Aktifkan" lagi\n' +
+            '6. Pilih "Allow" saat browser bertanya');
       return;
     }
 
     try {
-      // Panggil fungsi inti dari hook Anda
+      console.log('🔔 User klik tombol Aktifkan Notifikasi');
       await requestPermission();
-      alert('Terima kasih! Notifikasi berhasil diaktifkan. Anda akan menerima notifikasi jika ada update.');
+      // Browser akan menampilkan native permission prompt
+      // User tinggal klik "Allow" atau "Block"
     } catch (error) {
       console.error('Gagal mengaktifkan notifikasi:', error);
-      // Beri tahu pengguna jika mereka menolak izin
-      if (error.message && error.message.includes('denied')) {
-        alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
-      } else {
-        alert('Gagal mengaktifkan notifikasi. Silakan coba lagi.');
-      }
+      alert('❌ Gagal mengaktifkan notifikasi. Silakan coba lagi.');
     }
   };
 
+  // Panggil oneSignalLogout saat user logout
   const handleLogout = () => {
     setDropdownOpen(false);
+    oneSignalLogout(); // <-- PENTING
     logout();
   };
 
+  // Handler lainnya (tidak berubah)
   const navigateToPatients = () => {
     navigate('/patients');
   };
-
-  // Kita tidak lagi menggunakan fungsi ini, tapi biarkan saja jika dibutuhkan di tempat lain
-  const navigateToNotifications = () => {
-    navigate('/notifications');
-  };
-
   const toggleDropdown = () => {
     setDropdownOpen(!dropdownOpen);
   };
-
-  // Helper function untuk get nama dokter yang benar
   const getDoctorName = () => {
     if (user?.nm_dokter && user.nm_dokter.trim() !== '') {
       return user.nm_dokter;
     }
     return `Dr. ${user?.id_user || 'Unknown'}`;
   };
-
-  // Get initial untuk avatar
   const getUserInitial = () => {
     const name = getDoctorName();
     return name.charAt(0).toUpperCase();
@@ -89,7 +145,7 @@ function Dashboard() {
 
   return (
     <div className="dashboard-page">
-      {/* Header */}
+      {/* Header (Tidak berubah) */}
       <header className="dashboard-header">
         <div className="header-content">
           <div className="header-left">
@@ -109,8 +165,6 @@ function Dashboard() {
               <p className="header-subtitle">Sistem DPJP</p>
             </div>
           </div>
-          
-          {/* User Dropdown Menu - Top Right */}
           <div className="header-right">
             <div className="user-dropdown" ref={dropdownRef}>
               <button 
@@ -131,18 +185,12 @@ function Dashboard() {
                 </div>
                 <svg 
                   className={`dropdown-arrow ${dropdownOpen ? 'open' : ''}`}
-                  width="20" 
-                  height="20" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2"
+                  width="20" height="20" viewBox="0 0 24 24" fill="none" 
+                  stroke="currentColor" strokeWidth="2"
                 >
                   <polyline points="6,9 12,15 18,9"></polyline>
                 </svg>
               </button>
-
-              {/* Dropdown Menu */}
               {dropdownOpen && (
                 <div className="user-dropdown-menu">
                   <div className="dropdown-header">
@@ -159,9 +207,7 @@ function Dashboard() {
                       <p className="dropdown-code">Kode: {user?.kd_dokter || user?.id_user}</p>
                     </div>
                   </div>
-                  
                   <div className="dropdown-divider"></div>
-                  
                   <div className="dropdown-actions">
                     <button 
                       className="dropdown-item profile-item"
@@ -170,7 +216,6 @@ function Dashboard() {
                       <span className="item-icon">👨‍⚕️</span>
                       <span className="item-text">Profil Saya</span>
                     </button>
-                    
                     <button 
                       className="dropdown-item logout-item"
                       onClick={handleLogout}
@@ -186,10 +231,10 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content (Tidak berubah) */}
       <main className="dashboard-main">
         <div className="dashboard-container">
-          {/* Welcome Section */}
+          {/* Welcome Section (Tidak berubah) */}
           <div className="welcome-section">
             <h2 className="welcome-title">
               Selamat Datang, {getDoctorName()}
@@ -205,7 +250,7 @@ function Dashboard() {
             
             <div className="menu-cards-grid">
               
-              {/* Data Pasien Card */}
+              {/* Data Pasien Card (Tidak berubah) */}
               <div className="menu-card primary" onClick={navigateToPatients}>
                 <div className="menu-card-header">
                   <div className="menu-card-icon">👥</div>
@@ -225,8 +270,8 @@ function Dashboard() {
               {/* Notifikasi Card */}
               <div 
                 className="menu-card secondary" 
-                onClick={handleEnableNotifications} // ✅ 4. Hubungkan handler ke kartu
-                style={{ cursor: 'pointer' }} // Menambahkan indikator visual bahwa kartu bisa diklik
+                onClick={handleEnableNotifications}
+                style={{ cursor: isPermissionDenied ? 'not-allowed' : 'pointer', opacity: isPermissionDenied ? 0.7 : 1 }}
               >
                 <div className="menu-card-header">
                   <div className="menu-card-icon">🔔</div>
@@ -237,16 +282,28 @@ function Dashboard() {
                   <p className="menu-card-description">
                     Atur push notifications dan alert sistem
                   </p>
+                  {isPermissionDenied && (
+                    <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '8px', fontWeight: '500' }}>
+                      ⚠️ Permission ditolak. Reset di browser settings untuk mengaktifkan.
+                    </p>
+                  )}
                 </div>
                 <div className="menu-card-footer">
                   <span className="menu-card-action">
-                    {/* ✅ 5. Beri feedback visual berdasarkan status */}
-                    {notificationLoading ? 'Memproses...' : (isPermissionGranted ? 'Sudah Aktif ✓' : 'Aktifkan →')}
+                    {notificationLoading ? (
+                      <span>⏳ Memproses...</span>
+                    ) : isSubscribed ? (
+                      <span>✅ Aktif</span>
+                    ) : isPermissionDenied ? (
+                      <span>⛔ Ditolak</span>
+                    ) : (
+                      <span>🔔 Aktifkan →</span>
+                    )}
                   </span>
                 </div>
               </div>
 
-              {/* Quick Stats Card - Info only */}
+              {/* Quick Stats Card (Tidak berubah) */}
               <div className="menu-card info">
                 <div className="menu-card-header">
                   <div className="menu-card-icon">📈</div>
@@ -254,16 +311,33 @@ function Dashboard() {
                 </div>
                 <div className="menu-card-content">
                   <h4 className="menu-card-title">Statistik Hari Ini</h4>
+                  
                   <div className="stats-grid">
                     <div className="stat-item">
-                      <span className="stat-number">12</span>
+                      <span className="stat-number">
+                        {statsLoading ? '...' : (statsError ? '!' : dashboardStats.pasienAktif)}
+                      </span>
                       <span className="stat-label">Pasien Aktif</span>
                     </div>
+
                     <div className="stat-item">
-                      <span className="stat-number">5</span>
-                      <span className="stat-label">Visite Hari Ini</span>
+                      <span className="stat-number">
+                        {statsLoading ? '...' : (statsError ? '!' : dashboardStats.pasienBaru)}
+                      </span>
+                      <span className="stat-label">Pasien Baru</span>
+                    </div>
+
+                    <div className="stat-item">
+                      <span className="stat-number">
+                        {statsLoading ? '...' : (statsError ? '!' : dashboardStats.visiteHariIni)}
+                      </span>
+                      <span className="stat-label">Visite Selesai</span>
                     </div>
                   </div>
+                  
+                  {statsError && (
+                    <p className="stats-error-text">Gagal memuat data</p>
+                  )}
                 </div>
               </div>
 
@@ -272,7 +346,7 @@ function Dashboard() {
         </div>
       </main>
 
-      {/* Footer */}
+      {/* Footer (Tidak berubah) */}
       <footer className="dashboard-footer">
         <p>&copy; 2025 RS Bumi Waras - Sistem DPJP v1.0.0</p>
       </footer>

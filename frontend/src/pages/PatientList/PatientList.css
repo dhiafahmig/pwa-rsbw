@@ -146,7 +146,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(5, 150, 105, 0.1);
   border: 1px solid rgba(5, 150, 105, 0.1);
-  overflow: hidden;
+  overflow: hidden; /* ✅ PERBAIKAN: Ini HARUS ADA untuk memotong border-radius */
 }
 
 .table-header {
@@ -262,8 +262,12 @@
 }
 
 /* ===== PATIENT TABLE - FIXED HEADERS ===== */
+
+/* ✅ PERBAIKAN: Kontainer ini HARUS memiliki scroll horizontal DAN vertikal */
 .table-container {
-  overflow-x: auto;
+  overflow-x: auto; /* Ini mengaktifkan scroll horizontal */
+  overflow-y: auto; /* Ini mengaktifkan scroll vertikal */
+  max-height: 70vh; /* Ini membatasi tinggi tabel & memicu scroll-y */
   -webkit-overflow-scrolling: touch;
 }
 
@@ -287,14 +291,14 @@
   letter-spacing: 0.5px;
   white-space: nowrap;
   vertical-align: middle;
-  position: sticky;
-  top: 0;
+  position: sticky; /* Ini akan menempelkan header */
+  top: 0; /* Menempel di atas .table-container */
   z-index: 10;
 }
 
 .patient-table td {
   padding: 14px 12px;
-  border-bottom: 1px solid rgba(5, 150, 105, 0.05);
+  border-bottom: 1px solid #f0f0f0; 
   vertical-align: top;
 }
 
@@ -310,7 +314,7 @@
 .patient-table th:nth-child(9) { width: 180px; min-width: 180px; } 
 .patient-table th:nth-child(10) { width: 120px; min-width: 120px; } 
 
-/* Cell Content Styles */
+/* ===== TABLE CELL CONTENT STYLES ===== */
 .no-urut {
   text-align: center;
   font-weight: 600;
@@ -369,9 +373,6 @@
   white-space: nowrap;
   text-transform: uppercase;
   letter-spacing: 0.025em;
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .pj-badge.bpjs {
@@ -464,40 +465,19 @@
 }
 
 
-/* =======================================
-   ✅ PERUBAHAN: WARNA LEBIH SOLID (PEKAT)
-   ======================================= */
-
+/* ===== CPPT COLOR CODING ===== */
 .patient-table tbody tr.cppt-done {
-  background: #dcfce7 !important; /* Warna Hijau (Ganjil) */
+  background: #bbf7d0 !important; 
   border-left: 4px solid #10b981; 
 }
-
-.patient-table tbody tr.cppt-pending {
-  background: #fef3c7 !important; /* Warna Kuning (Ganjil) */
-  border-left: 4px solid #f59e0b; 
-}
-
 .patient-table tbody tr.cppt-new {
-  background: #dbeafe !important; /* Warna Biru (Ganjil) */
+  background: #bfdbfe !important; 
   border-left: 4px solid #3b82f6; 
 }
-
-
-.patient-table tbody tr:nth-child(even).cppt-done {
-  background: #bbf7d0 !important; /* Warna Hijau (Genap) - Lebih pekat */
+.patient-table tbody tr.cppt-pending {
+  background: #ffffff !important; 
+  border-left: 4px solid #f59e0b; 
 }
-
-.patient-table tbody tr:nth-child(even).cppt-pending {
-  background: #fde68a !important; /* Warna Kuning (Genap) - Lebih pekat */
-}
-
-.patient-table tbody tr:nth-child(even).cppt-new {
-  background: #bfdbfe !important; /* Warna Biru (Genap) - Lebih pekat */
-}
-/* =======================================
-   AKHIR PERUBAHAN
-   ======================================= */
 
 
 .cppt-indicator {
@@ -745,15 +725,18 @@
 }
 
 @media (max-width: 360px) {
+  /*
   .patient-table th:nth-child(5),
   .patient-table td:nth-child(5) {
     display: none;
   }
+  */
   
   .patient-table {
     min-width: 500px;
   }
 }
+
 
 /* ===== PRINT STYLES ===== */
 @media print {
