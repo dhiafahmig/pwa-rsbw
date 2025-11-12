@@ -1,10 +1,7 @@
 // src/hooks/useOneSignal.js
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
-// Dapatkan OneSignal SDK dari window. 
-const OneSignal = window.OneSignal || [];
-
-// ✅ Ambil App ID dari .env (Ini sudah benar)
+// Ambil App ID dari .env
 const oneSignalAppId = process.env.REACT_APP_ONESIGNAL_APP_ID;
 
 if (!oneSignalAppId) {
@@ -16,90 +13,149 @@ const useOneSignal = () => {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isPermissionDenied, setIsPermissionDenied] = useState(false);
 
+  // Guard untuk mencegah init ganda di React.StrictMode
+  const isInitialized = useRef(false);
+
   // Inisialisasi OneSignal
   useEffect(() => {
-    OneSignal.push(() => {
-      console.log("OneSignal SDK mulai inisialisasi...");
-      OneSignal.init({
+    // Hanya inisialisasi SEKALI
+    if (isInitialized.current) {
+      console.log("OneSignal: Inisialisasi sudah berjalan, skip.");
+      return;
+    }
+    isInitialized.current = true;
+
+    // Tunggu sampai window.OneSignal tersedia
+    const initializeOneSignal = async () => {
+      try {
+        // Tunggu OneSignal SDK fully loaded
+        if (!window.OneSignal) {
+          console.warn("OneSignal SDK belum dimuat, tunggu...");
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        if (!window.OneSignal) {
+          throw new Error("OneSignal SDK gagal dimuat dari CDN");
+        }
+
+        console.log("OneSignal SDK mulai inisialisasi...");
         
-        appId: oneSignalAppId, // <-- Sudah benar
-        
-        // Cek apakah Anda masih menggunakan sw.js kustom
-        // Jika ya, baris ini harus ada:
-        serviceWorkerPath: "sw.js", 
-        // Jika Anda kembali ke default, hapus baris di atas
-        
-        allowLocalhostAsSecureOrigin: true,
-        autoResubscribe: true,
-        notifyButton: {
-          enable: false,
-        },
-      }).then(() => {
+        // Initialize OneSignal dengan config yang benar
+        await window.OneSignal.init({
+          appId: oneSignalAppId,
+          serviceWorkerPath: "sw.js",
+          allowLocalhostAsSecureOrigin: true,
+          autoResubscribe: true,
+          notifyButton: {
+            enable: false,
+          },
+        });
+
         console.log('✅ OneSignal SDK Inisialisasi Selesai.');
-        setLoading(false);
         
+        // Update subscription status setelah init
         updateSubscriptionStatus();
         updatePermissionStatus();
 
-        OneSignal.on('subscriptionChange', updateSubscriptionStatus);
-        OneSignal.on('notificationPermissionChange', updatePermissionStatus);
-      });
-    });
+        // Setup event listeners (jika tersedia di v16)
+        if (window.OneSignal?.Notifications?.permission) {
+          // Event listeners ada di v16
+          try {
+            window.OneSignal.on?.('subscriptionChange', updateSubscriptionStatus);
+            window.OneSignal.on?.('notificationPermissionChange', updatePermissionStatus);
+          } catch (e) {
+            console.warn("Event listeners tidak tersedia di SDK ini");
+          }
+        }
+
+        setLoading(false);
+      } catch (err) {
+        console.error("❌ OneSignal SDK GAGAL inisialisasi:", err);
+        setLoading(false);
+      }
+    };
+
+    initializeOneSignal();
   }, []); // [] = Hanya berjalan sekali
 
   // Fungsi untuk update status langganan
-  const updateSubscriptionStatus = async () => {
-    OneSignal.push(async () => {
-      const isSubscribed = await OneSignal.isPushNotificationsEnabled();
-      setIsSubscribed(isSubscribed);
-    });
-  };
+  const updateSubscriptionStatus = useCallback(async () => {
+    try {
+      if (!window.OneSignal) return;
+      
+      // API OneSignal Web SDK yang benar untuk cek push enabled
+      const isEnabled = await window.OneSignal.Notifications.permission;
+      setIsSubscribed(isEnabled);
+    } catch (e) {
+      console.error("Gagal cek status langganan:", e);
+    }
+  }, []);
   
   // Fungsi untuk update status izin
-  const updatePermissionStatus = async () => {
-    OneSignal.push(async () => {
-      const permission = await OneSignal.getNotificationPermission();
-      setIsPermissionDenied(permission === 'denied');
-    });
-  };
+  const updatePermissionStatus = useCallback(async () => {
+    try {
+      if (!window.OneSignal) return;
+      
+      // API OneSignal Web SDK untuk cek permission
+      const permission = await window.OneSignal.Notifications.permission;
+      setIsPermissionDenied(permission === false || permission === 'denied');
+    } catch (e) {
+      console.error("Gagal cek status izin:", e);
+    }
+  }, []);
 
   // Fungsi untuk meminta izin (memunculkan pop-up)
   const requestPermission = useCallback(async () => {
     setLoading(true);
     try {
-      await OneSignal.push(async () => {
-        await OneSignal.Slidedown.promptPush();
-      });
+      if (!window.OneSignal) {
+        throw new Error("OneSignal SDK belum tersedia");
+      }
+      
+      // API OneSignal Web SDK yang benar untuk request permission
+      await window.OneSignal.Notifications.requestPermission();
+      
+      // Update status setelah request
+      await updatePermissionStatus();
     } catch (error) {
       console.error("Gagal meminta izin:", error);
-      updatePermissionStatus();
       throw error;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [updatePermissionStatus]);
 
-  // ✅ FUNGSI KUNCI (PERBAIKAN)
+  // FUNGSI KUNCI - Login user
   const login = useCallback((externalUserId) => {
-    if (!externalUserId) return;
+    if (!externalUserId || !window.OneSignal) return;
+    
     console.log(`OneSignal: Menghubungkan user ${externalUserId}`);
     
-    // PERBAIKAN: Gunakan 'setExternalUserId', bukan 'login'
-    // Dibungkus 'push' untuk memastikan SDK sudah init
-    OneSignal.push(() => {
-      OneSignal.setExternalUserId(externalUserId);
-    });
+    try {
+      // TODO: OneSignal SDK v16 .login() method punya bug internal (reading 'tt')
+      // Disable untuk sementara sampai OneSignal fix
+      // window.OneSignal.login(externalUserId);
+      
+      console.log(`✅ User ${externalUserId} siap untuk notifikasi (login disabled due to SDK bug)`);
+    } catch (e) {
+      console.error("Gagal login ke OneSignal:", e);
+    }
   }, []);
 
-  // ✅ FUNGSI KUNCI (PERBAIKAN)
+  // FUNGSI KUNCI - Logout user
   const logout = useCallback(() => {
+    if (!window.OneSignal) return;
+    
     console.log("OneSignal: Logout user");
     
-    // PERBAIKAN: Gunakan 'removeExternalUserId', bukan 'logout'
-    // Dibungkus 'push' untuk memastikan SDK sudah init
-    OneSignal.push(() => {
-      OneSignal.removeExternalUserId();
-    });
+    try {
+      // TODO: OneSignal SDK v16 .logout() method disabled due to SDK bug
+      // window.OneSignal.logout();
+      
+      console.log("✅ User logout (logout disabled due to SDK bug)");
+    } catch (e) {
+      console.error("Gagal logout dari OneSignal:", e);
+    }
   }, []);
 
   return {
