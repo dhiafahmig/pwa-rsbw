@@ -3,7 +3,18 @@ package notifications
 
 import (
 	"database/sql"
+	"log"
+	"time" // <-- TAMBAHAN
 )
+
+// Struct Notifikasi Sederhana (sesuai tabel notification_queue Anda)
+type NotifikasiPending struct {
+	ID       int64
+	KdDokter string
+	Judul    string
+	Isi      string
+	NoRawat  string // <-- Diubah dari UrlTujuan menjadi NoRawat
+}
 
 // Repository menangani semua query database untuk notifikasi.
 type Repository struct {
@@ -15,28 +26,51 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{DB: db}
 }
 
-// SaveOrUpdateToken menyimpan atau memperbarui token di database.
-// Menggunakan "INSERT ... ON DUPLICATE KEY UPDATE" untuk efisiensi.
-func (r *Repository) SaveOrUpdateToken(req RegisterTokenRequest) error {
-	// PENTING: Pastikan tabel Anda memiliki UNIQUE index pada kolom `token`
-	// agar ON DUPLICATE KEY UPDATE berfungsi. Jalankan SQL ini sekali:
-	// ALTER TABLE fcm_tokens ADD UNIQUE (token(191));
+// GetPendingNotifications mengambil notifikasi yang belum terkirim
+func (r *Repository) GetPendingNotifications() ([]NotifikasiPending, error) {
+	// ✅ PERBAIKAN: Query disesuaikan dengan tabel 'notification_queue' Anda
 	query := `
-		INSERT INTO fcm_tokens (
-			token, user_id, kd_dokter, device_type, user_agent, 
-			platform, active, last_used, created_at, updated_at
-		) 
-		VALUES (?, ?, ?, ?, ?, ?, 1, NOW(), NOW(), NOW()) 
-		ON DUPLICATE KEY UPDATE 
-			user_id = VALUES(user_id), 
-			kd_dokter = VALUES(kd_dokter),
-			active = 1,
-			last_used = NOW(),
-			updated_at = NOW()
+		SELECT id, kd_dokter, title, body, no_rawat
+		FROM notification_queue 
+		WHERE status = 'pending'
+		ORDER BY created_at ASC
+		LIMIT 10
 	`
-	_, err := r.DB.Exec(
-		query,
-		req.Token, req.UserID, req.KdDokter, req.DeviceType, req.UserAgent, req.Platform,
-	)
+	//
+
+	rows, err := r.DB.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var notifikasiList []NotifikasiPending
+	for rows.Next() {
+		var n NotifikasiPending
+		// ✅ PERBAIKAN: Scan disesuaikan dengan SELECT
+		if err := rows.Scan(&n.ID, &n.KdDokter, &n.Judul, &n.Isi, &n.NoRawat); err != nil {
+			log.Printf("ERROR (Repo): Gagal memindai notifikasi: %v", err)
+			continue
+		}
+		notifikasiList = append(notifikasiList, n)
+	}
+	return notifikasiList, nil
+}
+
+// UpdateNotificationStatus mengubah status notifikasi (misal: 'pending' -> 'sent')
+func (r *Repository) UpdateNotificationStatus(id int64, status string, responseMsg string) error {
+	var query string
+	var err error
+
+	// ✅ PERBAIKAN: Query disesuaikan agar mengisi 'sent_at' dan 'error_message'
+	if status == "sent" {
+		query = "UPDATE notification_queue SET status = ?, error_message = ?, sent_at = ? WHERE id = ?"
+		_, err = r.DB.Exec(query, status, responseMsg, time.Now(), id)
+	} else {
+		query = "UPDATE notification_queue SET status = ?, error_message = ? WHERE id = ?"
+		_, err = r.DB.Exec(query, status, responseMsg, id)
+	}
+	//
+
 	return err
 }

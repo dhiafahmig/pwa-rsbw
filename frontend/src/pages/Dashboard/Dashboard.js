@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../../services/auth';
 import { useNavigate } from 'react-router-dom';
-import useFirebaseMessaging from '../../hooks/useFirebaseMessaging';
+import useOneSignal from '../../hooks/useOneSignal'; 
 import { patientService } from '../../services/patient'; 
 import './Dashboard.css';
 
@@ -12,22 +12,25 @@ function Dashboard() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  // Gunakan hook useOneSignal
   const { 
     requestPermission, 
-    isPermissionGranted, 
-    loading: notificationLoading 
-  } = useFirebaseMessaging();
+    isSubscribed, 
+    isPermissionDenied,
+    loading: notificationLoading,
+    login: oneSignalLogin,
+    logout: oneSignalLogout
+  } = useOneSignal();
 
-  // ✅ PERUBAHAN: 1. Tambahkan 'pasienBaru' ke state
   const [dashboardStats, setDashboardStats] = useState({
     pasienAktif: 0,
     visiteHariIni: 0,
-    pasienBaru: 0, // <-- DITAMBAHKAN
+    pasienBaru: 0, 
   });
   const [statsLoading, setStatsLoading] = useState(true);
   const [statsError, setStatsError] = useState(null);
 
-  // Close dropdown when clicking outside
+  // Close dropdown (tidak berubah)
   useEffect(() => {
     function handleClickOutside(event) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -39,8 +42,19 @@ function Dashboard() {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
+  
+  // Hubungkan user DPJP ke OneSignal saat user terautentikasi
+  useEffect(() => {
+    // Gunakan kd_dokter atau id_user sebagai ID unik untuk OneSignal
+    const doctorId = user?.kd_dokter || user?.id_user;
+    
+    if (doctorId) {
+      console.log(`Menghubungkan DPJP (${doctorId}) ke OneSignal...`);
+      oneSignalLogin(doctorId);
+    }
+  }, [user, oneSignalLogin]); // Berjalan saat 'user' atau 'oneSignalLogin' berubah
 
-  // useEffect untuk mengambil data statistik
+  // useEffect untuk ambil data statistik (tidak berubah)
   useEffect(() => {
     const fetchDashboardStats = async () => {
       console.log('🔄 Memuat statistik dashboard...');
@@ -51,11 +65,10 @@ function Dashboard() {
         if (result.success && result.data.cppt_summary) {
           const summary = result.data.cppt_summary;
           
-          // ✅ PERUBAHAN: 2. Set state 'pasienBaru' dari summary
           setDashboardStats({
             pasienAktif: summary.total_pasien,
             visiteHariIni: summary.sudah_cppt_hari_ini,
-            pasienBaru: summary.pasien_baru_hari_ini, // <-- DITAMBAHKAN
+            pasienBaru: summary.pasien_baru_hari_ini, 
           });
           console.log('📊 Statistik dashboard dimuat:', summary);
         } else {
@@ -64,8 +77,6 @@ function Dashboard() {
       } catch (error) {
         console.error("❌ Error fetching dashboard stats:", error);
         setStatsError(error.message);
-        
-        // ✅ PERUBAHAN: 3. Reset state 'pasienBaru' saat error
         setDashboardStats({ pasienAktif: 0, visiteHariIni: 0, pasienBaru: 0 }); 
       } finally {
         setStatsLoading(false);
@@ -77,18 +88,25 @@ function Dashboard() {
     return () => clearInterval(intervalId); 
   }, []); 
 
-  // Handler untuk notifikasi (tidak berubah)
+  // Handler notifikasi (TANPA ALERT YANG MEMBINGUNGKAN)
   const handleEnableNotifications = async () => {
-    if (isPermissionGranted) {
+    if (isSubscribed) {
       alert('Notifikasi sudah aktif di browser ini.');
       return;
     }
+    
+    if (isPermissionDenied) {
+      alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
+      return;
+    }
+
     try {
       await requestPermission();
-      alert('Terima kasih! Notifikasi berhasil diaktifkan.');
+      // TIDAK ADA ALERT DI SINI. 
+      // Teks tombol akan berubah otomatis saat 'isSubscribed' terupdate.
     } catch (error) {
       console.error('Gagal mengaktifkan notifikasi:', error);
-      if (error.message && error.message.includes('denied')) {
+      if (isPermissionDenied) {
         alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
       } else {
         alert('Gagal mengaktifkan notifikasi. Silakan coba lagi.');
@@ -96,11 +114,14 @@ function Dashboard() {
     }
   };
 
-  // Handler lainnya (tidak berubah)
+  // Panggil oneSignalLogout saat user logout
   const handleLogout = () => {
     setDropdownOpen(false);
+    oneSignalLogout(); // <-- PENTING
     logout();
   };
+
+  // Handler lainnya (tidak berubah)
   const navigateToPatients = () => {
     navigate('/patients');
   };
@@ -206,7 +227,7 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Main Content (Tidak berubah) */}
       <main className="dashboard-main">
         <div className="dashboard-container">
           {/* Welcome Section (Tidak berubah) */}
@@ -242,7 +263,7 @@ function Dashboard() {
                 </div>
               </div>
 
-              {/* Notifikasi Card (Tidak berubah) */}
+              {/* Notifikasi Card */}
               <div 
                 className="menu-card secondary" 
                 onClick={handleEnableNotifications}
@@ -260,12 +281,12 @@ function Dashboard() {
                 </div>
                 <div className="menu-card-footer">
                   <span className="menu-card-action">
-                    {notificationLoading ? 'Memproses...' : (isPermissionGranted ? 'Sudah Aktif ✓' : 'Aktifkan →')}
+                    {notificationLoading ? 'Memproses...' : (isSubscribed ? 'Sudah Aktif ✓' : 'Aktifkan →')}
                   </span>
                 </div>
               </div>
 
-              {/* Quick Stats Card */}
+              {/* Quick Stats Card (Tidak berubah) */}
               <div className="menu-card info">
                 <div className="menu-card-header">
                   <div className="menu-card-icon">📈</div>
@@ -274,7 +295,6 @@ function Dashboard() {
                 <div className="menu-card-content">
                   <h4 className="menu-card-title">Statistik Hari Ini</h4>
                   
-                  {/* ✅ PERUBAHAN: 4. Tambahkan item "Pasien Baru" */}
                   <div className="stats-grid">
                     <div className="stat-item">
                       <span className="stat-number">
@@ -283,7 +303,6 @@ function Dashboard() {
                       <span className="stat-label">Pasien Aktif</span>
                     </div>
 
-                    {/* ITEM BARU */}
                     <div className="stat-item">
                       <span className="stat-number">
                         {statsLoading ? '...' : (statsError ? '!' : dashboardStats.pasienBaru)}

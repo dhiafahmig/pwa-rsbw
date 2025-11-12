@@ -1,3 +1,7 @@
+
+importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
+
+// 2. Kode PWA Anda yang sudah ada
 const CACHE_NAME = 'dpjp-app-v1';
 const urlsToCache = [
   '/',

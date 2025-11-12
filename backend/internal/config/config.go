@@ -24,6 +24,13 @@ type Config struct {
 
 	// App Config
 	Environment string // development, production
+
+	// OneSignal Config
+	OneSignalAppID  string
+	OneSignalAPIKey string
+
+	// ✅ TAMBAHKAN INI
+	FrontendURL string
 }
 
 func Load() *Config {
@@ -38,7 +45,7 @@ func Load() *Config {
 		DBPort:     getEnv("DB_PORT", "3306"),
 		DBUser:     getEnv("DB_USER", "root"),
 		DBPassword: getEnv("DB_PASSWORD", ""),
-		DBName:     getEnv("DB_NAME", "hospital_db"),
+		DBName:     getEnv("DB_NAME", "sik"),
 
 		// Server
 		ServerPort: getEnv("SERVER_PORT", "8080"),
@@ -48,12 +55,23 @@ func Load() *Config {
 
 		// Environment
 		Environment: getEnv("ENVIRONMENT", "development"),
+
+		// OneSignal
+		OneSignalAppID:  getEnv("ONESIGNAL_APP_ID", ""),
+		OneSignalAPIKey: getEnv("ONESIGNAL_API_KEY", ""),
+
+		// ✅ TAMBAHKAN INI
+		FrontendURL: getEnv("FRONTEND_URL", "http://localhost:3000"),
 	}
 
 	// Build DSN
 	config.DBDSN = config.DBUser + ":" + config.DBPassword +
 		"@tcp(" + config.DBHost + ":" + config.DBPort + ")/" +
 		config.DBName + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+	if config.OneSignalAppID == "" || config.OneSignalAPIKey == "" {
+		log.Println("⚠️ PERINGATAN: ONESIGNAL_APP_ID atau ONESIGNAL_API_KEY tidak diatur di .env. Notifikasi tidak akan berfungsi.")
+	}
 
 	return config
 }
