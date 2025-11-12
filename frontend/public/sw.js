@@ -2,24 +2,20 @@
   FILE INI MENGGABUNGKAN SERVICE WORKER PWA & ONESIGNAL
 */
 
-// 1. Impor file OneSignal yang BENAR untuk digabung
-// Kita pakai 'OneSignalSDK.sw.js' dari CDN (yang bekerja)
+// ✅ PERBAIKAN: Impor file LOKAL, bukan dari CDN
 try {
-  importScripts("https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.sw.js");
-  console.log("✅ OneSignalSDK.sw.js berhasil diimpor.");
+  importScripts("OneSignalSDKWorker.js"); // <-- INI PERUBAHANNYA
+  console.log("✅ OneSignalSDKWorker.js LOKAL berhasil diimpor.");
 } catch (e) {
-  console.warn("⚠️ OneSignalSDK.sw.js gagal diimpor (CDN timeout/network issue):", e.message);
-  // Lanjutkan meski gagal - OneSignal SDK tidak critical untuk PWA
-  // Push notifications mungkin tidak bekerja, tapi app tetap berfungsi
+  console.error("❌ Gagal mengimpor OneSignalSDKWorker.js LOKAL:", e);
 }
 
-
-// 2. Kode PWA Anda yang sudah ada
-const CACHE_NAME = 'dpjp-app-v1';
+// 2. Kode PWA Anda
+const CACHE_NAME = 'dpjp-app-v2';
 const urlsToCache = [
   '/',
   '/manifest.json',
-  '/offline.html'
+  '/offline.html' // Pastikan file /public/offline.html ada
 ];
 
 // Install event
@@ -28,7 +24,6 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('SW PWA: Opened cache');
-        // Cache static assets
         const cachePromises = urlsToCache.map(url => {
           return cache.add(url).catch(err => {
             console.warn(`SW PWA: Gagal cache ${url}:`, err);
@@ -59,27 +54,19 @@ self.addEventListener('activate', (event) => {
 // Fetch event
 self.addEventListener('fetch', (event) => {
   // Biarkan OneSignal menangani fetch-nya sendiri
-  // (PENTING: Jangan ganggu request OneSignal)
-  if (event.request.url.includes("onesignal")) {
+  if (event.request.url.includes("onesignal") || event.request.url.includes("OneSignalSDKWorker.js")) {
     return;
   }
-
-  // Handle GET requests only
+  // Logika PWA Anda
   if (event.request.method !== 'GET') {
     return;
   }
-
-  // Logika cache-first untuk static assets
-  // Network-first untuk API calls
   const url = new URL(event.request.url);
   const isApi = url.pathname.includes('/api/');
-
   if (isApi) {
-    // Network-first untuk API
     event.respondWith(
       fetch(event.request)
         .then(response => {
-          // Cache valid responses
           if (response && response.status === 200) {
             const responseClone = response.clone();
             caches.open(CACHE_NAME).then(cache => {
@@ -89,20 +76,16 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Fallback ke cache jika offline
           return caches.match(event.request)
             .then(cached => cached || new Response('Offline', { status: 503 }));
         })
     );
   } else {
-    // Cache-first untuk static assets
     event.respondWith(
       caches.match(event.request)
         .then((response) => {
-          // Return cached version atau fetch dari network
           return response || fetch(event.request)
             .then(response => {
-              // Cache new responses
               if (response && response.status === 200) {
                 const responseClone = response.clone();
                 caches.open(CACHE_NAME).then(cache => {
@@ -112,7 +95,6 @@ self.addEventListener('fetch', (event) => {
               return response;
             })
             .catch(() => {
-              // Offline fallback
               if (event.request.destination === 'document') {
                 return caches.match('/offline.html');
               }

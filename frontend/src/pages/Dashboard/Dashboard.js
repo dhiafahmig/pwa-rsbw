@@ -88,29 +88,33 @@ function Dashboard() {
     return () => clearInterval(intervalId); 
   }, []); 
 
-  // Handler notifikasi (TANPA ALERT YANG MEMBINGUNGKAN)
+  // Handler notifikasi
   const handleEnableNotifications = async () => {
     if (isSubscribed) {
-      alert('Notifikasi sudah aktif di browser ini.');
+      alert('✅ Notifikasi sudah aktif di browser ini.');
       return;
     }
     
     if (isPermissionDenied) {
-      alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
+      alert('⚠️ Anda menolak izin notifikasi sebelumnya.\n\n' +
+            'Untuk mengaktifkan kembali:\n' +
+            '1. Klik ikon 🔒 Gembok di address bar\n' +
+            '2. Cari "Notifications" dan klik settingnya\n' +
+            '3. Ubah dari "Block" ke "Allow"\n' +
+            '4. Refresh halaman (F5)\n' +
+            '5. Klik tombol "🔔 Aktifkan" lagi\n' +
+            '6. Pilih "Allow" saat browser bertanya');
       return;
     }
 
     try {
+      console.log('🔔 User klik tombol Aktifkan Notifikasi');
       await requestPermission();
-      // TIDAK ADA ALERT DI SINI. 
-      // Teks tombol akan berubah otomatis saat 'isSubscribed' terupdate.
+      // Browser akan menampilkan native permission prompt
+      // User tinggal klik "Allow" atau "Block"
     } catch (error) {
       console.error('Gagal mengaktifkan notifikasi:', error);
-      if (isPermissionDenied) {
-        alert('Anda menolak izin notifikasi. Anda bisa mengubahnya nanti di pengaturan browser.');
-      } else {
-        alert('Gagal mengaktifkan notifikasi. Silakan coba lagi.');
-      }
+      alert('❌ Gagal mengaktifkan notifikasi. Silakan coba lagi.');
     }
   };
 
@@ -267,7 +271,7 @@ function Dashboard() {
               <div 
                 className="menu-card secondary" 
                 onClick={handleEnableNotifications}
-                style={{ cursor: 'pointer' }}
+                style={{ cursor: isPermissionDenied ? 'not-allowed' : 'pointer', opacity: isPermissionDenied ? 0.7 : 1 }}
               >
                 <div className="menu-card-header">
                   <div className="menu-card-icon">🔔</div>
@@ -278,10 +282,23 @@ function Dashboard() {
                   <p className="menu-card-description">
                     Atur push notifications dan alert sistem
                   </p>
+                  {isPermissionDenied && (
+                    <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '8px', fontWeight: '500' }}>
+                      ⚠️ Permission ditolak. Reset di browser settings untuk mengaktifkan.
+                    </p>
+                  )}
                 </div>
                 <div className="menu-card-footer">
                   <span className="menu-card-action">
-                    {notificationLoading ? 'Memproses...' : (isSubscribed ? 'Sudah Aktif ✓' : 'Aktifkan →')}
+                    {notificationLoading ? (
+                      <span>⏳ Memproses...</span>
+                    ) : isSubscribed ? (
+                      <span>✅ Aktif</span>
+                    ) : isPermissionDenied ? (
+                      <span>⛔ Ditolak</span>
+                    ) : (
+                      <span>🔔 Aktifkan →</span>
+                    )}
                   </span>
                 </div>
               </div>
