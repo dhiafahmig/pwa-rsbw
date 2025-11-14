@@ -44,7 +44,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	})
 }
 
-// ✅ Middleware untuk validate JWT token dengan kode dokter DAN nama dokter
+// Middleware untuk validate JWT token dengan kode dokter DAN nama dokter
 func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
@@ -78,18 +78,16 @@ func (h *AuthHandler) JWTMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// ✅ Set user info, kode dokter, DAN nama dokter di context
+		// Set user info, kode dokter, dan nama dokter
 		c.Set("id_user", claims.IDUser)
-		c.Set("kd_dokter", claims.KodeDokter) // ✅ Kode dokter
-		c.Set("nm_dokter", claims.NamaDokter) // ✅ TAMBAH: Nama dokter
+		c.Set("kd_dokter", claims.KodeDokter)
+		c.Set("nm_dokter", claims.NamaDokter)
 		c.Next()
 	}
 }
 
-// ✅ TAMBAHAN: Handler untuk memvalidasi token
+// Handler untuk memvalidasi token
 func (h *AuthHandler) Validate(c *gin.Context) {
-	// Jika request bisa sampai sini, itu karena JWTMiddleware() SUKSES
-	// dan tokennya valid. Kita hanya perlu mengembalikan data user.
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Token is valid",

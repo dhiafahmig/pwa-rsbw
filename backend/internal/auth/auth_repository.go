@@ -21,7 +21,7 @@ func NewAuthRepository(db *gorm.DB) AuthRepository {
 func (r *authRepository) GetUserByCredentials(idUser, password string) (*User, error) {
 	var user User
 
-	// ✅ Query dengan JOIN ke tabel dokter untuk get kode dokter DAN nama dokter
+	// Query dengan JOIN ke tabel dokter untuk get kode dokter DAN nama dokter
 	err := r.db.Raw(`
 		SELECT 
 			u.id_user,

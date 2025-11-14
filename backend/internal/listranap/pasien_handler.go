@@ -16,7 +16,7 @@ func NewPasienHandler(pasienService PasienService) *PasienHandler {
 	}
 }
 
-// ✅ ENHANCED: Support filter parameter untuk CPPT
+// Support filter parameter untuk CPPT
 func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 	kdDokter := c.GetString("kd_dokter")
 	if kdDokter == "" {
@@ -27,7 +27,7 @@ func (h *PasienHandler) GetPasienRawatInapAktif(c *gin.Context) {
 		return
 	}
 
-	// ✅ TAMBAH: Get filter parameter
+	// Get filter parameter
 	filter := c.DefaultQuery("filter", "all") // "all", "sudah_cppt", "belum_cppt"
 
 	response, err := h.pasienService.GetPasienAktifByDokterWithFilter(kdDokter, filter)

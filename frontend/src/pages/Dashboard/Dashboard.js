@@ -213,14 +213,12 @@ function Dashboard() {
                       className="dropdown-item profile-item"
                       onClick={() => setDropdownOpen(false)}
                     >
-                      <span className="item-icon">👨‍⚕️</span>
                       <span className="item-text">Profil Saya</span>
                     </button>
                     <button 
                       className="dropdown-item logout-item"
                       onClick={handleLogout}
                     >
-                      <span className="item-icon">🚪</span>
                       <span className="item-text">Logout</span>
                     </button>
                   </div>
@@ -240,7 +238,7 @@ function Dashboard() {
               Selamat Datang, {getDoctorName()}
             </h2>
             <p className="welcome-text">
-              Kelola data pasien rawat inap dengan mudah dan efisien
+              Pantau data pasien rawat inap dengan mudah dan efisien
             </p>
           </div>
 

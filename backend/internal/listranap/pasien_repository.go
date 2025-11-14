@@ -25,7 +25,7 @@ func (r *pasienRepository) GetPasienRawatInapByDokter(kdDokter string) ([]Pasien
 	return r.GetPasienRawatInapByDokterWithCppt(kdDokter, "all")
 }
 
-// ✅ DIPERBARUI: Query dengan 3 status CPPT
+// Query dengan 3 status CPPT
 func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error) {
 	var pasienList []PasienRawatInap
 
@@ -80,7 +80,7 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	WHERE ki.stts_pulang = '-' 
 	AND d.kd_dokter = ?`
 
-	// ✅ DIPERBARUI: Filter berdasarkan 3 status
+	//  Filter berdasarkan 3 status
 	switch filter {
 	case "sudah_cppt":
 		// Hanya pasien lama yang sudah CPPT
@@ -90,11 +90,11 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 		query += " AND (cppt_today.jumlah_cppt IS NULL OR cppt_today.jumlah_cppt = 0)"
 		query += " AND DATE(ki.tgl_masuk) != CURDATE()"
 	case "pasien_baru":
-		// ✅ TAMBAH: Hanya pasien baru
+		//  Hanya pasien baru
 		query += " AND DATE(ki.tgl_masuk) = CURDATE()"
 	}
 
-	// ✅ DIPERBARUI: Order by status dulu, agar pending/kuning di atas
+	//  Order by status dulu, agar pending/kuning di atas
 	query += " ORDER BY CASE cppt_status WHEN 'pending' THEN 1 WHEN 'new' THEN 2 WHEN 'done' THEN 3 ELSE 4 END, b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
 
 	err := r.db.Raw(query, kdDokter, kdDokter, kdDokter).Scan(&pasienList).Error
@@ -105,7 +105,7 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	return pasienList, nil
 }
 
-// ✅ DIPERBARUI: Detail pasien dengan 3 status CPPT
+// Detail pasien dengan 3 status CPPT
 func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error) {
 	var pasien PasienRawatInap
 

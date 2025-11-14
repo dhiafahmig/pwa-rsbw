@@ -7,9 +7,9 @@ import (
 // User model sesuai table user + dokter info
 type User struct {
 	IDUser     string `json:"id_user" gorm:"column:id_user;primaryKey"`
-	Password   string `json:"-" gorm:"column:password"`          // Hidden dari JSON response
-	KodeDokter string `json:"kd_dokter" gorm:"column:kd_dokter"` // ✅ Kode dokter
-	NamaDokter string `json:"nm_dokter" gorm:"column:nm_dokter"` // ✅ TAMBAH: Nama dokter
+	Password   string `json:"-" gorm:"column:password"`
+	KodeDokter string `json:"kd_dokter" gorm:"column:kd_dokter"`
+	NamaDokter string `json:"nm_dokter" gorm:"column:nm_dokter"`
 }
 
 // Request login
@@ -22,16 +22,16 @@ type LoginRequest struct {
 type LoginResponse struct {
 	Token      string `json:"token"`
 	IDUser     string `json:"id_user"`
-	KodeDokter string `json:"kd_dokter"` // ✅ Include kode dokter di response
-	NamaDokter string `json:"nm_dokter"` // ✅ TAMBAH: Include nama dokter di response
+	KodeDokter string `json:"kd_dokter"`
+	NamaDokter string `json:"nm_dokter"`
 	ExpiresAt  int64  `json:"expires_at"`
 }
 
 // JWT Claims - tambah nama dokter
 type JWTClaims struct {
 	IDUser     string `json:"id_user"`
-	KodeDokter string `json:"kd_dokter"` // ✅ Kode dokter
-	NamaDokter string `json:"nm_dokter"` // ✅ TAMBAH: Nama dokter
+	KodeDokter string `json:"kd_dokter"`
+	NamaDokter string `json:"nm_dokter"`
 	jwt.RegisteredClaims
 }
 

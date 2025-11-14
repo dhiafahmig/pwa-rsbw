@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; // ✅ PERBAIKAN: Import useRef
+import React, { useState, useEffect, useRef } from 'react'; 
 import { patientService } from '../../services/patient'; 
 import './PatientList.css';
 
@@ -19,12 +19,10 @@ const PatientList = () => {
   
   const [currentFilter, setCurrentFilter] = useState('all');
 
-  // ✅ PERBAIKAN: 1. Deklarasikan ref di top-level
   // Ref ini akan menyimpan nilai 'currentFilter' yang terbaru
   const filterRef = useRef(currentFilter);
 
   // ===== UTILITY FUNCTIONS =====
-  // ... (fungsi formatDate, getPenjaminBadgeClass, dll tidak berubah) ...
   const formatDate = (dateString) => {
     if (!dateString) return '-';
     try {
@@ -57,7 +55,7 @@ const PatientList = () => {
         setRefreshing(true);
       }
       setError(null);
-      setCurrentFilter(filter); // Set filter saat ini
+      setCurrentFilter(filter); 
       
       console.log(`🔄 Fetching patients data (filter: ${filter})...`);
       
@@ -107,14 +105,10 @@ const PatientList = () => {
     }
   };
 
-  // ===== COMPONENT LIFECYCLE =====
-
-  // ✅ PERBAIKAN: 2. Gunakan effect ini untuk MENSINKRONKAN state ke ref
   useEffect(() => {
     filterRef.current = currentFilter;
   }, [currentFilter]); // Efek ini jalan setiap kali 'currentFilter' berubah
 
-  // ✅ PERBAIKAN: 3. Perbaiki total logika 'useEffect' untuk interval
   useEffect(() => {
     // Ambil data "all" saat pertama kali load
     fetchPatients('all', true);
@@ -132,7 +126,7 @@ const PatientList = () => {
     // Cleanup function: Hapus interval saat komponen unmount
     return () => clearInterval(intervalId);
     
-  }, []); // <-- Dependency array kosong, HANYA jalan sekali saat mount
+  }, []); 
 
   // ===== EVENT HANDLERS =====
   const handleRefresh = () => {
@@ -146,13 +140,6 @@ const PatientList = () => {
   };
 
   const handleBack = () => { window.history.back(); };
-  
-  const handleLogout = () => {
-    console.log('🚪 Logout triggered');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user_data');
-    window.location.href = '/login';
-  };
   
   const handleCloseError = () => { setError(null); };
 
@@ -189,10 +176,19 @@ const PatientList = () => {
       {/* ===== HEADER SECTION ===== */}
       <header className="patient-header">
         <div className="header-content">
+          
           <div className="header-left">
-            <button className="back-button" onClick={handleBack} title="Kembali ke halaman sebelumnya">
-              ← Kembali
-            </button>
+            
+            <div className="header-controls">
+              <img 
+                src="/images/logo/rs.png" 
+                alt="Logo RS - Kembali" 
+                className="header-logo"
+                onClick={handleBack}
+                title="Kembali ke halaman sebelumnya"
+              />
+            </div>
+            
             <div className="header-info">
               <h1 className="page-title">Data Pasien Rawat Inap</h1>
               <p className="page-subtitle">
@@ -201,12 +197,10 @@ const PatientList = () => {
                 })}
               </p>
             </div>
+            
           </div>
-          <div className="header-right">
-            <button className="logout-button" onClick={handleLogout} title="Logout dari sistem">
-              🚪 Logout
-            </button>
-          </div>
+          {/* ⛔ TOMBOL LOGOUT (header-right) SUDAH DIHAPUS */}
+
         </div>
       </header>
 

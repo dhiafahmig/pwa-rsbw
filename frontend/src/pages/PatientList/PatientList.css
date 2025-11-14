@@ -22,7 +22,7 @@
 .header-content {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 16px 20px; /* Padding compact */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -30,14 +30,37 @@
 
 .header-left {
   display: flex;
-  align-items: center;
+  align-items: center; 
   gap: 20px;
+  width: 100%; 
+  justify-content: space-between; 
+}
+
+/* Wrapper untuk logo */
+.header-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header-logo {
+  height: 45px; 
+  width: auto;
+  cursor: pointer; /* ✨ Menandakan bisa diklik */
+  transition: opacity 0.2s ease; /* ✨ Efek hover */
+}
+
+.header-logo:hover {
+  opacity: 0.8; /* ✨ Efek hover */
 }
 
 .header-info {
   display: flex;
   flex-direction: column;
+  align-items: flex-end; 
+  text-align: right;     
 }
+
 
 .page-title {
   font-size: 1.5rem;
@@ -51,19 +74,15 @@
   opacity: 0.9;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-}
-
-/* Header Buttons */
-.back-button,
+/* ⛔ Style .back-button sudah dihapus */
+/* Style .logout-button ini tidak terpakai, tapi dibiarkan agar tidak error jika ada di tempat lain */
 .logout-button {
   background: rgba(255, 255, 255, 0.2);
   color: white;
   border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.8rem; 
+  border-radius: 6px;
   cursor: pointer;
   font-weight: 500;
   display: flex;
@@ -71,10 +90,9 @@
   gap: 8px;
   transition: all 0.2s ease;
   backdrop-filter: blur(10px);
-  font-size: 0.9rem;
+  flex-shrink: 0; 
 }
 
-.back-button:hover,
 .logout-button:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: translateY(-1px);
@@ -582,13 +600,12 @@
   
   .header-left {
     width: 100%;
-    justify-content: space-between;
     flex-direction: row;
+    align-items: center; 
   }
-  
-  .back-button {
-    font-size: 0.8rem;
-    padding: 6px 10px;
+
+  .header-info {
+    align-items: flex-end; /* Tetap rata kanan di mobile */
   }
   
   .summary-cards {
@@ -690,6 +707,22 @@
 }
 
 @media (max-width: 480px) {
+  
+  /* ✨ Responsive tambahan untuk header mobile */
+  .header-info {
+    text-align: right;
+  }
+  .page-title {
+    font-size: 1.1rem; /* Kecilkan judul di mobile */
+  }
+  .page-subtitle {
+    font-size: 0.75rem; /* Kecilkan sub-judul di mobile */
+  }
+  .header-logo {
+    height: 40px; /* Kecilkan logo lagi di mobile */
+  }
+  /* --- */
+
   .patient-table {
     min-width: 600px;
     font-size: 0.7rem;
@@ -725,13 +758,6 @@
 }
 
 @media (max-width: 360px) {
-  /*
-  .patient-table th:nth-child(5),
-  .patient-table td:nth-child(5) {
-    display: none;
-  }
-  */
-  
   .patient-table {
     min-width: 500px;
   }

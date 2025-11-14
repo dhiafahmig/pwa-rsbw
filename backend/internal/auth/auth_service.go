@@ -28,7 +28,7 @@ func NewAuthService(authRepo AuthRepository, jwtSecret string) AuthService {
 func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	fmt.Printf("🔍 Login attempt - ID: %s\n", idUser)
 
-	// ✅ Get user dengan kode dokter DAN nama dokter
+	//  Get user dengan kode dokter DAN nama dokter
 	user, err := s.authRepo.GetUserByCredentials(idUser, password)
 	if err != nil {
 		fmt.Printf("❌ Login failed: %v\n", err)
@@ -37,12 +37,12 @@ func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 
 	fmt.Printf("✅ Login successful for user: %s, Dokter: %s - %s\n", idUser, user.KodeDokter, user.NamaDokter)
 
-	// ✅ Generate JWT dengan kode dokter DAN nama dokter
+	//  Generate JWT dengan kode dokter DAN nama dokter
 	expirationTime := time.Now().Add(30 * time.Minute)
 	claims := &JWTClaims{
 		IDUser:     idUser,
-		KodeDokter: user.KodeDokter, // ✅ Include kode dokter di JWT
-		NamaDokter: user.NamaDokter, // ✅ TAMBAH: Include nama dokter di JWT
+		KodeDokter: user.KodeDokter,
+		NamaDokter: user.NamaDokter,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
@@ -60,8 +60,8 @@ func (s *authService) Login(idUser, password string) (*LoginResponse, error) {
 	return &LoginResponse{
 		Token:      tokenString,
 		IDUser:     idUser,
-		KodeDokter: user.KodeDokter, // ✅ Include di response
-		NamaDokter: user.NamaDokter, // ✅ TAMBAH: Include nama dokter di response
+		KodeDokter: user.KodeDokter,
+		NamaDokter: user.NamaDokter,
 		ExpiresAt:  expirationTime.Unix(),
 	}, nil
 }

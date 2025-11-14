@@ -33,7 +33,7 @@ func (s *pasienService) GetPasienAktifByDokterWithFilter(kdDokter string, filter
 		return nil, fmt.Errorf("kode dokter not found")
 	}
 
-	// ✅ DIPERBARUI: Saat panggil service, summary HARUS dihitung dari filter "all"
+	//  Saat panggil service, summary HARUS dihitung dari filter "all"
 	// 1. Ambil data pasien sesuai filter
 	pasienList, err := s.pasienRepo.GetPasienRawatInapByDokterWithCppt(kdDokter, filter)
 	if err != nil {
@@ -89,7 +89,7 @@ func (s *pasienService) GetPasienAktifByDokterWithFilter(kdDokter string, filter
 	}, nil
 }
 
-// ✅ DIPERBARUI: Menghitung 3 status (done, pending, new)
+// Menghitung 3 status (done, pending, new)
 func (s *pasienService) calculateCpptSummary(pasienList []PasienRawatInap) CpptSummary {
 	total := len(pasienList)
 	sudahCppt := 0

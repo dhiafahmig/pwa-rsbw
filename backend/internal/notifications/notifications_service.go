@@ -16,16 +16,16 @@ type Service struct {
 	httpClient      *http.Client
 	oneSignalAppID  string
 	oneSignalAPIKey string
-	frontendURL     string // ✅ TAMBAHKAN INI
+	frontendURL     string
 }
 
 // NewService membuat instance Service baru.
-func NewService(repo *Repository, appID string, apiKey string, frontendURL string) *Service { // ✅ TAMBAHKAN frontendURL
+func NewService(repo *Repository, appID string, apiKey string, frontendURL string) *Service {
 	return &Service{
 		repo:            repo,
 		oneSignalAppID:  appID,
 		oneSignalAPIKey: apiKey,
-		frontendURL:     frontendURL, // ✅ TAMBAHKAN INI
+		frontendURL:     frontendURL,
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -74,8 +74,6 @@ func (s *Service) processPendingNotifications() error {
 // sendNotificationToOneSignal mengirim notifikasi ke API OneSignal
 func (s *Service) sendNotificationToOneSignal(notif NotifikasiPending) error {
 
-	// ✅ PERBAIKAN: Buat URL lengkap (absolut)
-	// (Contoh: "http://localhost:3000/patients/123456")
 	webUrl := fmt.Sprintf("%s/patients/%s", s.frontendURL, notif.NoRawat)
 
 	// Buat payload JSON untuk OneSignal

@@ -13,7 +13,7 @@ type NotifikasiPending struct {
 	KdDokter string
 	Judul    string
 	Isi      string
-	NoRawat  string // <-- Diubah dari UrlTujuan menjadi NoRawat
+	NoRawat  string
 }
 
 // Repository menangani semua query database untuk notifikasi.
@@ -28,7 +28,6 @@ func NewRepository(db *sql.DB) *Repository {
 
 // GetPendingNotifications mengambil notifikasi yang belum terkirim
 func (r *Repository) GetPendingNotifications() ([]NotifikasiPending, error) {
-	// ✅ PERBAIKAN: Query disesuaikan dengan tabel 'notification_queue' Anda
 	query := `
 		SELECT id, kd_dokter, title, body, no_rawat
 		FROM notification_queue 
@@ -47,7 +46,6 @@ func (r *Repository) GetPendingNotifications() ([]NotifikasiPending, error) {
 	var notifikasiList []NotifikasiPending
 	for rows.Next() {
 		var n NotifikasiPending
-		// ✅ PERBAIKAN: Scan disesuaikan dengan SELECT
 		if err := rows.Scan(&n.ID, &n.KdDokter, &n.Judul, &n.Isi, &n.NoRawat); err != nil {
 			log.Printf("ERROR (Repo): Gagal memindai notifikasi: %v", err)
 			continue
@@ -62,7 +60,7 @@ func (r *Repository) UpdateNotificationStatus(id int64, status string, responseM
 	var query string
 	var err error
 
-	// ✅ PERBAIKAN: Query disesuaikan agar mengisi 'sent_at' dan 'error_message'
+	//  Query disesuaikan agar mengisi 'sent_at' dan 'error_message'
 	if status == "sent" {
 		query = "UPDATE notification_queue SET status = ?, error_message = ?, sent_at = ? WHERE id = ?"
 		_, err = r.DB.Exec(query, status, responseMsg, time.Now(), id)
