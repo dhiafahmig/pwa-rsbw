@@ -9,7 +9,6 @@ type PasienRepository interface {
 	GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error)
 	GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error)
 	GetDokterProfile(kdDokter string) (*DokterProfile, error)
-	// ✨ BARU: Tambahkan fungsi ini di interface
 	GetCpptHistory(noRawat string, kdDokter string) ([]CpptHistory, error)
 }
 
@@ -23,11 +22,12 @@ func NewPasienRepository(db *gorm.DB) PasienRepository {
 	}
 }
 
+// ... (Fungsi GetPasienRawatInapByDokter, GetPasienRawatInapByDokterWithCppt, GetPasienDetail, GetDokterProfile TIDAK BERUBAH) ...
+
 func (r *pasienRepository) GetPasienRawatInapByDokter(kdDokter string) ([]PasienRawatInap, error) {
 	return r.GetPasienRawatInapByDokterWithCppt(kdDokter, "all")
 }
 
-// Query dengan 3 status CPPT
 func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error) {
 	var pasienList []PasienRawatInap
 
@@ -45,13 +45,9 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 		d.kd_dokter,
 		d.no_telp,
 		
-		-- ✅ DIPERBARUI: Logika CASE untuk 3 status (new, done, pending)
 		CASE 
-			-- Kriteria 1: Pasien baru masuk hari ini
 			WHEN DATE(ki.tgl_masuk) = CURDATE() THEN 'new'
-			-- Kriteria 2: Sudah ada CPPT hari ini (pasien lama)
 			WHEN cppt_today.jumlah_cppt > 0 THEN 'done'
-			-- Lainnya (Pasien lama, belum CPPT)
 			ELSE 'pending' 
 		END as cppt_status,
 		
@@ -65,14 +61,12 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	JOIN kamar k ON ki.kd_kamar = k.kd_kamar
 	JOIN bangsal b ON k.kd_bangsal = b.kd_bangsal
 	LEFT JOIN penjab pj ON rp.kd_pj = pj.kd_pj
-	-- CPPT hari ini
 	LEFT JOIN (
 		SELECT no_rawat, COUNT(*) as jumlah_cppt
 		FROM pemeriksaan_ranap 
 		WHERE DATE(tgl_perawatan) = CURDATE() AND nip = ?
 		GROUP BY no_rawat
 	) cppt_today ON ki.no_rawat = cppt_today.no_rawat
-	-- CPPT terakhir
 	LEFT JOIN (
 		SELECT no_rawat, MAX(tgl_perawatan) as cppt_terakhir
 		FROM pemeriksaan_ranap 
@@ -82,21 +76,16 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	WHERE ki.stts_pulang = '-' 
 	AND d.kd_dokter = ?`
 
-	//  Filter berdasarkan 3 status
 	switch filter {
 	case "sudah_cppt":
-		// Hanya pasien lama yang sudah CPPT
 		query += " AND cppt_today.jumlah_cppt > 0 AND DATE(ki.tgl_masuk) != CURDATE()"
 	case "belum_cppt":
-		// Hanya pasien lama yang belum CPPT
 		query += " AND (cppt_today.jumlah_cppt IS NULL OR cppt_today.jumlah_cppt = 0)"
 		query += " AND DATE(ki.tgl_masuk) != CURDATE()"
 	case "pasien_baru":
-		//  Hanya pasien baru
 		query += " AND DATE(ki.tgl_masuk) = CURDATE()"
 	}
 
-	//  Order by status dulu, agar pending/kuning di atas
 	query += " ORDER BY CASE cppt_status WHEN 'pending' THEN 1 WHEN 'new' THEN 2 WHEN 'done' THEN 3 ELSE 4 END, b.nm_bangsal, k.kd_kamar, ki.tgl_masuk"
 
 	err := r.db.Raw(query, kdDokter, kdDokter, kdDokter).Scan(&pasienList).Error
@@ -107,7 +96,6 @@ func (r *pasienRepository) GetPasienRawatInapByDokterWithCppt(kdDokter string, f
 	return pasienList, nil
 }
 
-// Detail pasien dengan 3 status CPPT
 func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error) {
 	var pasien PasienRawatInap
 
@@ -125,7 +113,6 @@ func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*Pa
 		d.kd_dokter,
 		d.no_telp,
 		
-		-- ✅ DIPERBARUI: Logika CASE untuk 3 status (new, done, pending)
 		CASE 
 			WHEN DATE(ki.tgl_masuk) = CURDATE() THEN 'new'
 			WHEN cppt_today.jumlah_cppt > 0 THEN 'done'
@@ -170,7 +157,6 @@ func (r *pasienRepository) GetPasienDetail(noRawat string, kdDokter string) (*Pa
 	return &pasien, nil
 }
 
-// Get profile dokter yang login
 func (r *pasienRepository) GetDokterProfile(kdDokter string) (*DokterProfile, error) {
 	var dokter DokterProfile
 	query := `
@@ -191,54 +177,67 @@ func (r *pasienRepository) GetDokterProfile(kdDokter string) (*DokterProfile, er
 }
 
 // ==========================================================
-// ✨ BARU: Mengambil riwayat CPPT untuk satu pasien
+// ✨ FUNGSI INI DIPERBARUI
 // ==========================================================
 func (r *pasienRepository) GetCpptHistory(noRawat string, kdDokter string) ([]CpptHistory, error) {
 	var historyList []CpptHistory
 
-	// 1. Verifikasi dulu apakah dokter ini adalah DPJP-nya
-	// Ini penting untuk keamanan agar dokter tidak bisa melihat CPPT pasien lain
 	var count int64
 	err := r.db.Table("dpjp_ranap").Where("no_rawat = ? AND kd_dokter = ?", noRawat, kdDokter).Count(&count).Error
 	if err != nil {
 		return nil, err
 	}
 	if count == 0 {
-		// Jika bukan DPJP, kembalikan error "tidak ditemukan"
 		return nil, gorm.ErrRecordNotFound
 	}
 
-	// 2. Jika terverifikasi sebagai DPJP, ambil riwayat CPPT
-	// (Nama kolom disesuaikan dengan permintaan Anda)
+	// ✨ QUERY DIPERBARUI: Tambahkan kolom 'sumber_data'
 	query := `
-	SELECT 
-		pr.no_rawat,
-		DATE_FORMAT(pr.tgl_perawatan, '%Y-%m-%d') as tgl_perawatan, 
-		pr.jam_rawat, 
-		pr.suhu_tubuh, 
-		pr.tensi, 
-		pr.nadi, 
-		pr.respirasi, 
-		pr.tinggi, 
-		pr.berat, 
-		pr.spo2, 
-		pr.gcs, 
-		pr.kesadaran, 
-		pr.keluhan, 
-		pr.pemeriksaan, 
-		pr.alergi, 
-		pr.penilaian, 
-		pr.rtl, 
-		pr.instruksi, 
-		pr.evaluasi, 
-		pr.nip,
-		pg.nama
-	FROM pemeriksaan_ranap pr
-	JOIN pegawai pg ON pr.nip = pg.nik
-	WHERE pr.no_rawat = ?
-	ORDER BY pr.tgl_perawatan DESC, pr.jam_rawat DESC
+	SELECT
+		unioned_data.no_rawat,
+		DATE_FORMAT(unioned_data.tgl_perawatan, '%Y-%m-%d') as tgl_perawatan, 
+		unioned_data.jam_rawat,
+		unioned_data.suhu_tubuh, unioned_data.tensi, unioned_data.nadi, unioned_data.respirasi, 
+		unioned_data.tinggi, unioned_data.berat, unioned_data.spo2, unioned_data.gcs, 
+		unioned_data.kesadaran, unioned_data.keluhan, unioned_data.pemeriksaan, unioned_data.alergi, 
+		unioned_data.penilaian, unioned_data.rtl, unioned_data.instruksi, unioned_data.evaluasi, 
+		unioned_data.nip, unioned_data.nama,
+		unioned_data.sumber_data -- <-- Ambil kolom baru
+	FROM (
+		(
+			-- Bagian 1: Ambil dari Rawat Inap (ranap)
+			SELECT 
+				pr.no_rawat, pr.tgl_perawatan, pr.jam_rawat, 
+				pr.suhu_tubuh, pr.tensi, pr.nadi, pr.respirasi, pr.tinggi, pr.berat, 
+				pr.spo2, pr.gcs, pr.kesadaran, pr.keluhan, pr.pemeriksaan, pr.alergi, 
+				pr.penilaian, pr.rtl, pr.instruksi, pr.evaluasi, 
+				pr.nip, pg.nama,
+				'ranap' as sumber_data -- <-- Beri label 'ranap'
+			FROM pemeriksaan_ranap pr
+			JOIN pegawai pg ON pr.nip = pg.nik
+			WHERE pr.no_rawat = ?
+		)
+		UNION ALL
+		(
+			-- Bagian 2: Ambil dari Rawat Jalan (ralan)
+			SELECT 
+				pr.no_rawat, pr.tgl_perawatan, pr.jam_rawat, 
+				pr.suhu_tubuh, pr.tensi, pr.nadi, pr.respirasi, pr.tinggi, pr.berat, 
+				pr.spo2, pr.gcs, pr.kesadaran, pr.keluhan, pr.pemeriksaan, pr.alergi, 
+				pr.penilaian, pr.rtl, pr.instruksi, pr.evaluasi, 
+				pr.nip, pg.nama,
+				'ralan' as sumber_data -- <-- Beri label 'ralan'
+			FROM pemeriksaan_ralan pr
+			JOIN pegawai pg ON pr.nip = pg.nik
+			WHERE pr.no_rawat = ?
+		)
+	) as unioned_data
+	ORDER BY 
+		unioned_data.tgl_perawatan DESC,
+		unioned_data.jam_rawat DESC
 	`
-	err = r.db.Raw(query, noRawat).Scan(&historyList).Error
+
+	err = r.db.Raw(query, noRawat, noRawat).Scan(&historyList).Error
 	if err != nil {
 		return nil, err
 	}

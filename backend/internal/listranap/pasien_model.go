@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-// Main struct untuk response list pasien
+// ... (Struct PasienRawatInap, PasienListResponse, dll. tidak berubah) ...
 type PasienRawatInap struct {
 	NoRawat           string     `json:"no_rawat" gorm:"column:no_rawat"`
 	NoRKMMedis        string     `json:"no_rkm_medis" gorm:"column:no_rkm_medis"`
@@ -22,7 +22,6 @@ type PasienRawatInap struct {
 	CpptTerakhir      *time.Time `json:"cppt_terakhir,omitempty" gorm:"column:cppt_terakhir"`
 }
 
-// Response structure
 type PasienListResponse struct {
 	Status      string            `json:"status"`
 	Message     string            `json:"message"`
@@ -32,7 +31,6 @@ type PasienListResponse struct {
 	CpptSummary CpptSummary       `json:"cppt_summary"`
 }
 
-// Info dokter yang login
 type DokterInfo struct {
 	KodeDokter  string `json:"kd_dokter"`
 	NamaDokter  string `json:"nm_dokter"`
@@ -40,16 +38,14 @@ type DokterInfo struct {
 	TanggalList string `json:"tanggal_list"`
 }
 
-// CPPT Summary dengan 3 status
 type CpptSummary struct {
 	TotalPasien       int     `json:"total_pasien"`
-	SudahCpptHariIni  int     `json:"sudah_cppt_hari_ini"`  // "done"
-	BelumCpptHariIni  int     `json:"belum_cppt_hari_ini"`  // "pending"
-	PasienBaruHariIni int     `json:"pasien_baru_hari_ini"` // "new"
-	PersentaseCppt    float64 `json:"persentase_cppt"`      // Persentase (done / (done + pending))
+	SudahCpptHariIni  int     `json:"sudah_cppt_hari_ini"`
+	BelumCpptHariIni  int     `json:"belum_cppt_hari_ini"`
+	PasienBaruHariIni int     `json:"pasien_baru_hari_ini"`
+	PersentaseCppt    float64 `json:"persentase_cppt"`
 }
 
-// Dokter profile
 type DokterProfile struct {
 	KodeDokter   string `json:"kd_dokter" gorm:"column:kd_dokter"`
 	NamaDokter   string `json:"nm_dokter" gorm:"column:nm_dokter"`
@@ -63,13 +59,12 @@ type DokterProfileResponse struct {
 	Data    DokterProfile `json:"data"`
 }
 
-// Request filter untuk frontend
 type PasienFilterRequest struct {
-	Filter string `json:"filter" form:"filter"` // "all", "sudah_cppt", "belum_cppt", "pasien_baru"
+	Filter string `json:"filter" form:"filter"`
 }
 
 // ==========================================================
-// ✨ BARU: Struct untuk menampung riwayat CPPT
+// ✨ Struct CPPT History Diperbarui
 // ==========================================================
 type CpptHistory struct {
 	NoRawat      string `json:"no_rawat" gorm:"column:no_rawat"`
@@ -91,11 +86,13 @@ type CpptHistory struct {
 	Rtl          string `json:"rtl" gorm:"column:rtl"`
 	Instruksi    string `json:"instruksi" gorm:"column:instruksi"`
 	Evaluasi     string `json:"evaluasi" gorm:"column:evaluasi"`
-	Nip          string `json:"nip" gorm:"column:nip"`           // Ini adalah NIK
-	NamaPegawai  string `json:"nama_pegawai" gorm:"column:nama"` // Nama dari tabel pegawai
+	Nip          string `json:"nip" gorm:"column:nip"`
+	NamaPegawai  string `json:"nama_pegawai" gorm:"column:nama"`
+
+	// ✨ TAMBAHKAN FIELD INI
+	SumberData string `json:"sumber_data" gorm:"column:sumber_data"`
 }
 
-// BARU: Response untuk CpptHistory
 type CpptHistoryResponse struct {
 	Status  string        `json:"status"`
 	Message string        `json:"message"`
