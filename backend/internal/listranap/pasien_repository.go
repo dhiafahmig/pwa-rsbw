@@ -9,6 +9,8 @@ type PasienRepository interface {
 	GetPasienRawatInapByDokterWithCppt(kdDokter string, filter string) ([]PasienRawatInap, error)
 	GetPasienDetail(noRawat string, kdDokter string) (*PasienRawatInap, error)
 	GetDokterProfile(kdDokter string) (*DokterProfile, error)
+	// ✨ BARU: Tambahkan fungsi ini di interface
+	GetCpptHistory(noRawat string, kdDokter string) ([]CpptHistory, error)
 }
 
 type pasienRepository struct {
@@ -186,4 +188,60 @@ func (r *pasienRepository) GetDokterProfile(kdDokter string) (*DokterProfile, er
 	}
 
 	return &dokter, nil
+}
+
+// ==========================================================
+// ✨ BARU: Mengambil riwayat CPPT untuk satu pasien
+// ==========================================================
+func (r *pasienRepository) GetCpptHistory(noRawat string, kdDokter string) ([]CpptHistory, error) {
+	var historyList []CpptHistory
+
+	// 1. Verifikasi dulu apakah dokter ini adalah DPJP-nya
+	// Ini penting untuk keamanan agar dokter tidak bisa melihat CPPT pasien lain
+	var count int64
+	err := r.db.Table("dpjp_ranap").Where("no_rawat = ? AND kd_dokter = ?", noRawat, kdDokter).Count(&count).Error
+	if err != nil {
+		return nil, err
+	}
+	if count == 0 {
+		// Jika bukan DPJP, kembalikan error "tidak ditemukan"
+		return nil, gorm.ErrRecordNotFound
+	}
+
+	// 2. Jika terverifikasi sebagai DPJP, ambil riwayat CPPT
+	// (Nama kolom disesuaikan dengan permintaan Anda)
+	query := `
+	SELECT 
+		pr.no_rawat,
+		DATE_FORMAT(pr.tgl_perawatan, '%Y-%m-%d') as tgl_perawatan, 
+		pr.jam_rawat, 
+		pr.suhu_tubuh, 
+		pr.tensi, 
+		pr.nadi, 
+		pr.respirasi, 
+		pr.tinggi, 
+		pr.berat, 
+		pr.spo2, 
+		pr.gcs, 
+		pr.kesadaran, 
+		pr.keluhan, 
+		pr.pemeriksaan, 
+		pr.alergi, 
+		pr.penilaian, 
+		pr.rtl, 
+		pr.instruksi, 
+		pr.evaluasi, 
+		pr.nip,
+		pg.nama
+	FROM pemeriksaan_ranap pr
+	JOIN pegawai pg ON pr.nip = pg.nik
+	WHERE pr.no_rawat = ?
+	ORDER BY pr.tgl_perawatan DESC, pr.jam_rawat DESC
+	`
+	err = r.db.Raw(query, noRawat).Scan(&historyList).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return historyList, nil
 }

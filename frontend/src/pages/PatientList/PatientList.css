@@ -281,11 +281,10 @@
 
 /* ===== PATIENT TABLE - FIXED HEADERS ===== */
 
-/* ✅ PERBAIKAN: Kontainer ini HARUS memiliki scroll horizontal DAN vertikal */
 .table-container {
-  overflow-x: auto; /* Ini mengaktifkan scroll horizontal */
-  overflow-y: auto; /* Ini mengaktifkan scroll vertikal */
-  max-height: 70vh; /* Ini membatasi tinggi tabel & memicu scroll-y */
+  overflow-x: auto; 
+  overflow-y: auto; 
+  max-height: 70vh; 
   -webkit-overflow-scrolling: touch;
 }
 
@@ -309,8 +308,8 @@
   letter-spacing: 0.5px;
   white-space: nowrap;
   vertical-align: middle;
-  position: sticky; /* Ini akan menempelkan header */
-  top: 0; /* Menempel di atas .table-container */
+  position: sticky; 
+  top: 0; 
   z-index: 10;
 }
 
@@ -495,6 +494,11 @@
 .patient-table tbody tr.cppt-pending {
   background: #ffffff !important; 
   border-left: 4px solid #f59e0b; 
+}
+
+/* Efek hover untuk semua baris tabel */
+.patient-table tbody tr:hover {
+  background-color: #f0fdf4 !important; /* Warna hijau muda saat hover */
 }
 
 
@@ -786,4 +790,212 @@
   .patient-table {
     min-width: auto !important;
   }
+}
+
+
+/* =======================================
+   ✨✨ STYLE MODAL CPPT BARU ✨✨
+======================================= */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modal-content {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 800px; /* Lebar modal */
+  max-height: 90vh; /* Tinggi modal */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+
+/* ===== MODAL HEADER ===== */
+.modal-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9fafb;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #166534; /* Warna hijau tua */
+}
+
+.modal-close-button {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  line-height: 1;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.modal-close-button:hover {
+  color: #1f2937;
+}
+
+/* Info Pasien di bawah Header Modal */
+.modal-patient-info {
+  padding: 12px 24px;
+  background: #f0fdf4; /* Hijau sangat muda */
+  border-bottom: 1px solid #dcfce7;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.modal-patient-info strong {
+  font-size: 1rem;
+  color: #047857; /* Hijau */
+  font-weight: 600;
+}
+
+.modal-patient-info span {
+  font-size: 0.875rem;
+  color: #374151;
+  background: #dcfce7;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+}
+
+/* ===== MODAL BODY ===== */
+.modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  background: #fdfdfd;
+  flex: 1; /* Agar body mengisi sisa ruang */
+  min-height: 300px; /* Tinggi minimal body */
+}
+
+/* Style untuk Loading Spinner di dalam Modal */
+.modal-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px; /* Sama dengan min-height body */
+  width: 100%;
+}
+
+/* Style untuk Riwayat Kosong */
+.history-empty {
+  text-align: center;
+  color: #6b7280;
+  padding-top: 50px;
+}
+
+.history-empty .empty-icon {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 16px;
+}
+
+/* Style untuk Daftar Riwayat CPPT */
+.cppt-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cppt-history-item {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.cppt-item-header {
+  padding: 12px 16px;
+  background: #f9fafb;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.cppt-item-header strong {
+  color: #1f2937;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.cppt-item-header span {
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.cppt-item-body {
+  padding: 16px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: #374151;
+}
+
+.cppt-item-body pre {
+  white-space: pre-wrap; /* Agar teks SOAP tidak meluber */
+  word-wrap: break-word;
+  font-family: inherit; /* Pakai font default halaman */
+  margin: 0;
+}
+
+/* ===== MODAL FOOTER ===== */
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  display: flex;
+  justify-content: flex-end; /* Tombol di kanan */
+}
+
+.modal-close-button-footer {
+  background: #6b7280;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.9rem;
+  transition: background 0.2s ease;
+}
+
+.modal-close-button-footer:hover {
+  background: #4b5563;
 }

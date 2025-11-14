@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'; 
 import { patientService } from '../../services/patient'; 
 import './PatientList.css';
+import CpptHistoryModal from '../../components/CpptHistoryModal/CpptHistoryModal'; // Import Modal
 
 const PatientList = () => {
   // ===== STATE MANAGEMENT =====
@@ -18,9 +19,13 @@ const PatientList = () => {
   });
   
   const [currentFilter, setCurrentFilter] = useState('all');
-
-  // Ref ini akan menyimpan nilai 'currentFilter' yang terbaru
   const filterRef = useRef(currentFilter);
+
+  // State baru untuk Modal
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [cpptHistory, setCpptHistory] = useState([]);
+  const [isModalLoading, setIsModalLoading] = useState(false);
 
   // ===== UTILITY FUNCTIONS =====
   const formatDate = (dateString) => {
@@ -74,16 +79,16 @@ const PatientList = () => {
           pasien_baru_hari_ini: 0,
         };
         
-        if (filter === 'all' || showLoadingState) {
-          setStats({
-            total_pasien: summary.total_pasien,
-            pasien_aktif: summary.total_pasien,
-            pasien_baru_hari_ini: summary.pasien_baru_hari_ini,
-            cppt_done_today: summary.sudah_cppt_hari_ini,
-            cppt_pending_today: summary.belum_cppt_hari_ini
-          });
-          console.log('📊 Dashboard Stats Updated:', summary);
-        }
+        // Selalu update stats, tidak peduli filter, agar angkanya konsisten
+        // terutama jika kita memanggil 'all' untuk summary di backend
+        setStats({
+          total_pasien: summary.total_pasien,
+          pasien_aktif: summary.total_pasien,
+          pasien_baru_hari_ini: summary.pasien_baru_hari_ini,
+          cppt_done_today: summary.sudah_cppt_hari_ini,
+          cppt_pending_today: summary.belum_cppt_hari_ini
+        });
+        console.log('📊 Dashboard Stats Updated:', summary);
         
       } else {
         setError(result.message || 'Gagal mengambil data pasien');
@@ -105,28 +110,27 @@ const PatientList = () => {
     }
   };
 
+  // ===== COMPONENT LIFECYCLE =====
+
+  // Efek untuk mensinkronkan state filter ke ref (untuk interval)
   useEffect(() => {
     filterRef.current = currentFilter;
-  }, [currentFilter]); // Efek ini jalan setiap kali 'currentFilter' berubah
+  }, [currentFilter]); 
 
+  // Efek untuk load data awal dan setup interval auto-refresh
   useEffect(() => {
-    // Ambil data "all" saat pertama kali load
     fetchPatients('all', true);
     
-    // Fungsi yang akan dijalankan oleh interval
     const autoRefresh = () => {
-      // Selalu BACA nilai TERBARU dari ref
       console.log(`🔄 Auto refresh data (filter: ${filterRef.current})...`);
-      fetchPatients(filterRef.current, false); 
+      fetchPatients(filterRef.current, false); // Ambil data dengan filter saat ini
     };
 
-    // Set SATU interval
     const intervalId = setInterval(autoRefresh, 5 * 60 * 1000); // 5 menit
 
-    // Cleanup function: Hapus interval saat komponen unmount
-    return () => clearInterval(intervalId);
+    return () => clearInterval(intervalId); // Hapus interval saat komponen unmount
     
-  }, []); 
+  }, []); // Hanya jalan sekali saat komponen mount
 
   // ===== EVENT HANDLERS =====
   const handleRefresh = () => {
@@ -135,13 +139,36 @@ const PatientList = () => {
   };
   
   const handleFilterChange = (newFilter) => {
-    if (loading || refreshing) return; 
-    fetchPatients(newFilter, true); 
+    if (loading || refreshing) return; // Cegah klik ganda
+    fetchPatients(newFilter, true); // Panggil API dengan filter baru
   };
 
   const handleBack = () => { window.history.back(); };
   
   const handleCloseError = () => { setError(null); };
+
+  // Fungsi untuk menangani klik baris tabel
+  const handleRowClick = async (patient) => {
+    setSelectedPatient(patient); // Simpan data pasien yang diklik
+    setIsModalOpen(true); // Buka modal
+    setIsModalLoading(true); // Tampilkan spinner loading di modal
+    setCpptHistory([]); // Kosongkan riwayat lama
+
+    try {
+      // Panggil service API
+      const result = await patientService.getCpptHistory(patient.no_rawat);
+      if (result.success) {
+        setCpptHistory(result.data || []); // Isi state dengan data riwayat
+      } else {
+        setCpptHistory([]); // Tetap array kosong jika ada error API
+      }
+    } catch (error) {
+      console.error("Gagal mengambil riwayat CPPT:", error);
+      setCpptHistory([]);
+    } finally {
+      setIsModalLoading(false); // Sembunyikan spinner loading
+    }
+  };
 
   // Helper untuk warna baris
   const getRowClass = (cpptStatus) => {
@@ -176,9 +203,7 @@ const PatientList = () => {
       {/* ===== HEADER SECTION ===== */}
       <header className="patient-header">
         <div className="header-content">
-          
           <div className="header-left">
-            
             <div className="header-controls">
               <img 
                 src="/images/logo/rs.png" 
@@ -188,7 +213,6 @@ const PatientList = () => {
                 title="Kembali ke halaman sebelumnya"
               />
             </div>
-            
             <div className="header-info">
               <h1 className="page-title">Data Pasien Rawat Inap</h1>
               <p className="page-subtitle">
@@ -197,10 +221,7 @@ const PatientList = () => {
                 })}
               </p>
             </div>
-            
           </div>
-          {/* ⛔ TOMBOL LOGOUT (header-right) SUDAH DIHAPUS */}
-
         </div>
       </header>
 
@@ -208,7 +229,6 @@ const PatientList = () => {
       <main className="patient-main">
         <div className="patient-container">
           
-          {/* ===== ERROR BANNER ===== */}
           {error && (
             <div className="error-banner">
               <div className="error-icon">⚠️</div>
@@ -223,7 +243,6 @@ const PatientList = () => {
             </div>
           )}
 
-          {/* ===== SUMMARY CARDS ===== */}
           <div className="summary-cards">
             <div className="summary-card">
               <div className="summary-icon">👥</div>
@@ -295,7 +314,6 @@ const PatientList = () => {
               </div>
             </div>
 
-            {/* ===== CPPT LEGEND / FILTERS ===== */}
             <div className="cppt-legend">
               <div className="legend-item" onClick={() => handleFilterChange('all')} title="Tampilkan semua pasien">
                 <div className="legend-color" style={{background: '#9ca3af', border: currentFilter === 'all' ? '2px solid #1f2937' : '2px solid #fff'}}></div>
@@ -355,6 +373,9 @@ const PatientList = () => {
                         <tr 
                           key={patient.no_rawat || `patient-${index}`}
                           className={getRowClass(cpptStatus)}
+                              // ✅ Tambahkan onClick dan style
+                              onClick={() => handleRowClick(patient)}
+                              style={{ cursor: 'pointer' }}
                         >
                           <td className="no-urut">{index + 1}</td>
                           <td className="no-rawat">{patient.no_rawat || '-'}</td>
@@ -428,6 +449,15 @@ const PatientList = () => {
           </div>
         </div>
       </main>
+
+      {/* ✅ Render Modal di sini */}
+      <CpptHistoryModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        patient={selectedPatient}
+        history={cpptHistory}
+        loading={isModalLoading}
+      />
     </div>
   );
 };

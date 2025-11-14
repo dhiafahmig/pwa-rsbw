@@ -117,7 +117,12 @@ func main() {
 		{
 			ranapRoutes.GET("/profile", listRanapHandler.GetDokterProfile)
 			ranapRoutes.GET("/pasien", listRanapHandler.GetPasienRawatInapAktif)
-			ranapRoutes.GET("/pasien/:no_rat", listRanapHandler.GetPasienDetail)
+
+			// ✨ DIUBAH: Menggunakan path /detail/ dan parameter * (catch-all)
+			ranapRoutes.GET("/pasien/detail/*no_rawat", listRanapHandler.GetPasienDetail)
+
+			// ✨ DIUBAH: Menggunakan path /cppt/ dan parameter * (catch-all)
+			ranapRoutes.GET("/pasien/cppt/*no_rawat", listRanapHandler.GetCpptHistory)
 		}
 	}
 	// --- AKHIR DARI ROUTING ---

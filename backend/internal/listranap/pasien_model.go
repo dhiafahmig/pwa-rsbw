@@ -67,3 +67,37 @@ type DokterProfileResponse struct {
 type PasienFilterRequest struct {
 	Filter string `json:"filter" form:"filter"` // "all", "sudah_cppt", "belum_cppt", "pasien_baru"
 }
+
+// ==========================================================
+// ✨ BARU: Struct untuk menampung riwayat CPPT
+// ==========================================================
+type CpptHistory struct {
+	NoRawat      string `json:"no_rawat" gorm:"column:no_rawat"`
+	TglPerawatan string `json:"tgl_perawatan" gorm:"column:tgl_perawatan"`
+	JamRawat     string `json:"jam_rawat" gorm:"column:jam_rawat"`
+	SuhuTubuh    string `json:"suhu_tubuh" gorm:"column:suhu_tubuh"`
+	Tensi        string `json:"tensi" gorm:"column:tensi"`
+	Nadi         string `json:"nadi" gorm:"column:nadi"`
+	Respirasi    string `json:"respirasi" gorm:"column:respirasi"`
+	Tinggi       string `json:"tinggi" gorm:"column:tinggi"`
+	Berat        string `json:"berat" gorm:"column:berat"`
+	Spo2         string `json:"spo2" gorm:"column:spo2"`
+	Gcs          string `json:"gcs" gorm:"column:gcs"`
+	Kesadaran    string `json:"kesadaran" gorm:"column:kesadaran"`
+	Keluhan      string `json:"keluhan" gorm:"column:keluhan"`
+	Pemeriksaan  string `json:"pemeriksaan" gorm:"column:pemeriksaan"`
+	Alergi       string `json:"alergi" gorm:"column:alergi"`
+	Penilaian    string `json:"penilaian" gorm:"column:penilaian"`
+	Rtl          string `json:"rtl" gorm:"column:rtl"`
+	Instruksi    string `json:"instruksi" gorm:"column:instruksi"`
+	Evaluasi     string `json:"evaluasi" gorm:"column:evaluasi"`
+	Nip          string `json:"nip" gorm:"column:nip"`           // Ini adalah NIK
+	NamaPegawai  string `json:"nama_pegawai" gorm:"column:nama"` // Nama dari tabel pegawai
+}
+
+// BARU: Response untuk CpptHistory
+type CpptHistoryResponse struct {
+	Status  string        `json:"status"`
+	Message string        `json:"message"`
+	Data    []CpptHistory `json:"data"`
+}

@@ -3,6 +3,8 @@ package listranap
 import (
 	"fmt"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type PasienService interface {
@@ -10,6 +12,8 @@ type PasienService interface {
 	GetPasienAktifByDokterWithFilter(kdDokter string, filter string) (*PasienListResponse, error)
 	GetDetailPasien(noRawat string, kdDokter string) (*PasienRawatInap, error)
 	GetDokterProfile(kdDokter string) (*DokterProfileResponse, error)
+	// ✨ BARU: Tambahkan fungsi ini di interface
+	GetCpptHistory(noRawat string, kdDokter string) (*CpptHistoryResponse, error)
 }
 
 type pasienService struct {
@@ -148,5 +152,36 @@ func (s *pasienService) GetDokterProfile(kdDokter string) (*DokterProfileRespons
 		Status:  "success",
 		Message: "Doctor profile retrieved successfully",
 		Data:    *dokter,
+	}, nil
+}
+
+// ==========================================================
+// ✨ BARU: Mengambil riwayat CPPT
+// ==========================================================
+func (s *pasienService) GetCpptHistory(noRawat string, kdDokter string) (*CpptHistoryResponse, error) {
+	fmt.Printf("🔍 Getting CPPT history for: %s (Doctor: %s)\n", noRawat, kdDokter)
+
+	historyList, err := s.pasienRepo.GetCpptHistory(noRawat, kdDokter)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			fmt.Printf("❌ CPPT not found or not DPJP for: %s\n", noRawat)
+			// Beri pesan error yang jelas untuk frontend
+			return nil, fmt.Errorf("riwayat pasien tidak ditemukan atau Anda bukan DPJP yang ditunjuk")
+		}
+		fmt.Printf("❌ Error getting CPPT history: %v\n", err)
+		return nil, err
+	}
+
+	message := fmt.Sprintf("Berhasil mengambil %d data CPPT", len(historyList))
+	if len(historyList) == 0 {
+		message = "Belum ada riwayat CPPT untuk pasien ini"
+	}
+	fmt.Printf("✅ %s\n", message)
+
+	// Kembalikan response yang sesuai dengan frontend
+	return &CpptHistoryResponse{
+		Status:  "success",
+		Message: message,
+		Data:    historyList,
 	}, nil
 }
